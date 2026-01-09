@@ -1,15 +1,7 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { ReactNode } from 'react'
+import React from 'react'
+import './globals.css'
 
-export const metadata: Metadata = {
-  title: "Toby's Highland Tours",
-  description: "Website",
-};
-
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
+export default function SiteLayout({ children }: { children: ReactNode }) {
+  return <>{children}</>
 }
