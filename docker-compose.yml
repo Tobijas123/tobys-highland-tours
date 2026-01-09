@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16
+    container_name: toby_tours_db
+    environment:
+      POSTGRES_DB: tobys_tours
+      POSTGRES_USER: tobys
+      POSTGRES_PASSWORD: tobys_dev_password
+    ports:
+      - "5434:5432"
+    volumes:
+      - tobys_tours_pgdata:/var/lib/postgresql/data
+volumes:
+  tobys_tours_pgdata:
