@@ -77,9 +77,7 @@ export default async function ToursPage() {
                     style={{
                       width: '100%',
                       aspectRatio: '16/9',
-                      background: 'rgba(15,23,42,.04)',
-                      borderBottom: '1px solid var(--border)',
-                      overflow: 'hidden',
+                      background: 'rgba(11,31,58,.04)',
                     }}
                   >
                     {imgUrl ? (
@@ -96,29 +94,28 @@ export default async function ToursPage() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontWeight: 800,
-                          opacity: 0.8,
+                          opacity: 0.6,
                         }}
                       >
-                        Image
+                        No image
                       </div>
                     )}
                   </div>
 
-                  <div style={{ padding: 14 }}>
-                    <div style={{ fontSize: 18, fontWeight: 950, marginBottom: 6 }}>
+                  <div style={{ padding: 16 }}>
+                    <div className="titlePremium" style={{ fontSize: 18, marginBottom: 6 }}>
                       {t.title ?? 'Tour'}
                     </div>
 
-                    <div style={{ fontSize: 13, opacity: 0.82, lineHeight: 1.4, minHeight: 36 }}>
+                    <div className="muted" style={{ fontSize: 13, lineHeight: 1.45, minHeight: 36 }}>
                       {t.shortDescription ?? 'No short description yet.'}
                     </div>
 
-                    <div style={{ display: 'flex', gap: 10, marginTop: 12, flexWrap: 'wrap' }}>
-                      <span className="badge badgeMoss" style={{ fontWeight: 900 }}>
+                    <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+                      <span className="badge badgeMoss">
                         {typeof t.durationHours === 'number' ? `${t.durationHours}h` : '—'}
                       </span>
-
-                      <span className="badge badgeGold" style={{ fontWeight: 900 }}>
+                      <span className="badge badgeGold">
                         {typeof t.priceFrom === 'number' ? `from £${t.priceFrom}` : 'price —'}
                       </span>
                     </div>

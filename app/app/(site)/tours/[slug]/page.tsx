@@ -98,21 +98,17 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
             </a>
           </p>
 
-          <h1 style={{ fontSize: 40, fontWeight: 900, marginBottom: 18 }}>{tour.title}</h1>
+          <h1 className="titlePremium" style={{ fontSize: 38, marginBottom: 20 }}>{tour.title}</h1>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: 22 }}>
           {/* LEFT: image + description */}
-          <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div className="card" style={{ padding: 0 }}>
             <div
+              className="tourMedia"
               style={{
                 width: '100%',
                 aspectRatio: '16/9',
-                overflow: 'hidden',
-                borderBottom: '1px solid rgba(11,31,58,.10)',
                 background: 'rgba(11,31,58,.04)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
               }}
             >
               {imgUrl ? (
@@ -122,25 +118,27 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
-                <div style={{ fontWeight: 900 }}>No image</div>
+                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, opacity: 0.5 }}>
+                  No image
+                </div>
               )}
             </div>
 
-            <div style={{ padding: 18 }}>
-              <div style={{ fontSize: 15, lineHeight: 1.65, opacity: 0.9 }}>
+            <div style={{ padding: 20 }}>
+              <div className="prose" style={{ fontSize: 15 }}>
                 {longText ? (
-                  <div style={{ whiteSpace: 'pre-wrap' }}>{longText}</div>
+                  <p style={{ whiteSpace: 'pre-wrap' }}>{longText}</p>
                 ) : tour.shortDescription ? (
-                  <div>{tour.shortDescription}</div>
+                  <p>{tour.shortDescription}</p>
                 ) : (
-                  <div>No description yet.</div>
+                  <p className="muted">No description yet.</p>
                 )}
               </div>
 
               {tour.highlights && tour.highlights.length > 0 ? (
-                <div style={{ marginTop: 18 }}>
-                  <div style={{ fontWeight: 900, marginBottom: 8 }}>Highlights</div>
-                  <ul style={{ margin: 0, paddingLeft: 18, display: 'grid', gap: 6 }}>
+                <div style={{ marginTop: 20 }}>
+                  <h2 className="titlePremium" style={{ fontSize: 16, marginBottom: 10 }}>Highlights</h2>
+                  <ul className="prose" style={{ display: 'grid', gap: 6 }}>
                     {tour.highlights.map((h, idx) => (
                       <li key={idx}>{h.text}</li>
                     ))}
