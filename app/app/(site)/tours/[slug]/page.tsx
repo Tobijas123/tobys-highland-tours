@@ -51,6 +51,8 @@ type Tour = {
   longDescription?: any
   heroImage?: MediaDoc | null
   priceFrom?: number
+  price1to3?: number
+  price4to7?: number
   durationHours?: number
   highlights?: { text: string }[]
 }
@@ -160,7 +162,8 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
           >
             <BookingSidebarClient
               tourTitle={tour.title ?? 'Tour'}
-              priceText={typeof tour.priceFrom === 'number' ? `£${tour.priceFrom}` : '—'}
+              price1to3={typeof tour.price1to3 === 'number' ? tour.price1to3 : null}
+              price4to7={typeof tour.price4to7 === 'number' ? tour.price4to7 : null}
               durationText={typeof tour.durationHours === 'number' ? `${tour.durationHours} hours` : '—'}
             />
           </aside>

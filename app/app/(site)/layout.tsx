@@ -95,6 +95,80 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             background: rgba(39,85,72,.10);
           }
 
+          /* Price pills for dual-tier pricing */
+          .priceGrid{
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+          }
+          .pricePill{
+            flex: 1;
+            min-width: 90px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+            border: 1px solid rgba(11,31,58,.18);
+            background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.85));
+            box-shadow: 0 2px 6px rgba(11,31,58,.06);
+          }
+          .pricePill .label{
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            opacity: 0.7;
+            margin-bottom: 2px;
+          }
+          .pricePill .price{
+            display: block;
+            font-size: 14px;
+            font-weight: 950;
+            color: var(--navy);
+          }
+          .pricePillGold{
+            border-color: rgba(201,162,39,.40);
+            background: linear-gradient(180deg, rgba(201,162,39,.12), rgba(255,255,255,.92));
+          }
+          .pricePillMoss{
+            border-color: rgba(39,85,72,.38);
+            background: linear-gradient(180deg, rgba(39,85,72,.10), rgba(255,255,255,.92));
+          }
+
+          /* Party size selector */
+          .partySizeGrid{
+            display: flex;
+            gap: 6px;
+            margin: 10px 0;
+          }
+          .partySizeBtn{
+            flex: 1;
+            padding: 10px 8px;
+            border-radius: 10px;
+            border: 1px solid rgba(11,31,58,.18);
+            background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.85));
+            font-size: 11px;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+          }
+          .partySizeBtn:hover{
+            border-color: rgba(91,75,138,.38);
+          }
+          .partySizeBtn.active{
+            border-color: var(--navy);
+            background: linear-gradient(180deg, rgba(7,26,52,.08), rgba(255,255,255,.95));
+            box-shadow: 0 0 0 2px rgba(7,26,52,.12);
+          }
+          .partySizeBtn .count{
+            display: block;
+            font-size: 16px;
+            font-weight: 950;
+            color: var(--navy);
+          }
+
           .tourCard{ overflow:hidden; }
 
           .tourMedia{

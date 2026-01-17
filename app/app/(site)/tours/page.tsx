@@ -18,6 +18,8 @@ type Tour = {
   shortDescription?: string
   heroImage?: MediaDoc | null
   priceFrom?: number
+  price1to3?: number
+  price4to7?: number
   durationHours?: number
 }
 
@@ -111,13 +113,24 @@ export default async function ToursPage() {
                       {t.shortDescription ?? 'No short description yet.'}
                     </div>
 
-                    <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                       <span className="badge badgeMoss">
                         {typeof t.durationHours === 'number' ? `${t.durationHours}h` : '—'}
                       </span>
-                      <span className="badge badgeGold">
-                        {typeof t.priceFrom === 'number' ? `from £${t.priceFrom}` : 'price —'}
-                      </span>
+                    </div>
+                    <div className="priceGrid">
+                      <div className="pricePill pricePillGold">
+                        <span className="label">1–3 people</span>
+                        <span className="price">
+                          {typeof t.price1to3 === 'number' ? `£${t.price1to3}` : '—'}
+                        </span>
+                      </div>
+                      <div className="pricePill pricePillMoss">
+                        <span className="label">4–7 people</span>
+                        <span className="price">
+                          {typeof t.price4to7 === 'number' ? `£${t.price4to7}` : '—'}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </a>
