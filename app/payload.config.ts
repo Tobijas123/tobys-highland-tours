@@ -5,13 +5,17 @@ import { fileURLToPath } from 'url'
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import Tours from './collections/Tours'
+import Media from './collections/Media'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
 export default buildConfig({
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
   
   email: nodemailerAdapter({
+    skipVerify: true,
     defaultFromAddress: process.env.MAIL_FROM_ADDRESS as string,
     defaultFromName: process.env.MAIL_FROM_NAME as string,
     transportOptions: {
@@ -35,11 +39,15 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
   editor: lexicalEditor(),
 
   collections: [
-    {
+    
+{
       slug: 'users',
       auth: true,
       fields: [],
     },
+     Media,
+     Tours,
+
   ],
 
   admin: {
