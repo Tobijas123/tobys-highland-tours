@@ -12,10 +12,22 @@ const Bookings: CollectionConfig = {
 
   admin: {
     useAsTitle: 'customerEmail',
-    defaultColumns: ['createdAt', 'tour', 'date', 'partySize', 'status', 'customerEmail'],
+    defaultColumns: ['type', 'tour', 'transfer', 'date', 'status', 'customerEmail'],
   },
 
   hooks: {
+    beforeValidate: [
+      ({ data }) => {
+        if (!data) return data
+        // Enforce consistency: type must match relationship
+        if (data.type === 'tour') {
+          data.transfer = null
+        } else if (data.type === 'transfer') {
+          data.tour = null
+        }
+        return data
+      },
+    ],
     afterChange: [
       async ({ doc, previousDoc, req, operation }) => {
         if (operation !== 'update') return doc
@@ -24,15 +36,31 @@ const Bookings: CollectionConfig = {
         const newStatus = doc.status
         if (newStatus !== 'confirmed' && newStatus !== 'cancelled') return doc
 
-        let tourTitle = 'Tour'
-        if (doc.tour) {
+        // Determine type and title
+        const bookingType = doc.type || 'tour'
+        const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
+        let itemTitle = typeLabel
+
+        if (bookingType === 'tour' && doc.tour) {
           const tourDoc = typeof doc.tour === 'object' ? doc.tour : null
           if (tourDoc?.title) {
-            tourTitle = tourDoc.title
+            itemTitle = tourDoc.title
           } else if (typeof doc.tour === 'number') {
             try {
               const fetched = await req.payload.findByID({ collection: 'tours', id: doc.tour })
-              tourTitle = fetched?.title || 'Tour'
+              itemTitle = fetched?.title || 'Tour'
+            } catch {
+              // ignore
+            }
+          }
+        } else if (bookingType === 'transfer' && doc.transfer) {
+          const transferDoc = typeof doc.transfer === 'object' ? doc.transfer : null
+          if (transferDoc?.title) {
+            itemTitle = transferDoc.title
+          } else if (typeof doc.transfer === 'number') {
+            try {
+              const fetched = await req.payload.findByID({ collection: 'transfers', id: doc.transfer })
+              itemTitle = fetched?.title || 'Transfer'
             } catch {
               // ignore
             }
@@ -40,17 +68,17 @@ const Bookings: CollectionConfig = {
         }
 
         const partyLabel = doc.partySize === '1-3' ? '1–3 people' : '4–7 people'
-        const phoneInfo = doc.customerPhone ? `<li><strong>Phone:</strong> ${doc.customerPhone}</li>` : ''
 
         if (newStatus === 'confirmed') {
-          const subject = `Booking Confirmed – ${tourTitle} on ${doc.date}`
+          const subject = `Booking Confirmed – ${itemTitle} on ${doc.date}`
           const html = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #071a34;">Booking Confirmed!</h2>
               <p>Hi ${doc.customerName},</p>
               <p>Great news! Your booking has been <strong>confirmed</strong>:</p>
               <table style="border-collapse: collapse; width: 100%; margin: 16px 0;">
-                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Tour</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${tourTitle}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Type</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${typeLabel}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${typeLabel}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${itemTitle}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Date</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.date}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Party size</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${partyLabel}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Status</strong></td><td style="padding: 8px; border: 1px solid #ddd; color: #275548; font-weight: bold;">Confirmed</td></tr>
@@ -60,7 +88,6 @@ const Bookings: CollectionConfig = {
               <p style="margin-top: 24px;">Cheers,<br/><strong>Toby's Highland Tours</strong></p>
             </div>
           `
-          // Preview log
           console.log('[EMAIL PREVIEW] To:', doc.customerEmail, '| Subject:', subject)
 
           try {
@@ -72,14 +99,15 @@ const Bookings: CollectionConfig = {
         }
 
         if (newStatus === 'cancelled') {
-          const subject = `Booking Cancelled – ${tourTitle}`
+          const subject = `Booking Cancelled – ${itemTitle}`
           const html = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <h2 style="color: #071a34;">Booking Cancelled</h2>
               <p>Hi ${doc.customerName},</p>
               <p>We're sorry to inform you that your booking has been <strong>cancelled</strong>:</p>
               <table style="border-collapse: collapse; width: 100%; margin: 16px 0;">
-                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Tour</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${tourTitle}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Type</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${typeLabel}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${typeLabel}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${itemTitle}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Date</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.date}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Party size</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${partyLabel}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Status</strong></td><td style="padding: 8px; border: 1px solid #ddd; color: #a33; font-weight: bold;">Cancelled</td></tr>
@@ -88,7 +116,6 @@ const Bookings: CollectionConfig = {
               <p style="margin-top: 24px;">Cheers,<br/><strong>Toby's Highland Tours</strong></p>
             </div>
           `
-          // Preview log
           console.log('[EMAIL PREVIEW] To:', doc.customerEmail, '| Subject:', subject)
 
           try {
@@ -106,10 +133,33 @@ const Bookings: CollectionConfig = {
 
   fields: [
     {
+      name: 'type',
+      type: 'select',
+      required: true,
+      defaultValue: 'tour',
+      options: [
+        { label: 'Tour', value: 'tour' },
+        { label: 'Transfer', value: 'transfer' },
+      ],
+      admin: { position: 'sidebar' },
+    },
+    {
       name: 'tour',
       type: 'relationship',
       relationTo: 'tours',
-      required: true,
+      required: false,
+      admin: {
+        condition: (data) => data?.type === 'tour',
+      },
+    },
+    {
+      name: 'transfer',
+      type: 'relationship',
+      relationTo: 'transfers',
+      required: false,
+      admin: {
+        condition: (data) => data?.type === 'transfer',
+      },
     },
     {
       name: 'date',

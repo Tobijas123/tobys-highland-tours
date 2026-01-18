@@ -170,8 +170,9 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
             }}
           >
             <BookingSidebarClient
-              tourId={typeof transfer.id === 'number' ? transfer.id : Number(transfer.id)}
-              tourTitle={transfer.title ?? 'Transfer'}
+              itemType="transfer"
+              itemId={typeof transfer.id === 'number' ? transfer.id : Number(transfer.id)}
+              itemTitle={transfer.title ?? 'Transfer'}
               price1to3={typeof transfer.price1to3 === 'number' ? transfer.price1to3 : null}
               price4to7={typeof transfer.price4to7 === 'number' ? transfer.price4to7 : null}
               durationText={transfer.durationText ?? '—'}

@@ -4,10 +4,12 @@ import { useMemo, useState } from 'react'
 import BookingCalendar from './BookingCalendar'
 
 type PartySize = '1-3' | '4-7'
+type ItemType = 'tour' | 'transfer'
 
 type Props = {
-  tourId: number
-  tourTitle: string
+  itemType: ItemType
+  itemId: number
+  itemTitle: string
   price1to3: number | null
   price4to7: number | null
   durationText: string
@@ -15,7 +17,7 @@ type Props = {
 
 const BOOKING_EMAIL = 'info@tobyshighlandtours.com'
 
-export default function BookingSidebarClient({ tourId, tourTitle, price1to3, price4to7, durationText }: Props) {
+export default function BookingSidebarClient({ itemType, itemId, itemTitle, price1to3, price4to7, durationText }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
   const [partySize, setPartySize] = useState<PartySize | null>(null)
   const [customerName, setCustomerName] = useState('')
@@ -27,15 +29,17 @@ export default function BookingSidebarClient({ tourId, tourTitle, price1to3, pri
   const [copied, setCopied] = useState(false)
 
   const currentPrice = partySize === '1-3' ? price1to3 : partySize === '4-7' ? price4to7 : null
+  const typeLabel = itemType === 'tour' ? 'Tour' : 'Transfer'
 
   const { gmail, mailto, subject, bodyText } = useMemo(() => {
-    const subjectText = `Booking request – ${tourTitle}`
+    const subjectText = `Booking request – ${itemTitle}`
     const partySizeLabel = partySize === '1-3' ? '1–3 people' : partySize === '4-7' ? '4–7 people' : 'TBD'
     const priceLabel = currentPrice !== null ? `£${currentPrice}` : 'TBD'
     const body = `Hi Toby,
 
 I'd like to request a booking for:
-- Tour: ${tourTitle}
+- Type: ${typeLabel}
+- ${typeLabel}: ${itemTitle}
 - Date: ${selected ?? 'TBD'}
 - Party size: ${partySizeLabel}
 - Price tier: ${priceLabel}
@@ -56,7 +60,7 @@ Thanks!`
     )}&body=${encodeURIComponent(body)}`
 
     return { gmail: gmailHref, mailto: mailtoHref, subject: subjectText, bodyText: body }
-  }, [tourTitle, selected, partySize, currentPrice, customerName, customerEmail, customerPhone])
+  }, [itemTitle, itemType, typeLabel, selected, partySize, currentPrice, customerName, customerEmail, customerPhone])
 
   async function copyToClipboard() {
     try {
@@ -75,17 +79,25 @@ Thanks!`
     setError(null)
 
     try {
+      const payload: Record<string, any> = {
+        date: selected,
+        partySize,
+        customerName: customerName.trim(),
+        customerEmail: customerEmail.trim(),
+        customerPhone: customerPhone.trim() || undefined,
+      }
+
+      // Send tourId or transferId based on itemType
+      if (itemType === 'tour') {
+        payload.tourId = itemId
+      } else {
+        payload.transferId = itemId
+      }
+
       const res = await fetch('/api/public/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tourId,
-          date: selected,
-          partySize,
-          customerName: customerName.trim(),
-          customerEmail: customerEmail.trim(),
-          customerPhone: customerPhone.trim() || undefined,
-        }),
+        body: JSON.stringify(payload),
       })
 
       const data = await res.json()
@@ -112,7 +124,7 @@ Thanks!`
           <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
           <div style={{ fontSize: 16, fontWeight: 900, marginBottom: 8 }}>Request Sent!</div>
           <div style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.5 }}>
-            We've received your booking request for <strong>{tourTitle}</strong> on <strong>{selected}</strong>.
+            We've received your booking request for <strong>{itemTitle}</strong> on <strong>{selected}</strong>.
             We'll get back to you at <strong>{customerEmail}</strong> shortly.
           </div>
         </div>
