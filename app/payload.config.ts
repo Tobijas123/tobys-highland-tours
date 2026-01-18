@@ -8,6 +8,8 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import Tours from './collections/Tours'
 import Media from './collections/Media'
 import Bookings from './collections/Bookings'
+import Vehicles from './collections/Vehicles'
+import Drivers from './collections/Drivers'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -48,6 +50,8 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
     Media,
     Tours,
     Bookings,
+    Vehicles,
+    Drivers,
   ],
 
   admin: {
