@@ -161,6 +161,7 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
             }}
           >
             <BookingSidebarClient
+              tourId={typeof tour.id === 'number' ? tour.id : Number(tour.id)}
               tourTitle={tour.title ?? 'Tour'}
               price1to3={typeof tour.price1to3 === 'number' ? tour.price1to3 : null}
               price4to7={typeof tour.price4to7 === 'number' ? tour.price4to7 : null}

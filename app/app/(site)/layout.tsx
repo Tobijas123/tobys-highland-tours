@@ -169,6 +169,27 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             color: var(--navy);
           }
 
+          /* Booking form inputs */
+          .bookingInput{
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid rgba(11,31,58,.18);
+            background: rgba(255,255,255,.95);
+            font-size: 13px;
+            font-family: inherit;
+            color: var(--ink);
+            transition: border-color 160ms ease, box-shadow 160ms ease;
+          }
+          .bookingInput:focus{
+            outline: none;
+            border-color: var(--navy);
+            box-shadow: 0 0 0 3px rgba(7,26,52,.08);
+          }
+          .bookingInput::placeholder{
+            color: rgba(11,31,58,.45);
+          }
+
           .tourCard{ overflow:hidden; }
 
           .tourMedia{

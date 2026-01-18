@@ -6,6 +6,7 @@ import BookingCalendar from './BookingCalendar'
 type PartySize = '1-3' | '4-7'
 
 type Props = {
+  tourId: number
   tourTitle: string
   price1to3: number | null
   price4to7: number | null
@@ -14,9 +15,15 @@ type Props = {
 
 const BOOKING_EMAIL = 'info@tobyshighlandtours.com'
 
-export default function BookingSidebarClient({ tourTitle, price1to3, price4to7, durationText }: Props) {
+export default function BookingSidebarClient({ tourId, tourTitle, price1to3, price4to7, durationText }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
   const [partySize, setPartySize] = useState<PartySize | null>(null)
+  const [customerName, setCustomerName] = useState('')
+  const [customerEmail, setCustomerEmail] = useState('')
+  const [customerPhone, setCustomerPhone] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
   const currentPrice = partySize === '1-3' ? price1to3 : partySize === '4-7' ? price4to7 : null
@@ -32,6 +39,9 @@ I'd like to request a booking for:
 - Date: ${selected ?? 'TBD'}
 - Party size: ${partySizeLabel}
 - Price tier: ${priceLabel}
+- Name: ${customerName || 'TBD'}
+- Email: ${customerEmail || 'TBD'}
+${customerPhone ? `- Phone: ${customerPhone}` : ''}
 
 Thanks!`
 
@@ -46,7 +56,7 @@ Thanks!`
     )}&body=${encodeURIComponent(body)}`
 
     return { gmail: gmailHref, mailto: mailtoHref, subject: subjectText, bodyText: body }
-  }, [tourTitle, selected, partySize, currentPrice])
+  }, [tourTitle, selected, partySize, currentPrice, customerName, customerEmail, customerPhone])
 
   async function copyToClipboard() {
     try {
@@ -58,7 +68,57 @@ Thanks!`
     }
   }
 
-  const canRequest = Boolean(selected && partySize)
+  async function handleSubmit() {
+    if (!selected || !partySize || !customerName.trim() || !customerEmail.trim()) return
+
+    setSubmitting(true)
+    setError(null)
+
+    try {
+      const res = await fetch('/api/public/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tourId,
+          date: selected,
+          partySize,
+          customerName: customerName.trim(),
+          customerEmail: customerEmail.trim(),
+          customerPhone: customerPhone.trim() || undefined,
+        }),
+      })
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setError(data.error || 'Something went wrong')
+        return
+      }
+
+      setSubmitted(true)
+    } catch {
+      setError('Network error. Please try again or use the email option below.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const canSubmit = Boolean(selected && partySize && customerName.trim() && customerEmail.trim())
+
+  if (submitted) {
+    return (
+      <div className="card" style={{ padding: 14 }}>
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
+          <div style={{ fontSize: 16, fontWeight: 900, marginBottom: 8 }}>Request Sent!</div>
+          <div style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.5 }}>
+            We've received your booking request for <strong>{tourTitle}</strong> on <strong>{selected}</strong>.
+            We'll get back to you at <strong>{customerEmail}</strong> shortly.
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="card" style={{ padding: 14 }}>
@@ -102,40 +162,86 @@ Thanks!`
           Selected date: <span style={{ fontWeight: 900 }}>{selected ?? '—'}</span>
         </div>
 
-        {/* Gmail primary */}
-        <a
-          href={canRequest ? gmail : undefined}
-          target="_blank"
-          rel="noreferrer"
-          onClick={(e) => { if (!canRequest) e.preventDefault() }}
+        {/* Contact details */}
+        <div style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>Your details</div>
+
+          <input
+            type="text"
+            placeholder="Your name *"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+            className="bookingInput"
+            style={{ marginBottom: 8 }}
+          />
+          <input
+            type="email"
+            placeholder="Your email *"
+            value={customerEmail}
+            onChange={(e) => setCustomerEmail(e.target.value)}
+            className="bookingInput"
+            style={{ marginBottom: 8 }}
+          />
+          <input
+            type="tel"
+            placeholder="Phone (optional)"
+            value={customerPhone}
+            onChange={(e) => setCustomerPhone(e.target.value)}
+            className="bookingInput"
+          />
+        </div>
+
+        {error && (
+          <div style={{ marginTop: 10, padding: 10, background: 'rgba(200,50,50,.1)', borderRadius: 8, fontSize: 12, color: '#a33' }}>
+            {error}
+          </div>
+        )}
+
+        {/* Submit booking */}
+        <button
+          type="button"
+          onClick={handleSubmit}
           className="btn btnPrimary"
-          aria-disabled={!canRequest}
-          style={{ marginTop: 10 }}
+          aria-disabled={!canSubmit || submitting}
+          style={{ marginTop: 12 }}
         >
-          Request a booking (Gmail)
-        </a>
-
-        {/* mailto secondary */}
-        <a
-          href={canRequest ? mailto : undefined}
-          onClick={(e) => { if (!canRequest) e.preventDefault() }}
-          className="btn btnSecondary"
-          aria-disabled={!canRequest}
-          style={{ marginTop: 8 }}
-        >
-          Open in mail app (mailto)
-        </a>
-
-        {/* copy */}
-        <button type="button" onClick={copyToClipboard} className="btn btnGhost" style={{ marginTop: 8 }}>
-          {copied ? 'Copied ✓' : 'Copy email text'}
+          {submitting ? 'Sending...' : 'Request a booking'}
         </button>
 
-        <div style={{ marginTop: 8, fontSize: 11, opacity: 0.65, lineHeight: 1.35 }}>
-          Gmail button opens a new tab. If you prefer another mail client, use “mailto” or copy the text.
+        {/* Fallback options */}
+        <div style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+          <div style={{ fontSize: 11, opacity: 0.65, marginBottom: 8 }}>
+            Or contact us directly:
+          </div>
+
+          <a
+            href={gmail}
+            target="_blank"
+            rel="noreferrer"
+            className="btn btnGhost"
+            style={{ fontSize: 12, padding: '8px 10px' }}
+          >
+            Open Gmail
+          </a>
+
+          <a
+            href={mailto}
+            className="btn btnGhost"
+            style={{ fontSize: 12, padding: '8px 10px', marginTop: 6 }}
+          >
+            Open mail app
+          </a>
+
+          <button
+            type="button"
+            onClick={copyToClipboard}
+            className="btn btnGhost"
+            style={{ fontSize: 12, padding: '8px 10px', marginTop: 6 }}
+          >
+            {copied ? 'Copied ✓' : 'Copy email text'}
+          </button>
         </div>
       </div>
     </div>
   )
 }
-
