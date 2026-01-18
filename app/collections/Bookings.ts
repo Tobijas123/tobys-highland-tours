@@ -12,7 +12,8 @@ const Bookings: CollectionConfig = {
 
   admin: {
     useAsTitle: 'customerEmail',
-    defaultColumns: ['type', 'tour', 'transfer', 'date', 'status', 'customerEmail'],
+    defaultColumns: ['createdAt', 'type', 'tour', 'transfer', 'date', 'pickupTime', 'paxCount', 'status', 'paymentStatus', 'vehicle', 'driver', 'customerName'],
+    listSearchableFields: ['customerName', 'customerEmail', 'pickupLocation', 'dropoffLocation'],
   },
 
   hooks: {
@@ -67,7 +68,41 @@ const Bookings: CollectionConfig = {
           }
         }
 
+        // Get vehicle and driver info
+        let vehicleInfo = '—'
+        let driverInfo = '—'
+
+        if (doc.vehicle) {
+          const vehicleDoc = typeof doc.vehicle === 'object' ? doc.vehicle : null
+          if (vehicleDoc?.title) {
+            vehicleInfo = vehicleDoc.title
+          } else if (typeof doc.vehicle === 'number') {
+            try {
+              const fetched = await req.payload.findByID({ collection: 'vehicles', id: doc.vehicle })
+              vehicleInfo = fetched?.title || '—'
+            } catch {
+              // ignore
+            }
+          }
+        }
+
+        if (doc.driver) {
+          const driverDoc = typeof doc.driver === 'object' ? doc.driver : null
+          if (driverDoc) {
+            driverInfo = `${driverDoc.firstName || ''} ${driverDoc.lastName || ''}`.trim() || '—'
+          } else if (typeof doc.driver === 'number') {
+            try {
+              const fetched = await req.payload.findByID({ collection: 'drivers', id: doc.driver })
+              driverInfo = `${fetched?.firstName || ''} ${fetched?.lastName || ''}`.trim() || '—'
+            } catch {
+              // ignore
+            }
+          }
+        }
+
         const partyLabel = doc.partySize === '1-3' ? '1–3 people' : '4–7 people'
+        const paymentLabel = doc.paymentStatus === 'paid' ? 'Paid' : doc.paymentStatus === 'deposit' ? 'Deposit paid' : 'Unpaid'
+        const priceInfo = typeof doc.totalPrice === 'number' ? `£${doc.totalPrice}` : '—'
 
         if (newStatus === 'confirmed') {
           const subject = `Booking Confirmed – ${itemTitle} on ${doc.date}`
@@ -80,10 +115,17 @@ const Bookings: CollectionConfig = {
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Type</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${typeLabel}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${typeLabel}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${itemTitle}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Date</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.date}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Pickup time</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.pickupTime || '—'}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Pickup location</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.pickupLocation || '—'}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Drop-off location</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.dropoffLocation || '—'}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Passengers</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.paxCount || '—'}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Party size</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${partyLabel}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Total price</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${priceInfo}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Payment</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${paymentLabel}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Vehicle</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${vehicleInfo}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Driver</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${driverInfo}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Status</strong></td><td style="padding: 8px; border: 1px solid #ddd; color: #275548; font-weight: bold;">Confirmed</td></tr>
               </table>
-              <p><strong>Meeting point:</strong> We will send you meeting details closer to the date.</p>
               <p>If you have any questions, reply to this email or contact us at <a href="mailto:info@tobyshighlandtours.com">info@tobyshighlandtours.com</a>.</p>
               <p style="margin-top: 24px;">Cheers,<br/><strong>Toby's Highland Tours</strong></p>
             </div>
@@ -109,10 +151,11 @@ const Bookings: CollectionConfig = {
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Type</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${typeLabel}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${typeLabel}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${itemTitle}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Date</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.date}</td></tr>
-                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Party size</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${partyLabel}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Pickup time</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.pickupTime || '—'}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Passengers</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.paxCount || '—'}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Status</strong></td><td style="padding: 8px; border: 1px solid #ddd; color: #a33; font-weight: bold;">Cancelled</td></tr>
               </table>
-              <p>If you'd like to reschedule or have questions, contact us at <a href="mailto:info@tobyshighlandtours.com">info@tobyshighlandtours.com</a>.</p>
+              <p>We apologise for any inconvenience. If you'd like to reschedule or have questions, please contact us at <a href="mailto:info@tobyshighlandtours.com">info@tobyshighlandtours.com</a>.</p>
               <p style="margin-top: 24px;">Cheers,<br/><strong>Toby's Highland Tours</strong></p>
             </div>
           `
@@ -132,6 +175,7 @@ const Bookings: CollectionConfig = {
   },
 
   fields: [
+    // === BOOKING TYPE & ITEM ===
     {
       name: 'type',
       type: 'select',
@@ -161,11 +205,39 @@ const Bookings: CollectionConfig = {
         condition: (data) => data?.type === 'transfer',
       },
     },
+
+    // === SCHEDULE ===
     {
       name: 'date',
       type: 'text',
       required: true,
       admin: { description: 'YYYY-MM-DD' },
+    },
+    {
+      name: 'pickupTime',
+      type: 'text',
+      required: false,
+      admin: { description: 'HH:MM (24h format)' },
+    },
+    {
+      name: 'pickupLocation',
+      type: 'text',
+      required: false,
+    },
+    {
+      name: 'dropoffLocation',
+      type: 'text',
+      required: false,
+    },
+
+    // === PASSENGERS & PRICING ===
+    {
+      name: 'paxCount',
+      type: 'number',
+      required: false,
+      min: 1,
+      max: 50,
+      admin: { description: 'Number of passengers' },
     },
     {
       name: 'partySize',
@@ -176,6 +248,33 @@ const Bookings: CollectionConfig = {
         { label: '4–7 people', value: '4-7' },
       ],
     },
+    {
+      name: 'priceTier',
+      type: 'select',
+      options: [
+        { label: 'Price 1–3', value: 'price1to3' },
+        { label: 'Price 4–7', value: 'price4to7' },
+      ],
+      admin: { description: 'Auto-set from party size' },
+    },
+    {
+      name: 'totalPrice',
+      type: 'number',
+      min: 0,
+      admin: { description: 'Total price in £' },
+    },
+    {
+      name: 'paymentStatus',
+      type: 'select',
+      defaultValue: 'unpaid',
+      options: [
+        { label: 'Unpaid', value: 'unpaid' },
+        { label: 'Deposit paid', value: 'deposit' },
+        { label: 'Paid', value: 'paid' },
+      ],
+    },
+
+    // === CUSTOMER ===
     {
       name: 'customerName',
       type: 'text',
@@ -190,19 +289,22 @@ const Bookings: CollectionConfig = {
       name: 'customerPhone',
       type: 'text',
     },
+
+    // === ASSIGNMENT ===
     {
-      name: 'priceTier',
-      type: 'select',
-      options: [
-        { label: 'Price 1–3', value: 'price1to3' },
-        { label: 'Price 4–7', value: 'price4to7' },
-      ],
-      admin: { description: 'Auto-set from party size' },
+      name: 'vehicle',
+      type: 'relationship',
+      relationTo: 'vehicles',
+      required: false,
     },
     {
-      name: 'notes',
-      type: 'textarea',
+      name: 'driver',
+      type: 'relationship',
+      relationTo: 'drivers',
+      required: false,
     },
+
+    // === STATUS & NOTES ===
     {
       name: 'status',
       type: 'select',
@@ -213,6 +315,7 @@ const Bookings: CollectionConfig = {
         { label: 'Confirmed', value: 'confirmed' },
         { label: 'Cancelled', value: 'cancelled' },
       ],
+      admin: { position: 'sidebar' },
     },
     {
       name: 'source',
@@ -222,6 +325,17 @@ const Bookings: CollectionConfig = {
         { label: 'Website', value: 'website' },
         { label: 'Manual', value: 'manual' },
       ],
+      admin: { position: 'sidebar' },
+    },
+    {
+      name: 'notes',
+      type: 'textarea',
+      admin: { description: 'Customer notes (visible to customer)' },
+    },
+    {
+      name: 'internalNotes',
+      type: 'textarea',
+      admin: { description: 'Internal notes (NOT sent to customer)' },
     },
   ],
 

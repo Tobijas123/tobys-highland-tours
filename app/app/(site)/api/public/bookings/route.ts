@@ -40,7 +40,20 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-    const { tourId, transferId, date, partySize, customerName, customerEmail, customerPhone, message } = body
+    const {
+      tourId,
+      transferId,
+      date,
+      pickupTime,
+      pickupLocation,
+      dropoffLocation,
+      paxCount,
+      partySize,
+      customerName,
+      customerEmail,
+      customerPhone,
+      message,
+    } = body
 
     // Honeypot check (if frontend adds hidden field)
     if (body.website || body.url || body.honeypot) {
@@ -53,23 +66,47 @@ export async function POST(request: Request) {
     const hasTransferId = transferId !== undefined && transferId !== null
 
     if (!hasTourId && !hasTransferId) {
-      return NextResponse.json({ error: 'tourId or transferId is required' }, { status: 400 })
+      return NextResponse.json({ error: 'tourId or transferId is required', field: 'tourId' }, { status: 400 })
     }
     if (hasTourId && hasTransferId) {
-      return NextResponse.json({ error: 'Cannot specify both tourId and transferId' }, { status: 400 })
+      return NextResponse.json({ error: 'Cannot specify both tourId and transferId', field: 'tourId' }, { status: 400 })
     }
 
+    // Date validation
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      return NextResponse.json({ error: 'date must be YYYY-MM-DD format' }, { status: 400 })
+      return NextResponse.json({ error: 'date must be YYYY-MM-DD format', field: 'date' }, { status: 400 })
     }
+
+    // Pickup time validation (HH:MM 24h)
+    if (!pickupTime || !/^([01]\d|2[0-3]):([0-5]\d)$/.test(pickupTime)) {
+      return NextResponse.json({ error: 'pickupTime must be HH:MM (24h format)', field: 'pickupTime' }, { status: 400 })
+    }
+
+    // Pickup/dropoff locations
+    if (!pickupLocation || typeof pickupLocation !== 'string' || pickupLocation.trim().length < 2) {
+      return NextResponse.json({ error: 'pickupLocation is required (min 2 chars)', field: 'pickupLocation' }, { status: 400 })
+    }
+    if (!dropoffLocation || typeof dropoffLocation !== 'string' || dropoffLocation.trim().length < 2) {
+      return NextResponse.json({ error: 'dropoffLocation is required (min 2 chars)', field: 'dropoffLocation' }, { status: 400 })
+    }
+
+    // Pax count validation
+    const paxNum = Number(paxCount)
+    if (!paxCount || isNaN(paxNum) || paxNum < 1 || paxNum > 50 || !Number.isInteger(paxNum)) {
+      return NextResponse.json({ error: 'paxCount must be integer 1-50', field: 'paxCount' }, { status: 400 })
+    }
+
+    // Party size validation
     if (!partySize || !['1-3', '4-7'].includes(partySize)) {
-      return NextResponse.json({ error: 'partySize must be "1-3" or "4-7"' }, { status: 400 })
+      return NextResponse.json({ error: 'partySize must be "1-3" or "4-7"', field: 'partySize' }, { status: 400 })
     }
+
+    // Customer validation
     if (!customerName || typeof customerName !== 'string' || customerName.trim().length < 2) {
-      return NextResponse.json({ error: 'customerName is required (min 2 chars)' }, { status: 400 })
+      return NextResponse.json({ error: 'customerName is required (min 2 chars)', field: 'customerName' }, { status: 400 })
     }
     if (!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
-      return NextResponse.json({ error: 'valid customerEmail is required' }, { status: 400 })
+      return NextResponse.json({ error: 'valid customerEmail is required', field: 'customerEmail' }, { status: 400 })
     }
 
     const payload = await getPayload({ config })
@@ -89,7 +126,7 @@ export async function POST(request: Request) {
         // not found
       }
       if (!item) {
-        return NextResponse.json({ error: 'Tour not found' }, { status: 404 })
+        return NextResponse.json({ error: 'Tour not found', field: 'tourId' }, { status: 404 })
       }
     } else {
       try {
@@ -100,7 +137,7 @@ export async function POST(request: Request) {
         // not found
       }
       if (!item) {
-        return NextResponse.json({ error: 'Transfer not found' }, { status: 404 })
+        return NextResponse.json({ error: 'Transfer not found', field: 'transferId' }, { status: 404 })
       }
     }
 
@@ -111,6 +148,10 @@ export async function POST(request: Request) {
     const bookingData: any = {
       type: bookingType,
       date,
+      pickupTime,
+      pickupLocation: pickupLocation.trim(),
+      dropoffLocation: dropoffLocation.trim(),
+      paxCount: paxNum,
       partySize,
       priceTier,
       customerName: customerName.trim(),
@@ -118,6 +159,7 @@ export async function POST(request: Request) {
       customerPhone: customerPhone?.trim() || undefined,
       notes: message?.trim() || undefined,
       status: 'pending',
+      paymentStatus: 'unpaid',
       source: 'website',
     }
 
@@ -139,24 +181,29 @@ export async function POST(request: Request) {
 
     const adminHtml = `
       <h2>New Booking Request</h2>
-      <ul>
-        <li><strong>Type:</strong> ${typeLabel}</li>
-        <li><strong>${typeLabel}:</strong> ${itemTitle}</li>
-        <li><strong>Slug:</strong> ${itemSlug}</li>
-        <li><strong>Date:</strong> ${date}</li>
-        <li><strong>Party size:</strong> ${partyLabel}</li>
-        <li><strong>Customer:</strong> ${customerName.trim()}</li>
-        <li><strong>Email:</strong> ${customerEmail.trim()}</li>
-        ${phoneInfo}
-        ${message ? `<li><strong>Notes:</strong> ${message.trim()}</li>` : ''}
-      </ul>
-      <p><a href="${process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000'}/admin/collections/bookings/${booking.id}">View in Admin</a></p>
+      <table style="border-collapse: collapse; width: 100%; max-width: 500px;">
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Type</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${typeLabel}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>${typeLabel}</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${itemTitle}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Slug</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${itemSlug}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Date</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${date}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Pickup time</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${pickupTime}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Pickup</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${pickupLocation.trim()}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Drop-off</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${dropoffLocation.trim()}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Passengers</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${paxNum}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Party size</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${partyLabel}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Customer</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${customerName.trim()}</td></tr>
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Email</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${customerEmail.trim()}</td></tr>
+        ${customerPhone?.trim() ? `<tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Phone</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${customerPhone.trim()}</td></tr>` : ''}
+        ${message?.trim() ? `<tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Notes</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${message.trim()}</td></tr>` : ''}
+        <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Payment</strong></td><td style="padding: 6px; border: 1px solid #ddd;">Unpaid</td></tr>
+      </table>
+      <p style="margin-top: 16px;"><a href="${process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000'}/admin/collections/bookings/${booking.id}">View in Admin</a></p>
     `
 
     try {
       await payload.sendEmail({
         to: ADMIN_EMAIL,
-        subject: `New ${typeLabel} Booking: ${itemTitle} – ${date}`,
+        subject: `New ${typeLabel} Booking: ${itemTitle} – ${date} ${pickupTime}`,
         html: adminHtml,
       })
     } catch (err) {
@@ -167,7 +214,7 @@ export async function POST(request: Request) {
       {
         success: true,
         bookingId: booking.id,
-        message: 'Booking request received. We will contact you shortly.',
+        message: 'Booking request received. We will confirm by email shortly.',
       },
       { status: 201 }
     )

@@ -19,12 +19,17 @@ const BOOKING_EMAIL = 'info@tobyshighlandtours.com'
 
 export default function BookingSidebarClient({ itemType, itemId, itemTitle, price1to3, price4to7, durationText }: Props) {
   const [selected, setSelected] = useState<string | null>(null)
+  const [pickupTime, setPickupTime] = useState('')
+  const [pickupLocation, setPickupLocation] = useState('')
+  const [dropoffLocation, setDropoffLocation] = useState('')
+  const [paxCount, setPaxCount] = useState<number | ''>('')
   const [partySize, setPartySize] = useState<PartySize | null>(null)
   const [customerName, setCustomerName] = useState('')
   const [customerEmail, setCustomerEmail] = useState('')
   const [customerPhone, setCustomerPhone] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [submittedBookingId, setSubmittedBookingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
 
@@ -41,6 +46,10 @@ I'd like to request a booking for:
 - Type: ${typeLabel}
 - ${typeLabel}: ${itemTitle}
 - Date: ${selected ?? 'TBD'}
+- Pickup time: ${pickupTime || 'TBD'}
+- Pickup location: ${pickupLocation || 'TBD'}
+- Drop-off location: ${dropoffLocation || 'TBD'}
+- Passengers: ${paxCount || 'TBD'}
 - Party size: ${partySizeLabel}
 - Price tier: ${priceLabel}
 - Name: ${customerName || 'TBD'}
@@ -60,7 +69,7 @@ Thanks!`
     )}&body=${encodeURIComponent(body)}`
 
     return { gmail: gmailHref, mailto: mailtoHref, subject: subjectText, bodyText: body }
-  }, [itemTitle, itemType, typeLabel, selected, partySize, currentPrice, customerName, customerEmail, customerPhone])
+  }, [itemTitle, itemType, typeLabel, selected, pickupTime, pickupLocation, dropoffLocation, paxCount, partySize, currentPrice, customerName, customerEmail, customerPhone])
 
   async function copyToClipboard() {
     try {
@@ -73,7 +82,7 @@ Thanks!`
   }
 
   async function handleSubmit() {
-    if (!selected || !partySize || !customerName.trim() || !customerEmail.trim()) return
+    if (!selected || !pickupTime || !pickupLocation.trim() || !dropoffLocation.trim() || !paxCount || !partySize || !customerName.trim() || !customerEmail.trim()) return
 
     setSubmitting(true)
     setError(null)
@@ -81,6 +90,10 @@ Thanks!`
     try {
       const payload: Record<string, any> = {
         date: selected,
+        pickupTime,
+        pickupLocation: pickupLocation.trim(),
+        dropoffLocation: dropoffLocation.trim(),
+        paxCount: Number(paxCount),
         partySize,
         customerName: customerName.trim(),
         customerEmail: customerEmail.trim(),
@@ -107,6 +120,7 @@ Thanks!`
         return
       }
 
+      setSubmittedBookingId(data.bookingId || null)
       setSubmitted(true)
     } catch {
       setError('Network error. Please try again or use the email option below.')
@@ -115,7 +129,16 @@ Thanks!`
     }
   }
 
-  const canSubmit = Boolean(selected && partySize && customerName.trim() && customerEmail.trim())
+  const canSubmit = Boolean(
+    selected &&
+    pickupTime &&
+    pickupLocation.trim() &&
+    dropoffLocation.trim() &&
+    paxCount &&
+    partySize &&
+    customerName.trim() &&
+    customerEmail.trim()
+  )
 
   if (submitted) {
     return (
@@ -124,8 +147,9 @@ Thanks!`
           <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
           <div style={{ fontSize: 16, fontWeight: 900, marginBottom: 8 }}>Request Sent!</div>
           <div style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.5 }}>
-            We've received your booking request for <strong>{itemTitle}</strong> on <strong>{selected}</strong>.
-            We'll get back to you at <strong>{customerEmail}</strong> shortly.
+            We've received your booking request for <strong>{itemTitle}</strong> on <strong>{selected}</strong> at <strong>{pickupTime}</strong>.
+            {submittedBookingId && <><br/>Booking ID: <strong>#{submittedBookingId}</strong></>}
+            <br/><br/>We'll confirm by email at <strong>{customerEmail}</strong> shortly.
           </div>
         </div>
       </div>
@@ -172,6 +196,51 @@ Thanks!`
 
         <div style={{ marginTop: 10, fontSize: 12, opacity: 0.85 }}>
           Selected date: <span style={{ fontWeight: 900 }}>{selected ?? '—'}</span>
+        </div>
+
+        {/* Pickup details */}
+        <div style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
+          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>Pickup details</div>
+
+          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+            <input
+              type="time"
+              value={pickupTime}
+              onChange={(e) => setPickupTime(e.target.value)}
+              className="bookingInput"
+              style={{ flex: 1 }}
+              required
+            />
+            <input
+              type="number"
+              placeholder="Pax *"
+              min={1}
+              max={50}
+              value={paxCount}
+              onChange={(e) => setPaxCount(e.target.value ? parseInt(e.target.value) : '')}
+              className="bookingInput"
+              style={{ width: 70 }}
+              required
+            />
+          </div>
+
+          <input
+            type="text"
+            placeholder="Pickup location *"
+            value={pickupLocation}
+            onChange={(e) => setPickupLocation(e.target.value)}
+            className="bookingInput"
+            style={{ marginBottom: 8 }}
+            required
+          />
+          <input
+            type="text"
+            placeholder="Drop-off location *"
+            value={dropoffLocation}
+            onChange={(e) => setDropoffLocation(e.target.value)}
+            className="bookingInput"
+            required
+          />
         </div>
 
         {/* Contact details */}
