@@ -10,6 +10,7 @@ import Media from './collections/Media'
 import Bookings from './collections/Bookings'
 import Vehicles from './collections/Vehicles'
 import Drivers from './collections/Drivers'
+import Transfers from './collections/Transfers'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -52,6 +53,7 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
     Bookings,
     Vehicles,
     Drivers,
+    Transfers,
   ],
 
   admin: {
