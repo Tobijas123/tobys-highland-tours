@@ -1,5 +1,4 @@
 export const dynamic = 'force-dynamic'
-import HeroSliderClient from './components/HeroSliderClient'
 
 function toPublicURL(url: string) {
   const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -35,7 +34,7 @@ type Transfer = {
 
 async function getTours(): Promise<Tour[]> {
   const res = await fetch(
-    `${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/tours?limit=6&depth=1`,
+    `${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/tours?limit=50&depth=1`,
     { cache: 'no-store' }
   )
   if (!res.ok) return []
@@ -45,7 +44,7 @@ async function getTours(): Promise<Tour[]> {
 
 async function getTransfers(): Promise<Transfer[]> {
   const res = await fetch(
-    `${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/transfers?limit=6&depth=1`,
+    `${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/transfers?limit=50&depth=1`,
     { cache: 'no-store' }
   )
   if (!res.ok) return []
@@ -147,19 +146,22 @@ function ProductCard({
   )
 }
 
-export default async function HomePage() {
+export default async function ProductsPage() {
   const [tours, transfers] = await Promise.all([getTours(), getTransfers()])
 
   return (
     <>
-      <HeroSliderClient />
+      <h1 style={{ fontSize: 36, fontWeight: 950, margin: '0 0 8px' }}>Our Offerings</h1>
+      <p className="muted" style={{ marginBottom: 32 }}>
+        Explore our guided tours and transfer services across the Scottish Highlands.
+      </p>
 
       {/* Tours Section */}
       <section style={{ marginBottom: 48 }}>
         <div className="sectionHeader">
-          <h2 className="sectionTitle">Our Tours</h2>
+          <h2 className="sectionTitle">Tours</h2>
           <a href="/tours" className="viewAllLink">
-            View all tours
+            View all
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polyline points="9 6 15 12 9 18" />
             </svg>
@@ -193,7 +195,7 @@ export default async function HomePage() {
         <div className="sectionHeader">
           <h2 className="sectionTitle">Transfer Services</h2>
           <a href="/transfers" className="viewAllLink">
-            View all transfers
+            View all
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <polyline points="9 6 15 12 9 18" />
             </svg>
