@@ -101,6 +101,91 @@ const Bookings: CollectionConfig = {
     ],
 
     afterChange: [
+      // Counter updates for bookingCount and confirmedCount
+      async ({ doc, previousDoc, req, operation }) => {
+        // Skip if this is a recursive call from counter update
+        if (req.context?.__skipBookingCounterHook) return doc
+
+        const bookingType = doc.type || 'tour'
+        const collection = bookingType === 'tour' ? 'tours' : 'transfers'
+        const itemId = bookingType === 'tour' ? doc.tour : doc.transfer
+        const resolvedItemId = typeof itemId === 'object' ? itemId?.id : itemId
+
+        if (!resolvedItemId) return doc
+
+        // A) On create: increment bookingCount
+        if (operation === 'create') {
+          try {
+            const item = await req.payload.findByID({ collection, id: resolvedItemId })
+            await req.payload.update({
+              collection,
+              id: resolvedItemId,
+              data: { bookingCount: (item?.bookingCount || 0) + 1 },
+              depth: 0,
+            })
+          } catch (err) {
+            console.error('[COUNTER] Failed to increment bookingCount:', err)
+          }
+        }
+
+        // B) On update: handle confirmedCount transitions
+        if (operation === 'update' && previousDoc) {
+          const newStatus = doc.status
+          const oldStatus = previousDoc.status
+          const wasCountedConfirmed = previousDoc.countedConfirmed || false
+
+          // Confirmed and not yet counted → increment confirmedCount
+          if (newStatus === 'confirmed' && !wasCountedConfirmed) {
+            try {
+              const item = await req.payload.findByID({ collection, id: resolvedItemId })
+              await req.payload.update({
+                collection,
+                id: resolvedItemId,
+                data: { confirmedCount: (item?.confirmedCount || 0) + 1 },
+                depth: 0,
+              })
+              // Update booking to mark as counted
+              await req.payload.update({
+                collection: 'bookings',
+                id: doc.id,
+                data: { countedConfirmed: true },
+                depth: 0,
+                context: { __skipBookingCounterHook: true },
+              })
+            } catch (err) {
+              console.error('[COUNTER] Failed to increment confirmedCount:', err)
+            }
+          }
+
+          // Cancelled and was counted → decrement confirmedCount
+          if (newStatus === 'cancelled' && wasCountedConfirmed) {
+            try {
+              const item = await req.payload.findByID({ collection, id: resolvedItemId })
+              const newCount = Math.max(0, (item?.confirmedCount || 0) - 1)
+              await req.payload.update({
+                collection,
+                id: resolvedItemId,
+                data: { confirmedCount: newCount },
+                depth: 0,
+              })
+              // Update booking to mark as not counted
+              await req.payload.update({
+                collection: 'bookings',
+                id: doc.id,
+                data: { countedConfirmed: false },
+                depth: 0,
+                context: { __skipBookingCounterHook: true },
+              })
+            } catch (err) {
+              console.error('[COUNTER] Failed to decrement confirmedCount:', err)
+            }
+          }
+        }
+
+        return doc
+      },
+
+      // Email notifications
       async ({ doc, previousDoc, req, operation }) => {
         if (operation !== 'update') return doc
         if (!previousDoc || previousDoc.status === doc.status) return doc
@@ -408,6 +493,15 @@ const Bookings: CollectionConfig = {
       name: 'internalNotes',
       type: 'textarea',
       admin: { description: 'Internal notes (NOT sent to customer)' },
+    },
+    {
+      name: 'countedConfirmed',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        hidden: true,
+        description: 'Internal flag: true if this booking was counted in confirmedCount',
+      },
     },
   ],
 

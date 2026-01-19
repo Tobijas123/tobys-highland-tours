@@ -104,6 +104,24 @@ const Transfers: CollectionConfig = {
         },
       ],
     },
+    {
+      name: 'bookingCount',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Total bookings for this transfer (auto-updated)',
+      },
+    },
+    {
+      name: 'confirmedCount',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Confirmed bookings for this transfer (auto-updated)',
+      },
+    },
   ],
 }
 

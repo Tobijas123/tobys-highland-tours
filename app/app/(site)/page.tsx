@@ -58,23 +58,59 @@ async function getHomepage(): Promise<HomepageData | null> {
 }
 
 async function getTours(): Promise<Tour[]> {
+  const baseUrl = process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
+
+  // First try: sort by confirmedCount (most confirmed first)
   const res = await fetch(
-    `${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/tours?limit=6&depth=1`,
+    `${baseUrl}/api/tours?limit=6&depth=1&sort=-confirmedCount`,
     { cache: 'no-store' }
   )
   if (!res.ok) return []
   const data = await res.json()
-  return (data?.docs ?? []) as Tour[]
+  const docs = (data?.docs ?? []) as Tour[]
+
+  // If all have confirmedCount = 0, fallback to bookingCount
+  const hasConfirmed = docs.some((d: Tour & { confirmedCount?: number }) => (d.confirmedCount ?? 0) > 0)
+  if (!hasConfirmed && docs.length > 0) {
+    const fallbackRes = await fetch(
+      `${baseUrl}/api/tours?limit=6&depth=1&sort=-bookingCount`,
+      { cache: 'no-store' }
+    )
+    if (fallbackRes.ok) {
+      const fallbackData = await fallbackRes.json()
+      return (fallbackData?.docs ?? []) as Tour[]
+    }
+  }
+
+  return docs
 }
 
 async function getTransfers(): Promise<Transfer[]> {
+  const baseUrl = process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
+
+  // First try: sort by confirmedCount (most confirmed first)
   const res = await fetch(
-    `${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/transfers?limit=6&depth=1`,
+    `${baseUrl}/api/transfers?limit=6&depth=1&sort=-confirmedCount`,
     { cache: 'no-store' }
   )
   if (!res.ok) return []
   const data = await res.json()
-  return (data?.docs ?? []) as Transfer[]
+  const docs = (data?.docs ?? []) as Transfer[]
+
+  // If all have confirmedCount = 0, fallback to bookingCount
+  const hasConfirmed = docs.some((d: Transfer & { confirmedCount?: number }) => (d.confirmedCount ?? 0) > 0)
+  if (!hasConfirmed && docs.length > 0) {
+    const fallbackRes = await fetch(
+      `${baseUrl}/api/transfers?limit=6&depth=1&sort=-bookingCount`,
+      { cache: 'no-store' }
+    )
+    if (fallbackRes.ok) {
+      const fallbackData = await fallbackRes.json()
+      return (fallbackData?.docs ?? []) as Transfer[]
+    }
+  }
+
+  return docs
 }
 
 function ProductCard({

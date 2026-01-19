@@ -103,6 +103,24 @@ const Tours: CollectionConfig = {
       type: 'checkbox',
       defaultValue: true,
     },
+    {
+      name: 'bookingCount',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Total bookings for this tour (auto-updated)',
+      },
+    },
+    {
+      name: 'confirmedCount',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        readOnly: true,
+        description: 'Confirmed bookings for this tour (auto-updated)',
+      },
+    },
   ],
 }
 
