@@ -3,45 +3,52 @@ import { useState, useEffect, useCallback } from 'react'
 
 interface Slide {
   image: string
-  title: string
-  subtitle: string
+  heading?: string
+  subheading?: string
 }
 
-const SLIDES: Slide[] = [
+interface HeroSliderProps {
+  slides?: Slide[]
+  logoUrl?: string | null
+}
+
+const FALLBACK_SLIDES: Slide[] = [
   {
     image: '/media/hero-1.jpg',
-    title: 'Explore the Scottish Highlands',
-    subtitle: 'Unforgettable tours through ancient landscapes',
+    heading: 'Explore the Scottish Highlands',
+    subheading: 'Unforgettable tours through ancient landscapes',
   },
   {
     image: '/media/hero-2.jpg',
-    title: 'Discover Hidden Gems',
-    subtitle: 'Castles, lochs, and breathtaking scenery',
+    heading: 'Discover Hidden Gems',
+    subheading: 'Castles, lochs, and breathtaking scenery',
   },
   {
     image: '/media/hero-3.jpg',
-    title: 'Premium Transfer Services',
-    subtitle: 'Comfortable journeys across Scotland',
+    heading: 'Premium Transfer Services',
+    subheading: 'Comfortable journeys across Scotland',
   },
 ]
 
-export default function HeroSliderClient() {
+export default function HeroSliderClient({ slides, logoUrl }: HeroSliderProps) {
+  const activeSlides = slides && slides.length > 0 ? slides : FALLBACK_SLIDES
   const [current, setCurrent] = useState(0)
 
   const next = useCallback(() => {
-    setCurrent((c) => (c + 1) % SLIDES.length)
-  }, [])
+    setCurrent((c) => (c + 1) % activeSlides.length)
+  }, [activeSlides.length])
 
   const prev = useCallback(() => {
-    setCurrent((c) => (c - 1 + SLIDES.length) % SLIDES.length)
-  }, [])
+    setCurrent((c) => (c - 1 + activeSlides.length) % activeSlides.length)
+  }, [activeSlides.length])
 
   useEffect(() => {
+    if (activeSlides.length <= 1) return
     const timer = setInterval(next, 5000)
     return () => clearInterval(timer)
-  }, [next])
+  }, [next, activeSlides.length])
 
-  const slide = SLIDES[current]
+  const slide = activeSlides[current]
 
   return (
     <div className="heroSlider">
@@ -52,35 +59,46 @@ export default function HeroSliderClient() {
         }}
       >
         <div className="heroContent">
-          <h1 className="heroTitle">{slide.title}</h1>
-          <p className="heroSubtitle">{slide.subtitle}</p>
+          {logoUrl && (
+            <img
+              src={logoUrl}
+              alt="Toby's Highland Tours"
+              className="heroLogo"
+            />
+          )}
+          {slide.heading && <h1 className="heroTitle">{slide.heading}</h1>}
+          {slide.subheading && <p className="heroSubtitle">{slide.subheading}</p>}
           <a href="/products" className="btn btnPrimary heroBtn">
-            Explore Our Offerings
+            Book Now
           </a>
         </div>
       </div>
 
-      <button className="heroArrow heroArrowLeft" onClick={prev} aria-label="Previous slide">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <polyline points="15 18 9 12 15 6" />
-        </svg>
-      </button>
-      <button className="heroArrow heroArrowRight" onClick={next} aria-label="Next slide">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <polyline points="9 6 15 12 9 18" />
-        </svg>
-      </button>
+      {activeSlides.length > 1 && (
+        <>
+          <button className="heroArrow heroArrowLeft" onClick={prev} aria-label="Previous slide">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
+          <button className="heroArrow heroArrowRight" onClick={next} aria-label="Next slide">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="9 6 15 12 9 18" />
+            </svg>
+          </button>
 
-      <div className="heroDots">
-        {SLIDES.map((_, i) => (
-          <button
-            key={i}
-            className={`heroDot ${i === current ? 'active' : ''}`}
-            onClick={() => setCurrent(i)}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
-      </div>
+          <div className="heroDots">
+            {activeSlides.map((_, i) => (
+              <button
+                key={i}
+                className={`heroDot ${i === current ? 'active' : ''}`}
+                onClick={() => setCurrent(i)}
+                aria-label={`Go to slide ${i + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
   )
 }

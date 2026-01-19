@@ -462,6 +462,12 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             padding: 14px 28px;
             font-size: 15px;
           }
+          .heroLogo{
+            max-width: 280px;
+            max-height: 140px;
+            margin: 0 auto 24px;
+            filter: drop-shadow(0 4px 20px rgba(0,0,0,0.3));
+          }
           .heroArrow{
             position: absolute;
             top: 50%;

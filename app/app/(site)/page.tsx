@@ -33,6 +33,30 @@ type Transfer = {
   price4to7?: number
 }
 
+type HeroSlide = {
+  image?: MediaDoc | null
+  heading?: string
+  subheading?: string
+}
+
+type HomepageData = {
+  heroLogo?: MediaDoc | null
+  heroSlides?: HeroSlide[]
+}
+
+async function getHomepage(): Promise<HomepageData | null> {
+  try {
+    const res = await fetch(
+      `${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/globals/homepage?depth=1`,
+      { cache: 'no-store' }
+    )
+    if (!res.ok) return null
+    return await res.json()
+  } catch {
+    return null
+  }
+}
+
 async function getTours(): Promise<Tour[]> {
   const res = await fetch(
     `${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/tours?limit=6&depth=1`,
@@ -148,11 +172,26 @@ function ProductCard({
 }
 
 export default async function HomePage() {
-  const [tours, transfers] = await Promise.all([getTours(), getTransfers()])
+  const [tours, transfers, homepage] = await Promise.all([
+    getTours(),
+    getTransfers(),
+    getHomepage(),
+  ])
+
+  // Transform CMS slides to component format
+  const heroSlides = homepage?.heroSlides
+    ?.filter((s) => s.image?.url)
+    .map((s) => ({
+      image: toPublicURL(s.image!.url!),
+      heading: s.heading,
+      subheading: s.subheading,
+    }))
+
+  const heroLogoUrl = homepage?.heroLogo?.url ? toPublicURL(homepage.heroLogo.url) : null
 
   return (
     <>
-      <HeroSliderClient />
+      <HeroSliderClient slides={heroSlides} logoUrl={heroLogoUrl} />
 
       {/* Tours Section */}
       <section style={{ marginBottom: 48 }}>
