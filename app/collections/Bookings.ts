@@ -29,6 +29,77 @@ const Bookings: CollectionConfig = {
         return data
       },
     ],
+
+    beforeChange: [
+      // Auto-calculate totalPrice from related tour/transfer
+      async ({ data, req, operation }) => {
+        if (!data) return data
+
+        // Only calculate if we have partySize and a tour/transfer
+        const partySize = data.partySize
+        if (!partySize) return data
+
+        const priceField = partySize === '1-3' ? 'price1to3' : 'price4to7'
+        let price: number | null = null
+
+        if (data.type === 'tour' && data.tour) {
+          const tourId = typeof data.tour === 'object' ? data.tour.id : data.tour
+          if (tourId) {
+            try {
+              const tourDoc = await req.payload.findByID({ collection: 'tours', id: tourId })
+              price = tourDoc?.[priceField] ?? null
+            } catch {
+              // ignore
+            }
+          }
+        } else if (data.type === 'transfer' && data.transfer) {
+          const transferId = typeof data.transfer === 'object' ? data.transfer.id : data.transfer
+          if (transferId) {
+            try {
+              const transferDoc = await req.payload.findByID({ collection: 'transfers', id: transferId })
+              price = transferDoc?.[priceField] ?? null
+            } catch {
+              // ignore
+            }
+          }
+        }
+
+        if (typeof price === 'number') {
+          data.totalPrice = price
+        }
+
+        // Also set priceTier for consistency
+        data.priceTier = priceField
+
+        return data
+      },
+
+      // Guardrail: block confirming without required operational fields
+      async ({ data, originalDoc }) => {
+        if (!data) return data
+
+        // Only check when status is being set to 'confirmed'
+        const isConfirming = data.status === 'confirmed' && originalDoc?.status !== 'confirmed'
+
+        if (isConfirming) {
+          const missing: string[] = []
+
+          if (!data.pickupTime && !originalDoc?.pickupTime) missing.push('Pickup time')
+          if (!data.pickupLocation && !originalDoc?.pickupLocation) missing.push('Pickup location')
+          if (!data.dropoffLocation && !originalDoc?.dropoffLocation) missing.push('Drop-off location')
+          if (!data.paxCount && !originalDoc?.paxCount) missing.push('Passenger count')
+          if (!data.vehicle && !originalDoc?.vehicle) missing.push('Vehicle')
+          if (!data.driver && !originalDoc?.driver) missing.push('Driver')
+
+          if (missing.length > 0) {
+            throw new Error(`Cannot confirm booking. Missing required fields: ${missing.join(', ')}`)
+          }
+        }
+
+        return data
+      },
+    ],
+
     afterChange: [
       async ({ doc, previousDoc, req, operation }) => {
         if (operation !== 'update') return doc
@@ -152,6 +223,7 @@ const Bookings: CollectionConfig = {
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${typeLabel}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${itemTitle}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Date</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.date}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Pickup time</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.pickupTime || '—'}</td></tr>
+                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Total price</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${priceInfo}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Passengers</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.paxCount || '—'}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Status</strong></td><td style="padding: 8px; border: 1px solid #ddd; color: #a33; font-weight: bold;">Cancelled</td></tr>
               </table>
@@ -255,13 +327,13 @@ const Bookings: CollectionConfig = {
         { label: 'Price 1–3', value: 'price1to3' },
         { label: 'Price 4–7', value: 'price4to7' },
       ],
-      admin: { description: 'Auto-set from party size' },
+      admin: { description: 'Auto-set from party size', readOnly: true },
     },
     {
       name: 'totalPrice',
       type: 'number',
       min: 0,
-      admin: { description: 'Total price in £' },
+      admin: { description: 'Auto-calculated from tour/transfer price' },
     },
     {
       name: 'paymentStatus',
