@@ -101,8 +101,8 @@ const Bookings: CollectionConfig = {
     ],
 
     afterChange: [
-      // Counter updates for bookingCount and confirmedCount
-      async ({ doc, previousDoc, req, operation }) => {
+      // Counter updates for bookingCount and confirmedCount (fire-and-forget to not block response)
+      ({ doc, previousDoc, req, operation }) => {
         // Skip if this is a recursive call from counter update
         if (req.context?.__skipBookingCounterHook) return doc
 
@@ -113,72 +113,80 @@ const Bookings: CollectionConfig = {
 
         if (!resolvedItemId) return doc
 
-        // A) On create: increment bookingCount
+        // A) On create: increment bookingCount (fire-and-forget)
         if (operation === 'create') {
-          try {
-            const item = await req.payload.findByID({ collection, id: resolvedItemId })
-            await req.payload.update({
-              collection,
-              id: resolvedItemId,
-              data: { bookingCount: (item?.bookingCount || 0) + 1 },
-              depth: 0,
-            })
-          } catch (err) {
-            console.error('[COUNTER] Failed to increment bookingCount:', err)
-          }
+          void (async () => {
+            try {
+              const item = await req.payload.findByID({ collection, id: resolvedItemId })
+              await req.payload.update({
+                collection,
+                id: resolvedItemId,
+                data: { bookingCount: (item?.bookingCount || 0) + 1 },
+                depth: 0,
+              })
+              console.log('[COUNTER] bookingCount incremented for', collection, resolvedItemId)
+            } catch (err) {
+              console.error('[COUNTER] Failed to increment bookingCount:', err)
+            }
+          })()
         }
 
-        // B) On update: handle confirmedCount transitions
+        // B) On update: handle confirmedCount transitions (fire-and-forget)
         if (operation === 'update' && previousDoc) {
           const newStatus = doc.status
-          const oldStatus = previousDoc.status
           const wasCountedConfirmed = previousDoc.countedConfirmed || false
 
           // Confirmed and not yet counted → increment confirmedCount
           if (newStatus === 'confirmed' && !wasCountedConfirmed) {
-            try {
-              const item = await req.payload.findByID({ collection, id: resolvedItemId })
-              await req.payload.update({
-                collection,
-                id: resolvedItemId,
-                data: { confirmedCount: (item?.confirmedCount || 0) + 1 },
-                depth: 0,
-              })
-              // Update booking to mark as counted
-              await req.payload.update({
-                collection: 'bookings',
-                id: doc.id,
-                data: { countedConfirmed: true },
-                depth: 0,
-                context: { __skipBookingCounterHook: true },
-              })
-            } catch (err) {
-              console.error('[COUNTER] Failed to increment confirmedCount:', err)
-            }
+            void (async () => {
+              try {
+                const item = await req.payload.findByID({ collection, id: resolvedItemId })
+                await req.payload.update({
+                  collection,
+                  id: resolvedItemId,
+                  data: { confirmedCount: (item?.confirmedCount || 0) + 1 },
+                  depth: 0,
+                })
+                // Update booking to mark as counted
+                await req.payload.update({
+                  collection: 'bookings',
+                  id: doc.id,
+                  data: { countedConfirmed: true },
+                  depth: 0,
+                  context: { __skipBookingCounterHook: true },
+                })
+                console.log('[COUNTER] confirmedCount incremented for', collection, resolvedItemId)
+              } catch (err) {
+                console.error('[COUNTER] Failed to increment confirmedCount:', err)
+              }
+            })()
           }
 
           // Cancelled and was counted → decrement confirmedCount
           if (newStatus === 'cancelled' && wasCountedConfirmed) {
-            try {
-              const item = await req.payload.findByID({ collection, id: resolvedItemId })
-              const newCount = Math.max(0, (item?.confirmedCount || 0) - 1)
-              await req.payload.update({
-                collection,
-                id: resolvedItemId,
-                data: { confirmedCount: newCount },
-                depth: 0,
-              })
-              // Update booking to mark as not counted
-              await req.payload.update({
-                collection: 'bookings',
-                id: doc.id,
-                data: { countedConfirmed: false },
-                depth: 0,
-                context: { __skipBookingCounterHook: true },
-              })
-            } catch (err) {
-              console.error('[COUNTER] Failed to decrement confirmedCount:', err)
-            }
+            void (async () => {
+              try {
+                const item = await req.payload.findByID({ collection, id: resolvedItemId })
+                const newCount = Math.max(0, (item?.confirmedCount || 0) - 1)
+                await req.payload.update({
+                  collection,
+                  id: resolvedItemId,
+                  data: { confirmedCount: newCount },
+                  depth: 0,
+                })
+                // Update booking to mark as not counted
+                await req.payload.update({
+                  collection: 'bookings',
+                  id: doc.id,
+                  data: { countedConfirmed: false },
+                  depth: 0,
+                  context: { __skipBookingCounterHook: true },
+                })
+                console.log('[COUNTER] confirmedCount decremented for', collection, resolvedItemId)
+              } catch (err) {
+                console.error('[COUNTER] Failed to decrement confirmedCount:', err)
+              }
+            })()
           }
         }
 

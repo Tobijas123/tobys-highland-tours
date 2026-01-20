@@ -27,10 +27,14 @@ function isRateLimited(ip: string): boolean {
 }
 
 export async function POST(request: Request) {
+  const startTime = Date.now()
+  console.log('[BOOKING API] Request started')
+
   try {
     // Basic rate limiting by IP
     const forwarded = request.headers.get('x-forwarded-for')
     const ip = forwarded?.split(',')[0]?.trim() || 'unknown'
+    console.log('[BOOKING API] IP:', ip)
 
     if (isRateLimited(ip)) {
       return NextResponse.json(
@@ -169,10 +173,12 @@ export async function POST(request: Request) {
       bookingData.transfer = item.id
     }
 
+    console.log('[BOOKING API] Creating booking...', Date.now() - startTime, 'ms')
     const booking = await payload.create({
       collection: 'bookings',
       data: bookingData,
     })
+    console.log('[BOOKING API] Booking created:', booking.id, Date.now() - startTime, 'ms')
 
     // Send notification email to admin
     const partyLabel = partySize === '1-3' ? '1–3 people' : '4–7 people'
@@ -200,16 +206,19 @@ export async function POST(request: Request) {
       <p style="margin-top: 16px;"><a href="${process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000'}/admin/collections/bookings/${booking.id}">View in Admin</a></p>
     `
 
-    try {
-      await payload.sendEmail({
-        to: ADMIN_EMAIL,
-        subject: `New ${typeLabel} Booking: ${itemTitle} – ${date} ${pickupTime}`,
-        html: adminHtml,
-      })
-    } catch (err) {
-      console.error('Failed to send admin notification:', err)
-    }
+    // Fire-and-forget email: don't block the response
+    console.log('[BOOKING API] Queuing admin email (fire-and-forget)...', Date.now() - startTime, 'ms')
+    void payload.sendEmail({
+      to: ADMIN_EMAIL,
+      subject: `New ${typeLabel} Booking: ${itemTitle} – ${date} ${pickupTime}`,
+      html: adminHtml,
+    }).then(() => {
+      console.log('[BOOKING API] Admin email sent successfully')
+    }).catch((err) => {
+      console.error('[BOOKING API] Failed to send admin email:', err)
+    })
 
+    console.log('[BOOKING API] Returning 201 response', Date.now() - startTime, 'ms')
     return NextResponse.json(
       {
         success: true,

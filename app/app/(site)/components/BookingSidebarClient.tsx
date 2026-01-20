@@ -87,8 +87,12 @@ Thanks!`
     setSubmitting(true)
     setError(null)
 
+    // Create AbortController with 15s timeout
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 15000)
+
     try {
-      const payload: Record<string, any> = {
+      const requestPayload: Record<string, any> = {
         date: selected,
         pickupTime,
         pickupLocation: pickupLocation.trim(),
@@ -102,28 +106,41 @@ Thanks!`
 
       // Send tourId or transferId based on itemType
       if (itemType === 'tour') {
-        payload.tourId = itemId
+        requestPayload.tourId = itemId
       } else {
-        payload.transferId = itemId
+        requestPayload.transferId = itemId
       }
 
       const res = await fetch('/api/public/bookings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(requestPayload),
+        signal: controller.signal,
       })
 
-      const data = await res.json()
+      clearTimeout(timeoutId)
+
+      let data: any = {}
+      try {
+        data = await res.json()
+      } catch {
+        // Response not JSON
+      }
 
       if (!res.ok) {
-        setError(data.error || 'Something went wrong')
+        setError(data.error || `Server error (${res.status}). Please try again or use email below.`)
         return
       }
 
       setSubmittedBookingId(data.bookingId || null)
       setSubmitted(true)
-    } catch {
-      setError('Network error. Please try again or use the email option below.')
+    } catch (err: any) {
+      clearTimeout(timeoutId)
+      if (err?.name === 'AbortError') {
+        setError('Request timed out. Server may be busy. Please try again or use the email option below.')
+      } else {
+        setError('Network error. Please try again or use the email option below.')
+      }
     } finally {
       setSubmitting(false)
     }
