@@ -1,0 +1,8 @@
+/* Zebra striping for Payload admin list tables */
+.collection-list tbody tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.collection-list tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}

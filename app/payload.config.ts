@@ -64,5 +64,6 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    css: path.resolve(dirname, 'app/admin.css'),
   },
 })

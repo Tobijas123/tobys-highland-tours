@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 const Bookings: CollectionConfig = {
   slug: 'bookings',
+  defaultSort: '-createdAt',
 
   access: {
     read: ({ req }) => Boolean(req.user),
