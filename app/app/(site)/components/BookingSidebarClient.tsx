@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import BookingCalendar from './BookingCalendar'
 
 type PartySize = '1-3' | '4-7'
@@ -32,6 +32,38 @@ export default function BookingSidebarClient({ itemType, itemId, itemTitle, pric
   const [submittedBookingId, setSubmittedBookingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+
+  // Availability state
+  const [calendarMonth, setCalendarMonth] = useState<string>(() => {
+    const now = new Date()
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  })
+  const [disabledDates, setDisabledDates] = useState<string[]>([])
+  const [disabledMessage, setDisabledMessage] = useState<string>('')
+
+  // Fetch availability when partySize or calendarMonth changes
+  useEffect(() => {
+    if (!partySize) {
+      setDisabledDates([])
+      return
+    }
+
+    const controller = new AbortController()
+
+    fetch(`/api/public/availability?month=${calendarMonth}&partySize=${partySize}`, {
+      signal: controller.signal,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setDisabledDates(data.disabledDates?.map((d: { date: string }) => d.date) ?? [])
+        setDisabledMessage(data.fullyBookedMessage ?? '')
+      })
+      .catch(() => {
+        setDisabledDates([])
+      })
+
+    return () => controller.abort()
+  }, [partySize, calendarMonth])
 
   const currentPrice = partySize === '1-3' ? price1to3 : partySize === '4-7' ? price4to7 : null
   const typeLabel = itemType === 'tour' ? 'Tour' : 'Transfer'
@@ -209,7 +241,12 @@ Thanks!`
 
         <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8, marginTop: 14 }}>Pick a date</div>
 
-        <BookingCalendar onSelect={(iso) => setSelected(iso)} />
+        <BookingCalendar
+          onSelect={(iso) => setSelected(iso)}
+          disabledDates={disabledDates}
+          disabledMessage={disabledMessage}
+          onMonthChange={(m) => setCalendarMonth(m)}
+        />
 
         <div style={{ marginTop: 10, fontSize: 12, opacity: 0.85 }}>
           Selected date: <span style={{ fontWeight: 900 }}>{selected ?? '—'}</span>

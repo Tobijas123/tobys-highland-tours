@@ -17,14 +17,28 @@ function pad2(n: number) {
 function toISODate(d: Date) {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
 }
+function toYYYYMM(d: Date) {
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`
+}
 
 type Props = {
   onSelect?: (isoDate: string) => void
+  disabledDates?: string[]
+  disabledMessage?: string
+  onMonthChange?: (monthYYYYMM: string) => void
 }
 
-export default function BookingCalendar({ onSelect }: Props) {
+export default function BookingCalendar({ onSelect, disabledDates, disabledMessage, onMonthChange }: Props) {
   const [viewMonth, setViewMonth] = useState<Date>(() => startOfMonth(new Date()))
   const [selected, setSelected] = useState<string | null>(null)
+
+  const disabledSet = useMemo(() => new Set(disabledDates ?? []), [disabledDates])
+
+  function changeMonth(delta: number) {
+    const newMonth = addMonths(viewMonth, delta)
+    setViewMonth(newMonth)
+    onMonthChange?.(toYYYYMM(newMonth))
+  }
 
   const { monthLabel, cells } = useMemo(() => {
     const y = viewMonth.getFullYear()
@@ -50,7 +64,7 @@ export default function BookingCalendar({ onSelect }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
         <button
           type="button"
-          onClick={() => setViewMonth(addMonths(viewMonth, -1))}
+          onClick={() => changeMonth(-1)}
           style={{
             padding: '6px 10px',
             borderRadius: 10,
@@ -68,7 +82,7 @@ export default function BookingCalendar({ onSelect }: Props) {
 
         <button
           type="button"
-          onClick={() => setViewMonth(addMonths(viewMonth, 1))}
+          onClick={() => changeMonth(1)}
           style={{
             padding: '6px 10px',
             borderRadius: 10,
@@ -93,25 +107,27 @@ export default function BookingCalendar({ onSelect }: Props) {
         {cells.map((c, idx) => {
           const isSelected = c.iso && selected === c.iso
           const isEmpty = !c.iso
+          const isDisabled = !!(c.iso && disabledSet.has(c.iso))
 
           return (
             <button
               key={idx}
               type="button"
-              disabled={isEmpty}
+              disabled={isEmpty || isDisabled}
               onClick={() => {
-                if (!c.iso) return
+                if (!c.iso || isDisabled) return
                 setSelected(c.iso)
                 onSelect?.(c.iso)
               }}
+              title={isDisabled ? disabledMessage : undefined}
               style={{
                 padding: '10px 0',
                 borderRadius: 10,
                 border: '1px solid rgba(0,0,0,0.12)',
-                background: isEmpty ? 'transparent' : isSelected ? 'rgba(0,0,0,0.08)' : 'white',
-                cursor: isEmpty ? 'default' : 'pointer',
+                background: isEmpty ? 'transparent' : isDisabled ? 'rgba(0,0,0,0.06)' : isSelected ? 'rgba(0,0,0,0.08)' : 'white',
+                cursor: isEmpty ? 'default' : isDisabled ? 'not-allowed' : 'pointer',
                 fontWeight: 900,
-                opacity: isEmpty ? 0 : 1,
+                opacity: isEmpty ? 0 : isDisabled ? 0.5 : 1,
               }}
               aria-label={c.iso ?? 'empty'}
             >
