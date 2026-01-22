@@ -248,6 +248,15 @@ Thanks!`
           onMonthChange={(m) => setCalendarMonth(m)}
         />
 
+        {disabledDates.length > 0 && (
+          <div style={{ marginTop: 10, fontSize: 11, opacity: 0.7, lineHeight: 1.5 }}>
+            We're fully booked on some dates. Contact us and we'll try to arrange an alternative:{' '}
+            <a href="https://wa.me/447383488007" target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>WhatsApp</a>
+            {' · '}
+            <a href="mailto:info@tobyshighlandtours.com" style={{ fontWeight: 700 }}>Email</a>
+          </div>
+        )}
+
         <div style={{ marginTop: 10, fontSize: 12, opacity: 0.85 }}>
           Selected date: <span style={{ fontWeight: 900 }}>{selected ?? '—'}</span>
         </div>
