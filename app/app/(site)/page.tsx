@@ -2,6 +2,7 @@ export const dynamic = 'force-dynamic'
 import HeroSliderClient from './components/HeroSliderClient'
 import ContactFormClient from './components/ContactFormClient'
 import PromoSectionClient from './components/PromoSectionClient'
+import ReviewsRotatorClient from './components/ReviewsRotatorClient'
 
 function toPublicURL(url: string) {
   const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -57,6 +58,15 @@ type HomepageData = {
   heroLogo?: MediaDoc | null
   heroSlides?: HeroSlide[]
   promoSection?: PromoSection
+}
+
+type Testimonial = {
+  id: string
+  authorName: string
+  text: string
+  rating: number
+  source: 'facebook' | 'google' | 'manual'
+  sourceUrl?: string
 }
 
 async function getHomepage(): Promise<HomepageData | null> {
@@ -126,6 +136,21 @@ async function getTransfers(): Promise<Transfer[]> {
   }
 
   return docs
+}
+
+async function getTestimonials(): Promise<Testimonial[]> {
+  const baseUrl = process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
+  try {
+    const res = await fetch(
+      `${baseUrl}/api/testimonials?where[featured][equals]=true&limit=12&sort=order`,
+      { cache: 'no-store' }
+    )
+    if (!res.ok) return []
+    const data = await res.json()
+    return (data?.docs ?? []) as Testimonial[]
+  } catch {
+    return []
+  }
 }
 
 function ProductCard({
@@ -223,10 +248,11 @@ function ProductCard({
 }
 
 export default async function HomePage() {
-  const [tours, transfers, homepage] = await Promise.all([
+  const [tours, transfers, homepage, testimonials] = await Promise.all([
     getTours(),
     getTransfers(),
     getHomepage(),
+    getTestimonials(),
   ])
 
   // Transform CMS slides to component format
@@ -333,6 +359,14 @@ export default async function HomePage() {
           </div>
         )}
       </section>
+
+      {/* Reviews Section */}
+      {testimonials.length > 0 && (
+        <section style={{ marginTop: 48 }}>
+          <h2 className="sectionTitle" style={{ marginBottom: 16 }}>What guests say</h2>
+          <ReviewsRotatorClient testimonials={testimonials} />
+        </section>
+      )}
 
       {/* Contact Section */}
       <section style={{ marginTop: 48 }}>

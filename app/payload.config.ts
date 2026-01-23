@@ -11,6 +11,7 @@ import Bookings from './collections/Bookings'
 import Vehicles from './collections/Vehicles'
 import Drivers from './collections/Drivers'
 import Transfers from './collections/Transfers'
+import Testimonials from './collections/Testimonials'
 import Homepage from './globals/Homepage'
 
 const filename = fileURLToPath(import.meta.url)
@@ -55,6 +56,7 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
     Vehicles,
     Drivers,
     Transfers,
+    Testimonials,
   ],
 
   globals: [Homepage],
