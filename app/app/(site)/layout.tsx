@@ -453,14 +453,83 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
           .heroSubtitle{
             font-size: 18px;
             font-weight: 600;
-            margin: 0 0 24px;
+            margin: 0 0 20px;
             opacity: 0.92;
             text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+          }
+          .heroTrust{
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+          }
+          .heroTrustReviews{
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            background: rgba(0,0,0,0.35);
+            padding: 6px 14px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+            transition: background 150ms ease;
+          }
+          .heroTrustReviews:hover{
+            background: rgba(0,0,0,0.5);
+          }
+          .heroStars{
+            color: #fbbf24;
+            letter-spacing: 1px;
+          }
+          .heroTrustChips{
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 6px;
+          }
+          .heroChip{
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.15);
+            padding: 4px 10px;
+            border-radius: 12px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255,255,255,0.2);
+          }
+          .heroBtns{
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            align-items: center;
+          }
+          @media (min-width: 520px){
+            .heroBtns{
+              flex-direction: row;
+              justify-content: center;
+            }
           }
           .heroBtn{
             width: auto;
             padding: 14px 28px;
             font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .btnWhatsApp{
+            background: linear-gradient(180deg, #25D366, #128C7E);
+            color: #fff !important;
+            border-color: rgba(18,140,126,.5);
+            box-shadow: 0 6px 20px rgba(37,211,102,.25);
+          }
+          .btnWhatsApp:hover{
+            transform: translateY(-2px);
+            box-shadow: 0 12px 35px rgba(37,211,102,.35), 0 0 0 3px rgba(37,211,102,.2);
           }
           .heroLogo{
             max-width: 280px;
@@ -636,6 +705,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             </a>
 
             <nav style={{ display: 'flex', gap: 14, fontWeight: 900 }}>
+              <a href="/" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
+                Home
+              </a>
               <a href="/tours" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
                 Tours
               </a>
