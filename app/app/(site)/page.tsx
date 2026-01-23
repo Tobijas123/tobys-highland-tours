@@ -335,14 +335,8 @@ export default async function HomePage() {
       </section>
 
       {/* Contact Section */}
-      <section style={{ marginTop: 48, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          <h2 className="sectionTitle" style={{ marginBottom: 6 }}>Get in Touch</h2>
-          <p style={{ fontSize: 13, opacity: 0.7, margin: 0 }}>Questions about tours or transfers? Drop us a message.</p>
-        </div>
-        <div style={{ width: '100%', maxWidth: 560 }}>
-          <ContactFormClient />
-        </div>
+      <section style={{ marginTop: 48 }}>
+        <ContactFormClient />
       </section>
     </>
   )

@@ -49,31 +49,53 @@ export default function ContactFormClient() {
     }
   }
 
-  const inputStyle = {
+  const panelStyle: React.CSSProperties = {
+    maxWidth: 520,
+    margin: '0 auto',
+    padding: 18,
+    borderRadius: 16,
+    background: 'rgba(0,0,0,0.03)',
+    border: '1px solid rgba(0,0,0,0.08)',
+    overflow: 'hidden',
+  }
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%',
     padding: '10px 12px',
     fontSize: 13,
-    background: 'rgba(0,0,0,0.03)',
+    background: '#fff',
     border: '1px solid rgba(0,0,0,0.15)',
     borderRadius: 8,
+    color: '#111',
     outline: 'none',
+    boxSizing: 'border-box' as const,
   }
 
   if (submitted) {
     return (
-      <div style={{ padding: 16, textAlign: 'center', background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 12 }}>
-        <div style={{ fontSize: 22, marginBottom: 6 }}>✓</div>
-        <div style={{ fontSize: 14, fontWeight: 900, marginBottom: 4 }}>Message Sent!</div>
-        <div style={{ fontSize: 12, opacity: 0.7 }}>
-          Thanks for reaching out. We'll get back to you soon.
+      <div style={panelStyle}>
+        <div style={{ textAlign: 'center', padding: 12 }}>
+          <div style={{ fontSize: 28, marginBottom: 8, color: '#22c55e' }}>✓</div>
+          <div style={{ fontSize: 15, fontWeight: 800, marginBottom: 4, color: '#111' }}>Message Sent!</div>
+          <div style={{ fontSize: 12, color: 'rgba(0,0,0,0.6)' }}>
+            Thanks for reaching out. We'll get back to you soon.
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ padding: 14, background: 'rgba(0,0,0,0.02)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 12 }}>
-      <div style={{ display: 'grid', gap: 8 }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+    <div style={panelStyle}>
+      <div style={{ textAlign: 'center', marginBottom: 14 }}>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#111' }}>Contact us</h3>
+        <p style={{ margin: '6px 0 0', fontSize: 12, color: 'rgba(0,0,0,0.55)', lineHeight: 1.4 }}>
+          Questions, custom itineraries, last-minute availability—send a message.
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        <div style={{ display: 'grid', gap: 10 }}>
           <input
             type="text"
             placeholder="Your name *"
@@ -90,51 +112,50 @@ export default function ContactFormClient() {
             style={inputStyle}
             required
           />
+          <input
+            type="tel"
+            placeholder="Phone (optional)"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            style={inputStyle}
+          />
+
+          <textarea
+            placeholder="Your message *"
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            style={{ ...inputStyle, resize: 'vertical' }}
+            rows={3}
+            required
+          />
+
+          {/* Honeypot field - hidden from users */}
+          <input
+            type="text"
+            name="company"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            style={{ position: 'absolute', left: '-9999px', opacity: 0 }}
+            tabIndex={-1}
+            autoComplete="off"
+          />
+
+          {error && (
+            <div style={{ padding: 8, background: 'rgba(220,38,38,0.08)', borderRadius: 8, fontSize: 11, color: '#b91c1c', border: '1px solid rgba(220,38,38,0.2)' }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="btn btnPrimary"
+            disabled={!canSubmit || submitting}
+            style={{ marginTop: 4, padding: '11px 18px', fontSize: 13 }}
+          >
+            {submitting ? 'Sending...' : 'Send message'}
+          </button>
         </div>
-
-        <input
-          type="tel"
-          placeholder="Phone (optional)"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          style={inputStyle}
-        />
-
-        <textarea
-          placeholder="Your message *"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          style={{ ...inputStyle, resize: 'vertical' }}
-          rows={3}
-          required
-        />
-
-        {/* Honeypot field - hidden from users */}
-        <input
-          type="text"
-          name="company"
-          value={company}
-          onChange={(e) => setCompany(e.target.value)}
-          style={{ position: 'absolute', left: '-9999px', opacity: 0 }}
-          tabIndex={-1}
-          autoComplete="off"
-        />
-
-        {error && (
-          <div style={{ padding: 8, background: 'rgba(200,50,50,.1)', borderRadius: 6, fontSize: 11, color: '#a33' }}>
-            {error}
-          </div>
-        )}
-
-        <button
-          type="submit"
-          className="btn btnPrimary"
-          disabled={!canSubmit || submitting}
-          style={{ marginTop: 2, padding: '10px 16px', fontSize: 13 }}
-        >
-          {submitting ? 'Sending...' : 'Send message'}
-        </button>
-      </div>
-    </form>
+      </form>
+    </div>
   )
 }
