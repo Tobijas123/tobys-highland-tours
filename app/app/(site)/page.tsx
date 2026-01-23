@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic'
 import HeroSliderClient from './components/HeroSliderClient'
+import ContactFormClient from './components/ContactFormClient'
+import PromoSectionClient from './components/PromoSectionClient'
 
 function toPublicURL(url: string) {
   const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -39,9 +41,22 @@ type HeroSlide = {
   subheading?: string
 }
 
+type PromoSection = {
+  enabled?: boolean
+  heightPx?: number
+  backgroundImages?: { image?: MediaDoc | null; focus?: string }[]
+  overlayOpacity?: number
+  heading?: string
+  headingEffect?: 'none' | 'shadow' | 'glow' | 'outline'
+  content?: unknown
+  ctaLabel?: string
+  ctaHref?: string
+}
+
 type HomepageData = {
   heroLogo?: MediaDoc | null
   heroSlides?: HeroSlide[]
+  promoSection?: PromoSection
 }
 
 async function getHomepage(): Promise<HomepageData | null> {
@@ -225,9 +240,32 @@ export default async function HomePage() {
 
   const heroLogoUrl = homepage?.heroLogo?.url ? toPublicURL(homepage.heroLogo.url) : null
 
+  // Transform promo section data
+  const promo = homepage?.promoSection
+  const promoBackgroundImages = promo?.backgroundImages
+    ?.filter((b) => b.image?.url)
+    .map((b) => ({
+      url: toPublicURL(b.image!.url!),
+      focus: b.focus || 'center',
+    })) ?? []
+
   return (
     <>
       <HeroSliderClient slides={heroSlides} logoUrl={heroLogoUrl} />
+
+      {promo?.enabled && (
+        <PromoSectionClient
+          enabled={promo.enabled}
+          heightPx={promo.heightPx}
+          backgroundImages={promoBackgroundImages}
+          overlayOpacity={promo.overlayOpacity}
+          heading={promo.heading}
+          headingEffect={promo.headingEffect}
+          content={promo.content}
+          ctaLabel={promo.ctaLabel}
+          ctaHref={promo.ctaHref}
+        />
+      )}
 
       {/* Tours Section */}
       <section style={{ marginBottom: 48 }}>
@@ -294,6 +332,17 @@ export default async function HomePage() {
             ))}
           </div>
         )}
+      </section>
+
+      {/* Contact Section */}
+      <section style={{ marginTop: 48, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+          <h2 className="sectionTitle" style={{ marginBottom: 6 }}>Get in Touch</h2>
+          <p style={{ fontSize: 13, opacity: 0.7, margin: 0 }}>Questions about tours or transfers? Drop us a message.</p>
+        </div>
+        <div style={{ width: '100%', maxWidth: 560 }}>
+          <ContactFormClient />
+        </div>
       </section>
     </>
   )
