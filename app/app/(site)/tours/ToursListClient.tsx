@@ -1,0 +1,224 @@
+'use client'
+
+import { useState, useMemo } from 'react'
+
+type MediaDoc = {
+  url?: string
+  alt?: string | null
+}
+
+type Tour = {
+  id: string | number
+  title?: string
+  slug?: string
+  shortDescription?: string
+  heroImage?: MediaDoc | null
+  price1to3?: number
+  price4to7?: number
+  durationHours?: number
+  confirmedCount?: number
+  bookingCount?: number
+}
+
+interface ToursListClientProps {
+  tours: Tour[]
+  toPublicURL: (url: string) => string
+}
+
+type FilterKey = 'all' | 'popular' | 'half-day' | 'full-day' | 'loch-ness' | 'skye' | 'whisky'
+
+const FILTERS: { key: FilterKey; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'popular', label: 'Most popular' },
+  { key: 'half-day', label: 'Half-day' },
+  { key: 'full-day', label: 'Full-day' },
+  { key: 'loch-ness', label: 'Loch Ness' },
+  { key: 'skye', label: 'Skye' },
+  { key: 'whisky', label: 'Whisky' },
+]
+
+function matchesKeyword(tour: Tour, keywords: string[]): boolean {
+  const text = `${tour.title || ''} ${tour.slug || ''} ${tour.shortDescription || ''}`.toLowerCase()
+  return keywords.some((kw) => text.includes(kw.toLowerCase()))
+}
+
+export default function ToursListClient({ tours, toPublicURL }: ToursListClientProps) {
+  const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
+
+  // Determine popular tours: use confirmedCount, fallback to bookingCount, then first 3
+  const popularTourIds = useMemo(() => {
+    const withCounts = tours.filter((t) => (t.confirmedCount ?? 0) > 0 || (t.bookingCount ?? 0) > 0)
+    if (withCounts.length > 0) {
+      return withCounts
+        .sort((a, b) => (b.confirmedCount ?? b.bookingCount ?? 0) - (a.confirmedCount ?? a.bookingCount ?? 0))
+        .slice(0, 5)
+        .map((t) => t.id)
+    }
+    // Fallback: first 3 tours as "popular"
+    return tours.slice(0, 3).map((t) => t.id)
+  }, [tours])
+
+  const filteredTours = useMemo(() => {
+    switch (activeFilter) {
+      case 'popular':
+        return tours.filter((t) => popularTourIds.includes(t.id))
+      case 'half-day':
+        return tours.filter((t) => typeof t.durationHours === 'number' && t.durationHours <= 4)
+      case 'full-day':
+        return tours.filter((t) => typeof t.durationHours === 'number' && t.durationHours > 4)
+      case 'loch-ness':
+        return tours.filter((t) => matchesKeyword(t, ['loch ness', 'ness']))
+      case 'skye':
+        return tours.filter((t) => matchesKeyword(t, ['skye']))
+      case 'whisky':
+        return tours.filter((t) => matchesKeyword(t, ['whisky', 'distillery', 'speyside']))
+      default:
+        return tours
+    }
+  }, [activeFilter, tours, popularTourIds])
+
+  return (
+    <>
+      {/* Filter chips */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 8,
+          marginBottom: 16,
+          overflowX: 'auto',
+          paddingBottom: 4,
+          WebkitOverflowScrolling: 'touch',
+        }}
+      >
+        {FILTERS.map((f) => (
+          <button
+            key={f.key}
+            onClick={() => setActiveFilter(f.key)}
+            style={{
+              flexShrink: 0,
+              padding: '8px 14px',
+              fontSize: 13,
+              fontWeight: 600,
+              borderRadius: 999,
+              border: activeFilter === f.key ? '1px solid var(--navy)' : '1px solid rgba(0,0,0,0.15)',
+              background: activeFilter === f.key ? 'var(--navy)' : '#fff',
+              color: activeFilter === f.key ? '#fff' : 'inherit',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Count */}
+      <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.5)', marginBottom: 12 }}>
+        Showing {filteredTours.length} tour{filteredTours.length !== 1 ? 's' : ''}
+      </div>
+
+      {/* Tours grid */}
+      {filteredTours.length === 0 ? (
+        <div className="card" style={{ padding: 16, textAlign: 'center' }}>
+          <p className="muted">No tours match this filter.</p>
+        </div>
+      ) : (
+        <div className="toursGrid">
+          {filteredTours.map((t) => {
+            const href = `/tours/${t.slug ?? t.id}`
+            const imgUrl = typeof t.heroImage?.url === 'string' ? toPublicURL(t.heroImage.url) : null
+
+            return (
+              <a
+                key={String(t.id)}
+                href={href}
+                className="card tourCard"
+                style={{
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                <div
+                  className="tourMedia"
+                  style={{
+                    width: '100%',
+                    aspectRatio: '16/9',
+                    background: 'rgba(11,31,58,.04)',
+                  }}
+                >
+                  {imgUrl ? (
+                    <img
+                      src={imgUrl}
+                      alt={t.heroImage?.alt || t.title || 'Tour image'}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        height: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        opacity: 0.6,
+                      }}
+                    >
+                      No image
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ padding: 16 }}>
+                  <div className="titlePremium" style={{ fontSize: 18, marginBottom: 6 }}>
+                    {t.title ?? 'Tour'}
+                  </div>
+
+                  <div className="muted" style={{ fontSize: 13, lineHeight: 1.45, minHeight: 36 }}>
+                    {t.shortDescription ?? 'No short description yet.'}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                    <span className="badge badgeMoss">
+                      {typeof t.durationHours === 'number' ? `${t.durationHours}h` : '—'}
+                    </span>
+                  </div>
+                  <div className="priceGrid">
+                    <div className="pricePill pricePillGold">
+                      <span className="label">1–3 people</span>
+                      <span className="price">
+                        {typeof t.price1to3 === 'number' ? `£${t.price1to3}` : '—'}
+                      </span>
+                    </div>
+                    <div className="pricePill pricePillMoss">
+                      <span className="label">4–7 people</span>
+                      <span className="price">
+                        {typeof t.price4to7 === 'number' ? `£${t.price4to7}` : '—'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            )
+          })}
+        </div>
+      )}
+
+      <style>{`
+        .toursGrid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 16px;
+          align-items: stretch;
+        }
+        @media (max-width: 1000px) {
+          .toursGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (max-width: 640px) {
+          .toursGrid { grid-template-columns: 1fr; }
+        }
+      `}</style>
+    </>
+  )
+}

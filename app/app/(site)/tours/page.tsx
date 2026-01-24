@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic'
+import ToursListClient from './ToursListClient'
 
 function toPublicURL(url: string) {
   const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -21,6 +22,8 @@ type Tour = {
   price1to3?: number
   price4to7?: number
   durationHours?: number
+  confirmedCount?: number
+  bookingCount?: number
 }
 
 async function getTours(): Promise<Tour[]> {
@@ -44,112 +47,9 @@ export default async function ToursPage() {
             Pick a tour and see details + booking sidebar.
           </div>
 
-          {tours.length === 0 ? (
-          <div className="card" style={{ padding: 16 }}>
-            No tours yet.
-          </div>
-        ) : (
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
-              gap: 16,
-              alignItems: 'stretch',
-            }}
-          >
-            {tours.map((t) => {
-              const href = `/tours/${t.slug ?? t.id}`
-              const imgUrl =
-                typeof t.heroImage?.url === 'string' ? toPublicURL(t.heroImage.url) : null
-
-              return (
-                <a
-                  key={String(t.id)}
-                  href={href}
-                  className="card tourCard"
-                  style={{
-                    textDecoration: 'none',
-                    color: 'inherit',
-                    display: 'flex',
-                    flexDirection: 'column',
-                  }}
-                >
-                  <div
-                    className="tourMedia"
-                    style={{
-                      width: '100%',
-                      aspectRatio: '16/9',
-                      background: 'rgba(11,31,58,.04)',
-                    }}
-                  >
-                    {imgUrl ? (
-                      <img
-                        src={imgUrl}
-                        alt={t.heroImage?.alt || t.title || 'Tour image'}
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          height: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800,
-                          opacity: 0.6,
-                        }}
-                      >
-                        No image
-                      </div>
-                    )}
-                  </div>
-
-                  <div style={{ padding: 16 }}>
-                    <div className="titlePremium" style={{ fontSize: 18, marginBottom: 6 }}>
-                      {t.title ?? 'Tour'}
-                    </div>
-
-                    <div className="muted" style={{ fontSize: 13, lineHeight: 1.45, minHeight: 36 }}>
-                      {t.shortDescription ?? 'No short description yet.'}
-                    </div>
-
-                    <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
-                      <span className="badge badgeMoss">
-                        {typeof t.durationHours === 'number' ? `${t.durationHours}h` : '—'}
-                      </span>
-                    </div>
-                    <div className="priceGrid">
-                      <div className="pricePill pricePillGold">
-                        <span className="label">1–3 people</span>
-                        <span className="price">
-                          {typeof t.price1to3 === 'number' ? `£${t.price1to3}` : '—'}
-                        </span>
-                      </div>
-                      <div className="pricePill pricePillMoss">
-                        <span className="label">4–7 people</span>
-                        <span className="price">
-                          {typeof t.price4to7 === 'number' ? `£${t.price4to7}` : '—'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </a>
-              )
-            })}
-          </div>
-        )}
+          <ToursListClient tours={tours} toPublicURL={toPublicURL} />
         </div>
-
-        <style>{`
-          @media (max-width: 1000px) {
-            main div[style*="grid-template-columns"] { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
-          }
-          @media (max-width: 640px) {
-            main div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
-          }
-        `}</style>
       </div>
     </main>
   )
 }
-
