@@ -294,7 +294,7 @@ export default async function HomePage() {
       )}
 
       {/* Tours Section */}
-      <section style={{ marginBottom: 48 }}>
+      <section id="tours" style={{ marginBottom: 48, scrollMarginTop: 20 }}>
         <div className="sectionHeader">
           <h2 className="sectionTitle">Our Tours</h2>
           <a href="/tours" className="viewAllLink">

@@ -9,6 +9,7 @@ interface Testimonial {
   rating: number
   source: 'facebook' | 'google' | 'manual'
   sourceUrl?: string
+  featured?: boolean
 }
 
 interface ReviewsRotatorProps {
@@ -138,10 +139,14 @@ export default function ReviewsRotatorClient({ testimonials }: ReviewsRotatorPro
   const [pairIndex, setPairIndex] = useState(0)
   const [fade, setFade] = useState(true)
 
+  // Filter: if any featured exist, use only those; otherwise use all
+  const featuredOnly = testimonials.filter((t) => t.featured === true)
+  const filtered = featuredOnly.length > 0 ? featuredOnly : testimonials
+
   // Create pairs of testimonials
   const pairs: Testimonial[][] = []
-  for (let i = 0; i < testimonials.length; i += 2) {
-    const pair = testimonials.slice(i, i + 2)
+  for (let i = 0; i < filtered.length; i += 2) {
+    const pair = filtered.slice(i, i + 2)
     if (pair.length > 0) pairs.push(pair)
   }
 
@@ -161,7 +166,7 @@ export default function ReviewsRotatorClient({ testimonials }: ReviewsRotatorPro
     return () => clearInterval(interval)
   }, [pairs.length, shouldAnimate])
 
-  if (testimonials.length === 0) return null
+  if (filtered.length === 0) return null
 
   const currentPair = pairs[pairIndex] || pairs[0]
 

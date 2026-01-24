@@ -501,16 +501,21 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255,255,255,0.2);
           }
-          .heroBtns{
+          .heroCtaRow{
             display: flex;
             flex-direction: column;
             gap: 12px;
             align-items: center;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 16px;
           }
-          @media (min-width: 520px){
-            .heroBtns{
+          @media (min-width: 640px){
+            .heroCtaRow{
               flex-direction: row;
               justify-content: center;
+              flex-wrap: wrap;
+              margin-bottom: 0;
             }
           }
           .heroBtn{
@@ -520,6 +525,50 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             display: inline-flex;
             align-items: center;
             justify-content: center;
+          }
+          .heroCta{
+            min-width: 200px;
+          }
+          .heroWhatsApp{
+            width: auto;
+          }
+          @media (max-width: 640px){
+            .heroCtaRow{
+              flex-direction: row !important;
+              gap: 10px;
+              width: 100%;
+              margin-top: 10px;
+              padding-bottom: 8px;
+            }
+            .heroCtaRow a{
+              flex: 1 1 0;
+              min-width: 0;
+              padding: 12px 10px;
+              font-size: 14px;
+            }
+            .heroWhatsApp{
+              width: auto !important;
+              max-width: none !important;
+            }
+            .heroTrustChips{
+              gap: 6px !important;
+              margin-top: 8px;
+            }
+            .heroChip{
+              font-size: 10px !important;
+              padding: 3px 8px !important;
+            }
+            .heroTrust{
+              margin-bottom: 8px;
+            }
+            .heroTitle{
+              font-size: 28px !important;
+              margin-bottom: 8px !important;
+            }
+            .heroSubtitle{
+              font-size: 14px !important;
+              margin-bottom: 12px !important;
+            }
           }
           .btnWhatsApp{
             background: linear-gradient(180deg, #25D366, #128C7E);
