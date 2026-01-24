@@ -93,7 +93,7 @@ export default function HeroSliderClient({ slides, logoUrl }: HeroSliderProps) {
           </div>
 
           <div className="heroCtaRow">
-            <a href="#tours" className="btn btnPrimary heroBtn heroCta">
+            <a href="/tours" className="btn btnPrimary heroBtn heroCta">
               Check availability
             </a>
             <a
