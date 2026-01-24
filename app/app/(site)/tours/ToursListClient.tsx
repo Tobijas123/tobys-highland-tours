@@ -2,17 +2,13 @@
 
 import { useState, useMemo } from 'react'
 
-type MediaDoc = {
-  url?: string
-  alt?: string | null
-}
-
-type Tour = {
+type TourItem = {
   id: string | number
   title?: string
   slug?: string
   shortDescription?: string
-  heroImage?: MediaDoc | null
+  imageUrl?: string | null
+  imageAlt?: string | null
   price1to3?: number
   price4to7?: number
   durationHours?: number
@@ -21,8 +17,7 @@ type Tour = {
 }
 
 interface ToursListClientProps {
-  tours: Tour[]
-  toPublicURL: (url: string) => string
+  tours: TourItem[]
 }
 
 type FilterKey = 'all' | 'popular' | 'half-day' | 'full-day' | 'loch-ness' | 'skye' | 'whisky'
@@ -37,12 +32,12 @@ const FILTERS: { key: FilterKey; label: string }[] = [
   { key: 'whisky', label: 'Whisky' },
 ]
 
-function matchesKeyword(tour: Tour, keywords: string[]): boolean {
+function matchesKeyword(tour: TourItem, keywords: string[]): boolean {
   const text = `${tour.title || ''} ${tour.slug || ''} ${tour.shortDescription || ''}`.toLowerCase()
   return keywords.some((kw) => text.includes(kw.toLowerCase()))
 }
 
-export default function ToursListClient({ tours, toPublicURL }: ToursListClientProps) {
+export default function ToursListClient({ tours }: ToursListClientProps) {
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
 
   // Determine popular tours: use confirmedCount, fallback to bookingCount, then first 3
@@ -126,7 +121,6 @@ export default function ToursListClient({ tours, toPublicURL }: ToursListClientP
         <div className="toursGrid">
           {filteredTours.map((t) => {
             const href = `/tours/${t.slug ?? t.id}`
-            const imgUrl = typeof t.heroImage?.url === 'string' ? toPublicURL(t.heroImage.url) : null
 
             return (
               <a
@@ -148,10 +142,10 @@ export default function ToursListClient({ tours, toPublicURL }: ToursListClientP
                     background: 'rgba(11,31,58,.04)',
                   }}
                 >
-                  {imgUrl ? (
+                  {t.imageUrl ? (
                     <img
-                      src={imgUrl}
-                      alt={t.heroImage?.alt || t.title || 'Tour image'}
+                      src={t.imageUrl}
+                      alt={t.imageAlt || t.title || 'Tour image'}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : (

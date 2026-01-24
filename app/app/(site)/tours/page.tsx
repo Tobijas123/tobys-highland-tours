@@ -1,12 +1,6 @@
 export const dynamic = 'force-dynamic'
 import ToursListClient from './ToursListClient'
 
-function toPublicURL(url: string) {
-  const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
-  if (!base) return url
-  return url.replace(/^http:\/\/localhost:3000/, base)
-}
-
 type MediaDoc = {
   url?: string
   alt?: string | null
@@ -18,12 +12,17 @@ type Tour = {
   slug?: string
   shortDescription?: string
   heroImage?: MediaDoc | null
-  priceFrom?: number
   price1to3?: number
   price4to7?: number
   durationHours?: number
   confirmedCount?: number
   bookingCount?: number
+}
+
+function toPublicURL(url: string) {
+  const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
+  if (!base) return url
+  return url.replace(/^http:\/\/localhost:3000/, base)
 }
 
 async function getTours(): Promise<Tour[]> {
@@ -38,6 +37,21 @@ async function getTours(): Promise<Tour[]> {
 export default async function ToursPage() {
   const tours = await getTours()
 
+  // Map to serializable data for client component
+  const toursForClient = tours.map((t) => ({
+    id: t.id,
+    slug: t.slug,
+    title: t.title,
+    shortDescription: t.shortDescription,
+    imageUrl: typeof t.heroImage?.url === 'string' ? toPublicURL(t.heroImage.url) : null,
+    imageAlt: t.heroImage?.alt ?? null,
+    price1to3: t.price1to3,
+    price4to7: t.price4to7,
+    durationHours: t.durationHours,
+    confirmedCount: t.confirmedCount,
+    bookingCount: t.bookingCount,
+  }))
+
   return (
     <main style={{ padding: '28px 24px 60px' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
@@ -47,7 +61,7 @@ export default async function ToursPage() {
             Pick a tour and see details + booking sidebar.
           </div>
 
-          <ToursListClient tours={tours} toPublicURL={toPublicURL} />
+          <ToursListClient tours={toursForClient} />
         </div>
       </div>
     </main>
