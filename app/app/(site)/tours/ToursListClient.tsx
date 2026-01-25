@@ -114,8 +114,39 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
 
       {/* Tours grid */}
       {filteredTours.length === 0 ? (
-        <div className="card" style={{ padding: 16, textAlign: 'center' }}>
-          <p className="muted">No tours match this filter.</p>
+        <div
+          style={{
+            maxWidth: 520,
+            margin: '0 auto',
+            padding: '20px 16px',
+            background: 'rgba(11,31,58,0.02)',
+            border: '1px solid rgba(0,0,0,0.08)',
+            borderRadius: 16,
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 6, color: '#111' }}>
+            No tours match this filter
+          </div>
+          <p style={{ fontSize: 14, color: 'rgba(0,0,0,0.55)', margin: '0 0 16px' }}>
+            Try another filter or view all tours.
+          </p>
+          <button
+            onClick={() => setActiveFilter('all')}
+            style={{
+              padding: '8px 16px',
+              fontSize: 13,
+              fontWeight: 600,
+              borderRadius: 999,
+              border: '1px solid var(--navy)',
+              background: 'var(--navy)',
+              color: '#fff',
+              cursor: 'pointer',
+              transition: 'all 150ms ease',
+            }}
+          >
+            View all
+          </button>
         </div>
       ) : (
         <div className="toursGrid">
