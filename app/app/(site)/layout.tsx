@@ -757,6 +757,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
               <a href="/" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
                 Home
               </a>
+              <a href="/about" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
+                About
+              </a>
               <a href="/tours" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
                 Tours
               </a>
