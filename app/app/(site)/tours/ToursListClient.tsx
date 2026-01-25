@@ -40,23 +40,36 @@ function matchesKeyword(tour: TourItem, keywords: string[]): boolean {
 export default function ToursListClient({ tours }: ToursListClientProps) {
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
 
-  // Determine popular tours: use confirmedCount, fallback to bookingCount, then first 3
-  const popularTourIds = useMemo(() => {
-    const withCounts = tours.filter((t) => (t.confirmedCount ?? 0) > 0 || (t.bookingCount ?? 0) > 0)
-    if (withCounts.length > 0) {
-      return withCounts
-        .sort((a, b) => (b.confirmedCount ?? b.bookingCount ?? 0) - (a.confirmedCount ?? a.bookingCount ?? 0))
-        .slice(0, 5)
-        .map((t) => t.id)
+  // Determine popular tours: sort by confirmedCount, fallback to bookingCount, keep original order if both missing
+  const popularTours = useMemo(() => {
+    const getScore = (t: TourItem): number | null => {
+      if (typeof t.confirmedCount === 'number') return t.confirmedCount
+      if (typeof t.bookingCount === 'number') return t.bookingCount
+      return null
     }
-    // Fallback: first 3 tours as "popular"
-    return tours.slice(0, 3).map((t) => t.id)
+
+    // Stable sort: tours with scores first (sorted desc), then tours without scores (original order)
+    const sorted = [...tours].sort((a, b) => {
+      const scoreA = getScore(a)
+      const scoreB = getScore(b)
+
+      // Both have no score → keep original order
+      if (scoreA === null && scoreB === null) return 0
+      // Only A has no score → B comes first
+      if (scoreA === null) return 1
+      // Only B has no score → A comes first
+      if (scoreB === null) return -1
+      // Both have scores → sort descending
+      return scoreB - scoreA
+    })
+
+    return sorted.slice(0, 6)
   }, [tours])
 
   const filteredTours = useMemo(() => {
     switch (activeFilter) {
       case 'popular':
-        return tours.filter((t) => popularTourIds.includes(t.id))
+        return popularTours
       case 'half-day':
         return tours.filter((t) => typeof t.durationHours === 'number' && t.durationHours <= 4)
       case 'full-day':
@@ -70,7 +83,7 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
       default:
         return tours
     }
-  }, [activeFilter, tours, popularTourIds])
+  }, [activeFilter, tours, popularTours])
 
   return (
     <>
