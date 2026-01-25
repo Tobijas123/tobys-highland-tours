@@ -17,6 +17,30 @@ import Homepage from './globals/Homepage'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+// Production env validation - fail fast if critical vars are missing or insecure
+if (process.env.NODE_ENV === 'production') {
+  const errors: string[] = []
+
+  if (!process.env.DATABASE_URI) {
+    errors.push('DATABASE_URI is required in production')
+  }
+
+  if (!process.env.PAYLOAD_SECRET) {
+    errors.push('PAYLOAD_SECRET is required in production')
+  } else if (process.env.PAYLOAD_SECRET === 'dev_secret_change_later') {
+    errors.push('PAYLOAD_SECRET must be changed from default value in production')
+  } else if (process.env.PAYLOAD_SECRET.length < 32) {
+    errors.push('PAYLOAD_SECRET should be at least 32 characters in production')
+  }
+
+  if (errors.length > 0) {
+    console.error('\n❌ Production environment validation failed:')
+    errors.forEach((e) => console.error(`   - ${e}`))
+    console.error('\n')
+    process.exit(1)
+  }
+}
+
 export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
   

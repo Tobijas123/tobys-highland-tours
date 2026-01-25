@@ -1,42 +1,20 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { isRateLimited, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
 
 const ADMIN_EMAIL = 'info@tobyshighlandtours.com'
-
-// Simple in-memory rate limit (resets on server restart)
-const rateLimit = new Map<string, { count: number; resetAt: number }>()
-const RATE_LIMIT_MAX = 5
-const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000 // 1 hour
-
-function isRateLimited(ip: string): boolean {
-  const now = Date.now()
-  const entry = rateLimit.get(ip)
-
-  if (!entry || now > entry.resetAt) {
-    rateLimit.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS })
-    return false
-  }
-
-  if (entry.count >= RATE_LIMIT_MAX) {
-    return true
-  }
-
-  entry.count++
-  return false
-}
 
 export async function POST(request: Request) {
   const startTime = Date.now()
   console.log('[BOOKING API] Request started')
 
   try {
-    // Basic rate limiting by IP
-    const forwarded = request.headers.get('x-forwarded-for')
-    const ip = forwarded?.split(',')[0]?.trim() || 'unknown'
+    // Rate limiting by IP (10 per minute)
+    const ip = getClientIP(request)
     console.log('[BOOKING API] IP:', ip)
 
-    if (isRateLimited(ip)) {
+    if (isRateLimited('bookings', ip, RATE_LIMITS.bookings)) {
       return NextResponse.json(
         { error: 'Too many requests. Please try again later.' },
         { status: 429 }
