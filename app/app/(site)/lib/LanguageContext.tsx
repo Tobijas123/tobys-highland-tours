@@ -2,7 +2,10 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 
-export type Lang = 'en' | 'pl'
+// All supported language codes (translations only for en/pl, others fallback to en)
+export type Lang = 'en' | 'pl' | 'es' | 'pt' | 'hi' | 'zh'
+
+const VALID_LANGS: Lang[] = ['en', 'pl', 'es', 'pt', 'hi', 'zh']
 
 type LanguageContextType = {
   lang: Lang
@@ -22,13 +25,17 @@ function setCookie(name: string, value: string, days = 365) {
   document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`
 }
 
+function isValidLang(value: string): value is Lang {
+  return VALID_LANGS.includes(value as Lang)
+}
+
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>('en')
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const saved = getCookie('site_lang')
-    if (saved === 'pl' || saved === 'en') {
+    if (saved && isValidLang(saved)) {
       setLangState(saved)
     }
     setMounted(true)

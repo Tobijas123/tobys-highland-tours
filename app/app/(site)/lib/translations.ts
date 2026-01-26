@@ -1,5 +1,8 @@
 import type { Lang } from './LanguageContext'
 
+// Only en and pl have actual translations; other languages fallback to en
+type TranslatedLang = 'en' | 'pl'
+
 const translations = {
   // Navigation
   'nav.home': { en: 'Home', pl: 'Strona' },
@@ -112,7 +115,9 @@ type TranslationKey = keyof typeof translations
 
 export function t(key: TranslationKey, lang: Lang): string {
   const entry = translations[key]
-  return entry?.[lang] ?? entry?.en ?? key
+  // Only en and pl have translations; others fallback to en
+  const effectiveLang: TranslatedLang = lang === 'pl' ? 'pl' : 'en'
+  return entry?.[effectiveLang] ?? entry?.en ?? key
 }
 
 export { translations }

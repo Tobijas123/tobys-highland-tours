@@ -5,6 +5,10 @@ import { useLanguage, type Lang } from '../lib/LanguageContext'
 const LANGUAGES: { code: Lang; label: string; flag: string }[] = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'pl', label: 'Polski', flag: '🇵🇱' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'pt', label: 'Português', flag: '🇵🇹' },
+  { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
+  { code: 'zh', label: '中文', flag: '🇨🇳' },
 ]
 
 export default function TopBarClient() {
