@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     description: 'Choose a private Highland tour: Loch Ness 360, Isle of Skye, Invergordon cruise excursions and more. Door-to-door pickup, flexible stops, your pace.',
     url: '/tours',
     type: 'website',
-    images: ['/og.jpg'],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: "Toby's Highland Tours - Private tours & transfers from Inverness" }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Highland Tours from Inverness | Loch Ness & Skye',
     description: 'Choose a private Highland tour: Loch Ness 360, Isle of Skye, Invergordon cruise excursions and more. Door-to-door pickup, flexible stops, your pace.',
-    images: ['/og.jpg'],
+    images: [{ url: '/twitter-image', width: 1200, height: 630, alt: "Toby's Highland Tours - Private tours & transfers from Inverness" }],
   },
 }
 

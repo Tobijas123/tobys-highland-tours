@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     description: 'Meet your local driver-guide for private Highland tours, transfers and chauffeur services. Friendly, flexible, and focused on a smooth, memorable trip.',
     url: '/about',
     type: 'website',
-    images: ['/og.jpg'],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: "Toby's Highland Tours - Private tours & transfers from Inverness" }],
   },
   twitter: {
     card: 'summary_large_image',
     title: "About Toby's Highland Tours | Private Driver in Scotland",
     description: 'Meet your local driver-guide for private Highland tours, transfers and chauffeur services. Friendly, flexible, and focused on a smooth, memorable trip.',
-    images: ['/og.jpg'],
+    images: [{ url: '/twitter-image', width: 1200, height: 630, alt: "Toby's Highland Tours - Private tours & transfers from Inverness" }],
   },
 }
 

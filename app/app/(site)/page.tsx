@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     description: "Private tours from Inverness across the Highlands. Loch Ness 360, Isle of Skye, cruise tours from Invergordon, and airport transfers across Scotland.",
     url: '/',
     type: 'website',
-    images: ['/og.jpg'],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: "Toby's Highland Tours - Private tours & transfers from Inverness" }],
   },
   twitter: {
     card: 'summary_large_image',
     title: "Private Highland Tours & Transfers | Toby's Highland Tours",
     description: "Private tours from Inverness across the Highlands. Loch Ness 360, Isle of Skye, cruise tours from Invergordon, and airport transfers across Scotland.",
-    images: ['/og.jpg'],
+    images: [{ url: '/twitter-image', width: 1200, height: 630, alt: "Toby's Highland Tours - Private tours & transfers from Inverness" }],
   },
 }
 

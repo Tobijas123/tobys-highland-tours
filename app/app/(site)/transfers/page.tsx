@@ -13,13 +13,13 @@ export const metadata: Metadata = {
     description: 'Reliable transfers to all Scottish airports and cities—any direction. Private car or minibus, door-to-door pickup, comfortable rides and professional service.',
     url: '/transfers',
     type: 'website',
-    images: ['/og.jpg'],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: "Toby's Highland Tours - Private tours & transfers from Inverness" }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Scotland Airport Transfers & Private Driver Services',
     description: 'Reliable transfers to all Scottish airports and cities—any direction. Private car or minibus, door-to-door pickup, comfortable rides and professional service.',
-    images: ['/og.jpg'],
+    images: [{ url: '/twitter-image', width: 1200, height: 630, alt: "Toby's Highland Tours - Private tours & transfers from Inverness" }],
   },
 }
 
