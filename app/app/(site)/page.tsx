@@ -1,4 +1,28 @@
+import type { Metadata } from 'next'
+
 export const dynamic = 'force-dynamic'
+
+const siteUrl = (process.env.SITE_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://tobyshighlandtours.com').replace(/\/$/, '')
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: "Private Highland Tours & Transfers | Toby's Highland Tours",
+  description: "Private tours from Inverness across the Highlands. Loch Ness 360, Isle of Skye, cruise tours from Invergordon, and airport transfers across Scotland.",
+  openGraph: {
+    title: "Private Highland Tours & Transfers | Toby's Highland Tours",
+    description: "Private tours from Inverness across the Highlands. Loch Ness 360, Isle of Skye, cruise tours from Invergordon, and airport transfers across Scotland.",
+    url: '/',
+    type: 'website',
+    images: ['/og.jpg'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Private Highland Tours & Transfers | Toby's Highland Tours",
+    description: "Private tours from Inverness across the Highlands. Loch Ness 360, Isle of Skye, cruise tours from Invergordon, and airport transfers across Scotland.",
+    images: ['/og.jpg'],
+  },
+}
+
 import HeroSliderClient from './components/HeroSliderClient'
 import ContactFormClient from './components/ContactFormClient'
 import PromoSectionClient from './components/PromoSectionClient'

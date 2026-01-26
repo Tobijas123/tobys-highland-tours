@@ -1,4 +1,28 @@
+import type { Metadata } from 'next'
+
 export const dynamic = 'force-dynamic'
+
+const siteUrl = (process.env.SITE_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://tobyshighlandtours.com').replace(/\/$/, '')
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: 'Highland Tours from Inverness | Loch Ness & Skye',
+  description: 'Choose a private Highland tour: Loch Ness 360, Isle of Skye, Invergordon cruise excursions and more. Door-to-door pickup, flexible stops, your pace.',
+  openGraph: {
+    title: 'Highland Tours from Inverness | Loch Ness & Skye',
+    description: 'Choose a private Highland tour: Loch Ness 360, Isle of Skye, Invergordon cruise excursions and more. Door-to-door pickup, flexible stops, your pace.',
+    url: '/tours',
+    type: 'website',
+    images: ['/og.jpg'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Highland Tours from Inverness | Loch Ness & Skye',
+    description: 'Choose a private Highland tour: Loch Ness 360, Isle of Skye, Invergordon cruise excursions and more. Door-to-door pickup, flexible stops, your pace.',
+    images: ['/og.jpg'],
+  },
+}
+
 import ToursListClient from './ToursListClient'
 
 type MediaDoc = {

@@ -1,4 +1,27 @@
+import type { Metadata } from 'next'
+
 export const dynamic = 'force-dynamic'
+
+const siteUrl = (process.env.SITE_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://tobyshighlandtours.com').replace(/\/$/, '')
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: 'Scotland Airport Transfers & Private Driver Services',
+  description: 'Reliable transfers to all Scottish airports and cities—any direction. Private car or minibus, door-to-door pickup, comfortable rides and professional service.',
+  openGraph: {
+    title: 'Scotland Airport Transfers & Private Driver Services',
+    description: 'Reliable transfers to all Scottish airports and cities—any direction. Private car or minibus, door-to-door pickup, comfortable rides and professional service.',
+    url: '/transfers',
+    type: 'website',
+    images: ['/og.jpg'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Scotland Airport Transfers & Private Driver Services',
+    description: 'Reliable transfers to all Scottish airports and cities—any direction. Private car or minibus, door-to-door pickup, comfortable rides and professional service.',
+    images: ['/og.jpg'],
+  },
+}
 
 function toPublicURL(url: string) {
   const base = process.env.PAYLOAD_PUBLIC_SERVER_URL

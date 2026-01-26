@@ -1,4 +1,27 @@
+import type { Metadata } from 'next'
+
 export const dynamic = 'force-dynamic'
+
+const siteUrl = (process.env.SITE_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://tobyshighlandtours.com').replace(/\/$/, '')
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: "About Toby's Highland Tours | Private Driver in Scotland",
+  description: 'Meet your local driver-guide for private Highland tours, transfers and chauffeur services. Friendly, flexible, and focused on a smooth, memorable trip.',
+  openGraph: {
+    title: "About Toby's Highland Tours | Private Driver in Scotland",
+    description: 'Meet your local driver-guide for private Highland tours, transfers and chauffeur services. Friendly, flexible, and focused on a smooth, memorable trip.',
+    url: '/about',
+    type: 'website',
+    images: ['/og.jpg'],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "About Toby's Highland Tours | Private Driver in Scotland",
+    description: 'Meet your local driver-guide for private Highland tours, transfers and chauffeur services. Friendly, flexible, and focused on a smooth, memorable trip.',
+    images: ['/og.jpg'],
+  },
+}
 
 export default function AboutPage() {
   return (
