@@ -27,6 +27,7 @@ import HeroSliderClient from './components/HeroSliderClient'
 import ContactFormClient from './components/ContactFormClient'
 import PromoSectionClient from './components/PromoSectionClient'
 import ReviewsRotatorClient from './components/ReviewsRotatorClient'
+import SectionHeaderClient from './components/SectionHeaderClient'
 
 function toPublicURL(url: string) {
   const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -319,15 +320,7 @@ export default async function HomePage() {
 
       {/* Tours Section */}
       <section id="tours" style={{ marginBottom: 48, scrollMarginTop: 20 }}>
-        <div className="sectionHeader">
-          <h2 className="sectionTitle">Our Tours</h2>
-          <a href="/tours" className="viewAllLink">
-            View all tours
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polyline points="9 6 15 12 9 18" />
-            </svg>
-          </a>
-        </div>
+        <SectionHeaderClient titleKey="section.ourTours" linkKey="section.viewAllTours" href="/tours" />
 
         {tours.length === 0 ? (
           <div className="card" style={{ padding: 24 }}>
@@ -353,15 +346,7 @@ export default async function HomePage() {
 
       {/* Transfers Section */}
       <section>
-        <div className="sectionHeader">
-          <h2 className="sectionTitle">Transfer Services</h2>
-          <a href="/transfers" className="viewAllLink">
-            View all transfers
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-              <polyline points="9 6 15 12 9 18" />
-            </svg>
-          </a>
-        </div>
+        <SectionHeaderClient titleKey="section.transfers" linkKey="section.viewAllTransfers" href="/transfers" />
 
         {transfers.length === 0 ? (
           <div className="card" style={{ padding: 24 }}>
@@ -387,7 +372,7 @@ export default async function HomePage() {
       {/* Reviews Section */}
       {testimonials.length > 0 && (
         <section style={{ marginTop: 48 }}>
-          <h2 className="sectionTitle" style={{ marginBottom: 16 }}>What guests say</h2>
+          <SectionHeaderClient titleKey="section.reviews" />
           <ReviewsRotatorClient testimonials={testimonials} />
         </section>
       )}

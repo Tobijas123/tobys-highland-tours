@@ -1,10 +1,13 @@
 import type { ReactNode } from 'react'
 import TopBarClient from './components/TopBarClient'
+import NavigationClient from './components/NavigationClient'
+import { LanguageProvider } from './lib/LanguageContext'
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body style={{ margin: 0 }}>
+        <LanguageProvider>
         <style>{`
           :root{
             /* Premium Scottish palette + higher contrast */
@@ -753,26 +756,14 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
               Toby’s Highland Tours
             </a>
 
-            <nav style={{ display: 'flex', gap: 14, fontWeight: 900 }}>
-              <a href="/" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
-                Home
-              </a>
-              <a href="/about" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
-                About
-              </a>
-              <a href="/tours" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
-                Tours
-              </a>
-              <a href="/transfers" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
-                Transfers
-              </a>
-            </nav>
+            <NavigationClient />
           </div>
         </header>
 
         <main className="pageShell">
           <div className="pageInner">{children}</div>
         </main>
+        </LanguageProvider>
       </body>
     </html>
   )

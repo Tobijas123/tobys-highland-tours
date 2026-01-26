@@ -1,29 +1,18 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useLanguage, type Lang } from '../lib/LanguageContext'
 
-const LANGUAGES = [
+const LANGUAGES: { code: Lang; label: string; flag: string }[] = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
   { code: 'pl', label: 'Polski', flag: '🇵🇱' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'pt', label: 'Português', flag: '🇵🇹' },
-  { code: 'hi', label: 'हिन्दी', flag: '🇮🇳' },
-  { code: 'zh', label: '中文', flag: '🇨🇳' },
 ]
 
 export default function TopBarClient() {
-  const [lang, setLang] = useState('en')
+  const { lang, setLang } = useLanguage()
   const [open, setOpen] = useState(false)
 
-  useEffect(() => {
-    const saved = localStorage.getItem('lang')
-    if (saved && LANGUAGES.some((l) => l.code === saved)) {
-      setLang(saved)
-    }
-  }, [])
-
-  const handleSelect = (code: string) => {
+  const handleSelect = (code: Lang) => {
     setLang(code)
-    localStorage.setItem('lang', code)
     setOpen(false)
   }
 

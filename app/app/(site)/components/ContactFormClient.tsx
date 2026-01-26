@@ -1,8 +1,11 @@
 'use client'
 
 import { useState } from 'react'
+import { useLanguage } from '../lib/LanguageContext'
+import { t } from '../lib/translations'
 
 export default function ContactFormClient() {
+  const { lang } = useLanguage()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -88,9 +91,9 @@ export default function ContactFormClient() {
   return (
     <div style={panelStyle}>
       <div style={{ textAlign: 'center', marginBottom: 14 }}>
-        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#111' }}>Contact us</h3>
+        <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#111' }}>{t('contact.title', lang)}</h3>
         <p style={{ margin: '6px 0 0', fontSize: 12, color: 'rgba(0,0,0,0.55)', lineHeight: 1.4 }}>
-          Questions, custom itineraries, last-minute availability—send a message.
+          {t('contact.subtitle', lang)}
         </p>
       </div>
 
@@ -98,7 +101,7 @@ export default function ContactFormClient() {
         <div style={{ display: 'grid', gap: 10 }}>
           <input
             type="text"
-            placeholder="Your name *"
+            placeholder={t('contact.name', lang)}
             value={name}
             onChange={(e) => setName(e.target.value)}
             style={inputStyle}
@@ -106,7 +109,7 @@ export default function ContactFormClient() {
           />
           <input
             type="email"
-            placeholder="Your email *"
+            placeholder={t('contact.email', lang)}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             style={inputStyle}
@@ -114,14 +117,14 @@ export default function ContactFormClient() {
           />
           <input
             type="tel"
-            placeholder="Phone (optional)"
+            placeholder={t('contact.phone', lang)}
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
             style={inputStyle}
           />
 
           <textarea
-            placeholder="Your message *"
+            placeholder={t('contact.message', lang)}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             style={{ ...inputStyle, resize: 'vertical' }}
@@ -152,7 +155,7 @@ export default function ContactFormClient() {
             disabled={!canSubmit || submitting}
             style={{ marginTop: 4, padding: '11px 18px', fontSize: 13 }}
           >
-            {submitting ? 'Sending...' : 'Send message'}
+            {submitting ? 'Sending...' : t('contact.send', lang)}
           </button>
         </div>
       </form>
