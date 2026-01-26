@@ -3,7 +3,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://tobyshighlandtours.com'
+  const rawUrl = process.env.SITE_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://tobyshighlandtours.com'
+  const baseUrl = rawUrl.replace(/\/$/, '')
 
   // Static pages
   const staticPages: MetadataRoute.Sitemap = [
