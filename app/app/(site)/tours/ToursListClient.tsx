@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useLanguage } from '../lib/LanguageContext'
 import { pickI18n } from '../lib/pickI18n'
-import { t as tr } from '../lib/translations'
+import { useT } from '../lib/translations'
 
 type I18nGroup = {
   [key: string]: string | unknown | undefined
@@ -47,13 +47,14 @@ function matchesKeyword(tour: TourItem, keywords: string[]): boolean {
 
 export default function ToursListClient({ tours }: ToursListClientProps) {
   const { lang } = useLanguage()
+  const t = useT()
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
 
   // Determine popular tours: sort by confirmedCount, fallback to bookingCount, keep original order if both missing
   const popularTours = useMemo(() => {
-    const getScore = (t: TourItem): number | null => {
-      if (typeof t.confirmedCount === 'number') return t.confirmedCount
-      if (typeof t.bookingCount === 'number') return t.bookingCount
+    const getScore = (item: TourItem): number | null => {
+      if (typeof item.confirmedCount === 'number') return item.confirmedCount
+      if (typeof item.bookingCount === 'number') return item.bookingCount
       return null
     }
 
@@ -80,15 +81,15 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
       case 'popular':
         return popularTours
       case 'half-day':
-        return tours.filter((t) => typeof t.durationHours === 'number' && t.durationHours <= 4)
+        return tours.filter((item) => typeof item.durationHours === 'number' && item.durationHours <= 4)
       case 'full-day':
-        return tours.filter((t) => typeof t.durationHours === 'number' && t.durationHours > 4)
+        return tours.filter((item) => typeof item.durationHours === 'number' && item.durationHours > 4)
       case 'loch-ness':
-        return tours.filter((t) => matchesKeyword(t, ['loch ness', 'ness']))
+        return tours.filter((item) => matchesKeyword(item, ['loch ness', 'ness']))
       case 'skye':
-        return tours.filter((t) => matchesKeyword(t, ['skye']))
+        return tours.filter((item) => matchesKeyword(item, ['skye']))
       case 'whisky':
-        return tours.filter((t) => matchesKeyword(t, ['whisky', 'distillery', 'speyside']))
+        return tours.filter((item) => matchesKeyword(item, ['whisky', 'distillery', 'speyside']))
       default:
         return tours
     }
@@ -172,12 +173,12 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
         </div>
       ) : (
         <div className="toursGrid">
-          {filteredTours.map((t) => {
-            const href = `/tours/${t.slug ?? t.id}`
+          {filteredTours.map((tour) => {
+            const href = `/tours/${tour.slug ?? tour.id}`
 
             return (
               <a
-                key={String(t.id)}
+                key={String(tour.id)}
                 href={href}
                 className="card tourCard"
                 style={{
@@ -195,10 +196,10 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
                     background: 'rgba(11,31,58,.04)',
                   }}
                 >
-                  {t.imageUrl ? (
+                  {tour.imageUrl ? (
                     <img
-                      src={t.imageUrl}
-                      alt={t.imageAlt || t.title || 'Tour image'}
+                      src={tour.imageUrl}
+                      alt={tour.imageAlt || tour.title || 'Tour image'}
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   ) : (
@@ -219,29 +220,29 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
 
                 <div style={{ padding: 16 }}>
                   <div className="titlePremium" style={{ fontSize: 18, marginBottom: 6 }}>
-                    {pickI18n(t, 'title', lang, t.title ?? 'Tour')}
+                    {pickI18n(tour, 'title', lang, tour.title ?? 'Tour')}
                   </div>
 
                   <div className="muted" style={{ fontSize: 13, lineHeight: 1.45, minHeight: 36 }}>
-                    {pickI18n(t, 'shortDescription', lang, t.shortDescription ?? 'No short description yet.')}
+                    {pickI18n(tour, 'shortDescription', lang, tour.shortDescription ?? 'No short description yet.')}
                   </div>
 
                   <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                     <span className="badge badgeMoss">
-                      {typeof t.durationHours === 'number' ? `${t.durationHours}h` : '—'}
+                      {typeof tour.durationHours === 'number' ? `${tour.durationHours}h` : '—'}
                     </span>
                   </div>
                   <div className="priceGrid">
                     <div className="pricePill pricePillGold">
-                      <span className="label">{tr('price.1to3', lang)}</span>
+                      <span className="label">{t('price.1to3')}</span>
                       <span className="price">
-                        {typeof t.price1to3 === 'number' ? `£${t.price1to3}` : '—'}
+                        {typeof tour.price1to3 === 'number' ? `£${tour.price1to3}` : '—'}
                       </span>
                     </div>
                     <div className="pricePill pricePillMoss">
-                      <span className="label">{tr('price.4to7', lang)}</span>
+                      <span className="label">{t('price.4to7')}</span>
                       <span className="price">
-                        {typeof t.price4to7 === 'number' ? `£${t.price4to7}` : '—'}
+                        {typeof tour.price4to7 === 'number' ? `£${tour.price4to7}` : '—'}
                       </span>
                     </div>
                   </div>

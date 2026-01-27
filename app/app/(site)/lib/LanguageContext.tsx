@@ -31,24 +31,17 @@ function isValidLang(value: string): value is Lang {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>('en')
-  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const saved = getCookie('site_lang')
     if (saved && isValidLang(saved)) {
       setLangState(saved)
     }
-    setMounted(true)
   }, [])
 
   const setLang = (newLang: Lang) => {
     setLangState(newLang)
     setCookie('site_lang', newLang)
-  }
-
-  // Prevent hydration mismatch by not rendering until mounted
-  if (!mounted) {
-    return <>{children}</>
   }
 
   return (

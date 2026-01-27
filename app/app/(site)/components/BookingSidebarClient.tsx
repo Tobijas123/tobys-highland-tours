@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import BookingCalendar from './BookingCalendar'
-import { useLanguage } from '../lib/LanguageContext'
-import { t } from '../lib/translations'
+import { useT } from '../lib/translations'
 
 type PartySize = '1-3' | '4-7'
 type ItemType = 'tour' | 'transfer'
@@ -20,7 +19,7 @@ type Props = {
 const BOOKING_EMAIL = 'info@tobyshighlandtours.com'
 
 export default function BookingSidebarClient({ itemType, itemId, itemTitle, price1to3, price4to7, durationText }: Props) {
-  const { lang } = useLanguage()
+  const t = useT()
   const [selected, setSelected] = useState<string | null>(null)
   const [pickupTime, setPickupTime] = useState('')
   const [pickupLocation, setPickupLocation] = useState('')
@@ -172,9 +171,9 @@ Thanks!`
     } catch (err: any) {
       clearTimeout(timeoutId)
       if (err?.name === 'AbortError') {
-        setError(t('booking.errorTimeout', lang))
+        setError(t('booking.errorTimeout'))
       } else {
-        setError(t('booking.errorNetwork', lang))
+        setError(t('booking.errorNetwork'))
       }
     } finally {
       setSubmitting(false)
@@ -197,10 +196,10 @@ Thanks!`
       <div className="card" style={{ padding: 14 }}>
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
           <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
-          <div style={{ fontSize: 16, fontWeight: 900, marginBottom: 8 }}>{t('booking.requestSent', lang)}</div>
+          <div style={{ fontSize: 16, fontWeight: 900, marginBottom: 8 }}>{t('booking.requestSent')}</div>
           <div style={{ fontSize: 13, opacity: 0.8, lineHeight: 1.5 }}>
-            {t('booking.confirmationText', lang)}
-            {submittedBookingId && <><br/>{t('booking.bookingId', lang)} <strong>#{submittedBookingId}</strong></>}
+            {t('booking.confirmationText')}
+            {submittedBookingId && <><br/>{t('booking.bookingId')} <strong>#{submittedBookingId}</strong></>}
           </div>
         </div>
       </div>
@@ -209,11 +208,11 @@ Thanks!`
 
   return (
     <div className="card" style={{ padding: 14 }}>
-      <div style={{ fontSize: 12, opacity: 0.7 }}>{t('booking.duration', lang)}</div>
+      <div style={{ fontSize: 12, opacity: 0.7 }}>{t('booking.duration')}</div>
       <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 12 }}>{durationText}</div>
 
       <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12 }}>
-        <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>{t('booking.partySize', lang)}</div>
+        <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>{t('booking.partySize')}</div>
         <div className="partySizeGrid">
           <button
             type="button"
@@ -222,7 +221,7 @@ Thanks!`
             disabled={price1to3 === null}
           >
             <span className="count">1–3</span>
-            <span>{t('booking.people', lang)}</span>
+            <span>{t('booking.people')}</span>
             <span style={{ marginTop: 4, fontWeight: 950 }}>
               {price1to3 !== null ? `£${price1to3}` : '—'}
             </span>
@@ -234,14 +233,14 @@ Thanks!`
             disabled={price4to7 === null}
           >
             <span className="count">4–7</span>
-            <span>{t('booking.people', lang)}</span>
+            <span>{t('booking.people')}</span>
             <span style={{ marginTop: 4, fontWeight: 950 }}>
               {price4to7 !== null ? `£${price4to7}` : '—'}
             </span>
           </button>
         </div>
 
-        <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8, marginTop: 14 }}>{t('booking.pickDate', lang)}</div>
+        <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8, marginTop: 14 }}>{t('booking.pickDate')}</div>
 
         <BookingCalendar
           onSelect={(iso) => setSelected(iso)}
@@ -252,7 +251,7 @@ Thanks!`
 
         {disabledDates.length > 0 && (
           <div style={{ marginTop: 10, fontSize: 11, opacity: 0.7, lineHeight: 1.5 }}>
-            {t('booking.fullyBookedMessage', lang)}{' '}
+            {t('booking.fullyBookedMessage')}{' '}
             <a href="https://wa.me/447383488007" target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>WhatsApp</a>
             {' · '}
             <a href="mailto:info@tobyshighlandtours.com" style={{ fontWeight: 700 }}>Email</a>
@@ -260,12 +259,12 @@ Thanks!`
         )}
 
         <div style={{ marginTop: 10, fontSize: 12, opacity: 0.85 }}>
-          {t('booking.selectedDate', lang)} <span style={{ fontWeight: 900 }}>{selected ?? '—'}</span>
+          {t('booking.selectedDate')} <span style={{ fontWeight: 900 }}>{selected ?? '—'}</span>
         </div>
 
         {/* Pickup details */}
         <div style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
-          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>{t('booking.pickupDetails', lang)}</div>
+          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>{t('booking.pickupDetails')}</div>
 
           <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
             <input
@@ -278,7 +277,7 @@ Thanks!`
             />
             <input
               type="number"
-              placeholder={t('booking.pax', lang)}
+              placeholder={t('booking.pax')}
               min={1}
               max={50}
               value={paxCount}
@@ -291,7 +290,7 @@ Thanks!`
 
           <input
             type="text"
-            placeholder={t('booking.pickupLocation', lang)}
+            placeholder={t('booking.pickupLocation')}
             value={pickupLocation}
             onChange={(e) => setPickupLocation(e.target.value)}
             className="bookingInput"
@@ -300,7 +299,7 @@ Thanks!`
           />
           <input
             type="text"
-            placeholder={t('booking.dropoffLocation', lang)}
+            placeholder={t('booking.dropoffLocation')}
             value={dropoffLocation}
             onChange={(e) => setDropoffLocation(e.target.value)}
             className="bookingInput"
@@ -310,11 +309,11 @@ Thanks!`
 
         {/* Contact details */}
         <div style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
-          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>{t('booking.yourDetails', lang)}</div>
+          <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>{t('booking.yourDetails')}</div>
 
           <input
             type="text"
-            placeholder={t('booking.yourName', lang)}
+            placeholder={t('booking.yourName')}
             value={customerName}
             onChange={(e) => setCustomerName(e.target.value)}
             className="bookingInput"
@@ -322,7 +321,7 @@ Thanks!`
           />
           <input
             type="email"
-            placeholder={t('booking.yourEmail', lang)}
+            placeholder={t('booking.yourEmail')}
             value={customerEmail}
             onChange={(e) => setCustomerEmail(e.target.value)}
             className="bookingInput"
@@ -330,7 +329,7 @@ Thanks!`
           />
           <input
             type="tel"
-            placeholder={t('booking.phone', lang)}
+            placeholder={t('booking.phone')}
             value={customerPhone}
             onChange={(e) => setCustomerPhone(e.target.value)}
             className="bookingInput"
@@ -351,13 +350,13 @@ Thanks!`
           aria-disabled={!canSubmit || submitting}
           style={{ marginTop: 12 }}
         >
-          {submitting ? t('booking.sending', lang) : t('booking.requestBooking', lang)}
+          {submitting ? t('booking.sending') : t('booking.requestBooking')}
         </button>
 
         {/* Fallback options */}
         <div style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
           <div style={{ fontSize: 11, opacity: 0.65, marginBottom: 8 }}>
-            {t('booking.orContactUs', lang)}
+            {t('booking.orContactUs')}
           </div>
 
           <a
@@ -367,7 +366,7 @@ Thanks!`
             className="btn btnGhost"
             style={{ fontSize: 12, padding: '8px 10px' }}
           >
-            {t('booking.openGmail', lang)}
+            {t('booking.openGmail')}
           </a>
 
           <a
@@ -375,7 +374,7 @@ Thanks!`
             className="btn btnGhost"
             style={{ fontSize: 12, padding: '8px 10px', marginTop: 6 }}
           >
-            {t('booking.openMailApp', lang)}
+            {t('booking.openMailApp')}
           </a>
 
           <button
@@ -384,7 +383,7 @@ Thanks!`
             className="btn btnGhost"
             style={{ fontSize: 12, padding: '8px 10px', marginTop: 6 }}
           >
-            {copied ? t('booking.copied', lang) : t('booking.copyEmail', lang)}
+            {copied ? t('booking.copied') : t('booking.copyEmail')}
           </button>
         </div>
       </div>

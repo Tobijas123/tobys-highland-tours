@@ -2,7 +2,7 @@
 
 import { useLanguage } from '../../lib/LanguageContext'
 import { pickI18n } from '../../lib/pickI18n'
-import { t } from '../../lib/translations'
+import { useT } from '../../lib/translations'
 
 type I18nGroup = {
   [key: string]: string | unknown | undefined
@@ -62,6 +62,7 @@ interface TourDescriptionClientProps {
 
 export function TourDescriptionClient({ tour }: TourDescriptionClientProps) {
   const { lang } = useLanguage()
+  const t = useT()
 
   const shortDescription = pickI18n(tour, 'shortDescription', lang, tour.shortDescription ?? '')
 
@@ -78,35 +79,35 @@ export function TourDescriptionClient({ tour }: TourDescriptionClientProps) {
       ) : shortDescription ? (
         <p>{shortDescription}</p>
       ) : (
-        <p className="muted">{t('common.noDescription', lang)}</p>
+        <p className="muted">{t('common.noDescription')}</p>
       )}
     </div>
   )
 }
 
 export function BackToToursClient() {
-  const { lang } = useLanguage()
+  const t = useT()
   return (
     <a href="/tours" style={{ textDecoration: 'underline' }}>
-      {t('common.backToTours', lang)}
+      {t('common.backToTours')}
     </a>
   )
 }
 
 export function HighlightsTitleClient() {
-  const { lang } = useLanguage()
+  const t = useT()
   return (
     <h2 className="titlePremium" style={{ fontSize: 16, marginBottom: 10 }}>
-      {t('common.highlights', lang)}
+      {t('common.highlights')}
     </h2>
   )
 }
 
 export function NoImageClient() {
-  const { lang } = useLanguage()
+  const t = useT()
   return (
     <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, opacity: 0.5 }}>
-      {t('common.noImage', lang)}
+      {t('common.noImage')}
     </div>
   )
 }

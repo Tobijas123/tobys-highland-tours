@@ -1,4 +1,4 @@
-import type { Lang } from './LanguageContext'
+import { useLanguage, type Lang } from './LanguageContext'
 
 // Only en and pl have actual translations; other languages fallback to en
 type TranslatedLang = 'en' | 'pl'
@@ -164,4 +164,17 @@ export function t(key: TranslationKey, lang: Lang): string {
   return entry?.[effectiveLang] ?? entry?.en ?? key
 }
 
+/**
+ * Hook for translations - automatically re-renders when language changes
+ */
+export function useT() {
+  const { lang } = useLanguage()
+  return (key: TranslationKey): string => {
+    const entry = translations[key]
+    const effectiveLang: TranslatedLang = lang === 'pl' ? 'pl' : 'en'
+    return entry?.[effectiveLang] ?? entry?.en ?? key
+  }
+}
+
 export { translations }
+export type { TranslationKey }

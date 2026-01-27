@@ -1,24 +1,23 @@
 'use client'
 
-import { useLanguage } from '../lib/LanguageContext'
-import { t } from '../lib/translations'
+import { useT } from '../lib/translations'
 
 export default function NavigationClient() {
-  const { lang } = useLanguage()
+  const t = useT()
 
   return (
     <nav style={{ display: 'flex', gap: 14, fontWeight: 900 }}>
       <a href="/" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
-        {t('nav.home', lang)}
+        {t('nav.home')}
       </a>
       <a href="/about" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
-        {t('nav.about', lang)}
+        {t('nav.about')}
       </a>
       <a href="/tours" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
-        {t('nav.tours', lang)}
+        {t('nav.tours')}
       </a>
       <a href="/transfers" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
-        {t('nav.transfers', lang)}
+        {t('nav.transfers')}
       </a>
     </nav>
   )
