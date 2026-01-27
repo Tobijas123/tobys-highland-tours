@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
+import { t } from '../lib/translations'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,19 +60,21 @@ async function getTransfers(): Promise<Transfer[]> {
 
 export default async function TransfersPage() {
   const transfers = await getTransfers()
+  const langCookie = (await cookies()).get('site_lang')?.value
+  const lang = langCookie === 'es' ? 'es' : 'en'
 
   return (
     <main style={{ padding: '28px 24px 60px' }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="card" style={{ padding: 24 }}>
-          <h1 style={{ fontSize: 36, fontWeight: 950, margin: '0 0 6px' }}>Transfers</h1>
+          <h1 style={{ fontSize: 36, fontWeight: 950, margin: '0 0 6px' }}>{t('transfers.title', lang)}</h1>
           <div className="muted" style={{ fontSize: 14, marginBottom: 20 }}>
-            Airport pickups, hotel transfers and more.
+            {t('transfers.subtitle', lang)}
           </div>
 
           {transfers.length === 0 ? (
           <div className="card" style={{ padding: 16 }}>
-            No transfers yet.
+            {t('transfers.noTransfers', lang)}
           </div>
         ) : (
           <div
@@ -81,14 +85,14 @@ export default async function TransfersPage() {
               alignItems: 'stretch',
             }}
           >
-            {transfers.map((t) => {
-              const href = `/transfers/${t.slug ?? t.id}`
+            {transfers.map((tr) => {
+              const href = `/transfers/${tr.slug ?? tr.id}`
               const imgUrl =
-                typeof t.heroImage?.url === 'string' ? toPublicURL(t.heroImage.url) : null
+                typeof tr.heroImage?.url === 'string' ? toPublicURL(tr.heroImage.url) : null
 
               return (
                 <a
-                  key={String(t.id)}
+                  key={String(tr.id)}
                   href={href}
                   className="card tourCard"
                   style={{
@@ -109,7 +113,7 @@ export default async function TransfersPage() {
                     {imgUrl ? (
                       <img
                         src={imgUrl}
-                        alt={t.heroImage?.alt || t.title || 'Transfer image'}
+                        alt={tr.heroImage?.alt || tr.title || 'Transfer image'}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     ) : (
@@ -123,36 +127,36 @@ export default async function TransfersPage() {
                           opacity: 0.6,
                         }}
                       >
-                        No image
+                        {t('common.noImage', lang)}
                       </div>
                     )}
                   </div>
 
                   <div style={{ padding: 16 }}>
                     <div className="titlePremium" style={{ fontSize: 18, marginBottom: 6 }}>
-                      {t.title ?? 'Transfer'}
+                      {tr.title ?? t('common.transfer', lang)}
                     </div>
 
                     <div className="muted" style={{ fontSize: 13, lineHeight: 1.45, minHeight: 36 }}>
-                      {t.shortDescription ?? (t.fromLocation && t.toLocation ? `${t.fromLocation} → ${t.toLocation}` : 'No description yet.')}
+                      {tr.shortDescription ?? (tr.fromLocation && tr.toLocation ? `${tr.fromLocation} → ${tr.toLocation}` : t('common.noDescription', lang))}
                     </div>
 
                     <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
                       <span className="badge badgeMoss">
-                        {t.durationText ?? '—'}
+                        {tr.durationText ?? '—'}
                       </span>
                     </div>
                     <div className="priceGrid">
                       <div className="pricePill pricePillGold">
-                        <span className="label">1–3 people</span>
+                        <span className="label">{t('price.1to3', lang)}</span>
                         <span className="price">
-                          {typeof t.price1to3 === 'number' ? `£${t.price1to3}` : '—'}
+                          {typeof tr.price1to3 === 'number' ? `£${tr.price1to3}` : '—'}
                         </span>
                       </div>
                       <div className="pricePill pricePillMoss">
-                        <span className="label">4–7 people</span>
+                        <span className="label">{t('price.4to7', lang)}</span>
                         <span className="price">
-                          {typeof t.price4to7 === 'number' ? `£${t.price4to7}` : '—'}
+                          {typeof tr.price4to7 === 'number' ? `£${tr.price4to7}` : '—'}
                         </span>
                       </div>
                     </div>

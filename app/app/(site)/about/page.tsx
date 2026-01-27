@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
+import { t } from '../lib/translations'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,7 +25,10 @@ export const metadata: Metadata = {
   },
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const langCookie = (await cookies()).get('site_lang')?.value
+  const lang = langCookie === 'es' ? 'es' : 'en'
+
   return (
     <>
       {/* Hero Section */}
@@ -45,7 +50,7 @@ export default function AboutPage() {
               color: 'var(--navy)',
             }}
           >
-            About Toby's Highland Tours
+            {t('about.title', lang)}
           </h1>
           <p
             style={{
@@ -56,8 +61,7 @@ export default function AboutPage() {
               margin: '0 auto 32px',
             }}
           >
-            We offer authentic, private tours through the Scottish Highlands.
-            No crowds, no rush — just you, your guide, and the open road.
+            {t('about.intro', lang)}
           </p>
 
           {/* 3 Bullet Points */}
@@ -80,7 +84,7 @@ export default function AboutPage() {
                   <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
               </div>
-              <div className="aboutBulletText">Private tours</div>
+              <div className="aboutBulletText">{t('about.bullet.private', lang)}</div>
             </div>
 
             <div className="aboutBullet">
@@ -90,7 +94,7 @@ export default function AboutPage() {
                   <polyline points="9 22 9 12 15 12 15 22" />
                 </svg>
               </div>
-              <div className="aboutBulletText">Door-to-door pickup</div>
+              <div className="aboutBulletText">{t('about.bullet.doorToDoor', lang)}</div>
             </div>
 
             <div className="aboutBullet">
@@ -100,7 +104,7 @@ export default function AboutPage() {
                   <polyline points="12 6 12 12 16 14" />
                 </svg>
               </div>
-              <div className="aboutBulletText">Flexible stops</div>
+              <div className="aboutBulletText">{t('about.bullet.flexible', lang)}</div>
             </div>
           </div>
         </div>
@@ -109,7 +113,7 @@ export default function AboutPage() {
       {/* Why Book With Us */}
       <section style={{ marginBottom: 48 }}>
         <h2 className="sectionTitle" style={{ marginBottom: 24, textAlign: 'center' }}>
-          Why book with us
+          {t('about.whyTitle', lang)}
         </h2>
 
         <div className="whyGrid">
@@ -120,9 +124,9 @@ export default function AboutPage() {
                 <circle cx="9" cy="7" r="4" />
               </svg>
             </div>
-            <h3 className="whyTitle">Small groups</h3>
+            <h3 className="whyTitle">{t('about.why.smallGroups', lang)}</h3>
             <p className="whyDesc">
-              Maximum 7 passengers per tour. Personal attention guaranteed.
+              {t('about.why.smallGroupsDesc', lang)}
             </p>
           </div>
 
@@ -133,9 +137,9 @@ export default function AboutPage() {
                 <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 7 8 11.7z" />
               </svg>
             </div>
-            <h3 className="whyTitle">Local knowledge</h3>
+            <h3 className="whyTitle">{t('about.why.localKnowledge', lang)}</h3>
             <p className="whyDesc">
-              Your guide knows every hidden gem and local story worth sharing.
+              {t('about.why.localKnowledgeDesc', lang)}
             </p>
           </div>
 
@@ -147,9 +151,9 @@ export default function AboutPage() {
                 <polyline points="21 15 16 10 5 21" />
               </svg>
             </div>
-            <h3 className="whyTitle">Photo stops</h3>
+            <h3 className="whyTitle">{t('about.why.photoStops', lang)}</h3>
             <p className="whyDesc">
-              We stop whenever you see something worth capturing. Your pace, your photos.
+              {t('about.why.photoStopsDesc', lang)}
             </p>
           </div>
 
@@ -160,9 +164,9 @@ export default function AboutPage() {
                 <polyline points="22 4 12 14.01 9 11.01" />
               </svg>
             </div>
-            <h3 className="whyTitle">Stress-free logistics</h3>
+            <h3 className="whyTitle">{t('about.why.stressFree', lang)}</h3>
             <p className="whyDesc">
-              We handle everything — pickup, route, stops. You just enjoy the journey.
+              {t('about.why.stressFreeDesc', lang)}
             </p>
           </div>
         </div>
@@ -186,7 +190,7 @@ export default function AboutPage() {
               color: 'var(--navy)',
             }}
           >
-            Ready to explore the Highlands?
+            {t('about.ctaTitle', lang)}
           </h2>
           <p
             style={{
@@ -198,7 +202,7 @@ export default function AboutPage() {
               marginRight: 'auto',
             }}
           >
-            Browse our tours or get in touch — we're happy to help plan your perfect trip.
+            {t('about.ctaSubtitle', lang)}
           </p>
 
           <div
@@ -214,14 +218,14 @@ export default function AboutPage() {
               className="btn btnPrimary"
               style={{ width: 'auto', padding: '14px 32px' }}
             >
-              View tours
+              {t('about.viewTours', lang)}
             </a>
             <a
               href="/#contact"
               className="btn btnSecondary"
               style={{ width: 'auto', padding: '14px 32px' }}
             >
-              Contact us
+              {t('about.contactUs', lang)}
             </a>
           </div>
         </div>

@@ -6,7 +6,9 @@
     "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "migrate:tours-i18n-en": "tsx scripts/migrate-tours-i18n-en.ts",
+    "migrate:tours-i18n-en-to-es": "tsx scripts/migrate-tours-i18n-en-to-es.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.70.0",

@@ -1,7 +1,7 @@
 'use client'
 
 import { useLanguage } from '../../lib/LanguageContext'
-import { pickI18n } from '../../lib/pickI18n'
+import { pickI18n, pickI18nRichText } from '../../lib/pickI18n'
 import { useT } from '../../lib/translations'
 
 type I18nGroup = {
@@ -66,10 +66,7 @@ export function TourDescriptionClient({ tour }: TourDescriptionClientProps) {
 
   const shortDescription = pickI18n(tour, 'shortDescription', lang, tour.shortDescription ?? '')
 
-  // For longDescription, try i18n first, then fall back to original
-  const i18nLongDesc = tour.i18n?.[`longDescription_${lang}`]
-  const enLongDesc = tour.i18n?.longDescription_en
-  const longDescRaw = i18nLongDesc ?? (lang !== 'en' ? enLongDesc : null) ?? tour.longDescription
+  const longDescRaw = pickI18nRichText(tour, 'longDescription', lang) ?? tour.longDescription ?? null
   const longText = lexicalToPlainText(longDescRaw)
 
   return (

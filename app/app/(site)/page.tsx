@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { cookies } from 'next/headers'
+import { t } from './lib/translations'
 
 export const dynamic = 'force-dynamic'
 
@@ -186,6 +188,7 @@ function ProductCard({
   price1to3,
   price4to7,
   badge,
+  lang,
 }: {
   href: string
   image: MediaDoc | null | undefined
@@ -194,6 +197,7 @@ function ProductCard({
   price1to3?: number
   price4to7?: number
   badge?: string
+  lang: 'en' | 'es'
 }) {
   const imgUrl = typeof image?.url === 'string' ? toPublicURL(image.url) : null
 
@@ -233,7 +237,7 @@ function ProductCard({
               opacity: 0.6,
             }}
           >
-            No image
+            {t('common.noImage', lang)}
           </div>
         )}
       </div>
@@ -255,13 +259,13 @@ function ProductCard({
 
         <div className="priceGrid">
           <div className="pricePill pricePillGold">
-            <span className="label">1–3 people</span>
+            <span className="label">{t('price.1to3', lang)}</span>
             <span className="price">
               {typeof price1to3 === 'number' ? `£${price1to3}` : '—'}
             </span>
           </div>
           <div className="pricePill pricePillMoss">
-            <span className="label">4–7 people</span>
+            <span className="label">{t('price.4to7', lang)}</span>
             <span className="price">
               {typeof price4to7 === 'number' ? `£${price4to7}` : '—'}
             </span>
@@ -273,6 +277,9 @@ function ProductCard({
 }
 
 export default async function HomePage() {
+  const langCookie = (await cookies()).get('site_lang')?.value
+  const lang = langCookie === 'es' ? 'es' : 'en'
+
   const [tours, transfers, homepage, testimonials] = await Promise.all([
     getTours(),
     getTransfers(),
@@ -328,16 +335,17 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="productGrid">
-            {tours.map((t) => (
+            {tours.map((tour) => (
               <ProductCard
-                key={String(t.id)}
-                href={`/tours/${t.slug ?? t.id}`}
-                image={t.heroImage}
-                title={t.title ?? 'Tour'}
-                description={t.shortDescription ?? 'No description yet.'}
-                price1to3={t.price1to3}
-                price4to7={t.price4to7}
-                badge={typeof t.durationHours === 'number' ? `${t.durationHours}h` : undefined}
+                key={String(tour.id)}
+                href={`/tours/${tour.slug ?? tour.id}`}
+                image={tour.heroImage}
+                title={tour.title ?? 'Tour'}
+                description={tour.shortDescription ?? 'No description yet.'}
+                price1to3={tour.price1to3}
+                price4to7={tour.price4to7}
+                badge={typeof tour.durationHours === 'number' ? `${tour.durationHours}h` : undefined}
+                lang={lang}
               />
             ))}
           </div>
@@ -354,15 +362,16 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="productGrid">
-            {transfers.map((t) => (
+            {transfers.map((tr) => (
               <ProductCard
-                key={String(t.id)}
-                href={`/transfers/${t.slug ?? t.id}`}
-                image={t.heroImage}
-                title={t.title ?? 'Transfer'}
-                description={t.shortDescription ?? 'No description yet.'}
-                price1to3={t.price1to3}
-                price4to7={t.price4to7}
+                key={String(tr.id)}
+                href={`/transfers/${tr.slug ?? tr.id}`}
+                image={tr.heroImage}
+                title={tr.title ?? 'Transfer'}
+                description={tr.shortDescription ?? 'No description yet.'}
+                price1to3={tr.price1to3}
+                price4to7={tr.price4to7}
+                lang={lang}
               />
             ))}
           </div>
