@@ -121,6 +121,118 @@ const Tours: CollectionConfig = {
         description: 'Confirmed bookings for this tour (auto-updated)',
       },
     },
+
+    // ─────────────────────────────────────────────────────────────
+    // Multilingual fields (EN is default, others optional)
+    // ─────────────────────────────────────────────────────────────
+    {
+      name: 'i18n',
+      type: 'group',
+      label: 'Translations',
+      admin: {
+        description: 'Multilingual content. English is the default fallback.',
+      },
+      fields: [
+        // ── Title translations ──
+        {
+          name: 'title_en',
+          type: 'text',
+          label: 'Title (English)',
+          admin: { description: 'Default language' },
+        },
+        {
+          name: 'title_pl',
+          type: 'text',
+          label: 'Title (Polski)',
+        },
+        {
+          name: 'title_es',
+          type: 'text',
+          label: 'Title (Español)',
+        },
+        {
+          name: 'title_pt',
+          type: 'text',
+          label: 'Title (Português)',
+        },
+        {
+          name: 'title_hi',
+          type: 'text',
+          label: 'Title (हिन्दी)',
+        },
+        {
+          name: 'title_zh',
+          type: 'text',
+          label: 'Title (中文)',
+        },
+
+        // ── Short description translations ──
+        {
+          name: 'shortDescription_en',
+          type: 'textarea',
+          label: 'Short Description (English)',
+          admin: { description: 'Default language' },
+        },
+        {
+          name: 'shortDescription_pl',
+          type: 'textarea',
+          label: 'Short Description (Polski)',
+        },
+        {
+          name: 'shortDescription_es',
+          type: 'textarea',
+          label: 'Short Description (Español)',
+        },
+        {
+          name: 'shortDescription_pt',
+          type: 'textarea',
+          label: 'Short Description (Português)',
+        },
+        {
+          name: 'shortDescription_hi',
+          type: 'textarea',
+          label: 'Short Description (हिन्दी)',
+        },
+        {
+          name: 'shortDescription_zh',
+          type: 'textarea',
+          label: 'Short Description (中文)',
+        },
+
+        // ── Long description translations ──
+        {
+          name: 'longDescription_en',
+          type: 'richText',
+          label: 'Long Description (English)',
+          admin: { description: 'Default language' },
+        },
+        {
+          name: 'longDescription_pl',
+          type: 'richText',
+          label: 'Long Description (Polski)',
+        },
+        {
+          name: 'longDescription_es',
+          type: 'richText',
+          label: 'Long Description (Español)',
+        },
+        {
+          name: 'longDescription_pt',
+          type: 'richText',
+          label: 'Long Description (Português)',
+        },
+        {
+          name: 'longDescription_hi',
+          type: 'richText',
+          label: 'Long Description (हिन्दी)',
+        },
+        {
+          name: 'longDescription_zh',
+          type: 'richText',
+          label: 'Long Description (中文)',
+        },
+      ],
+    },
   ],
 }
 

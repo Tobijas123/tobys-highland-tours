@@ -30,6 +30,22 @@ type MediaDoc = {
   alt?: string | null
 }
 
+type I18nGroup = {
+  title_en?: string
+  title_pl?: string
+  title_es?: string
+  title_pt?: string
+  title_hi?: string
+  title_zh?: string
+  shortDescription_en?: string
+  shortDescription_pl?: string
+  shortDescription_es?: string
+  shortDescription_pt?: string
+  shortDescription_hi?: string
+  shortDescription_zh?: string
+  [key: string]: string | unknown | undefined
+}
+
 type Tour = {
   id: string | number
   title?: string
@@ -41,6 +57,7 @@ type Tour = {
   durationHours?: number
   confirmedCount?: number
   bookingCount?: number
+  i18n?: I18nGroup | null
 }
 
 function toPublicURL(url: string) {
@@ -61,7 +78,7 @@ async function getTours(): Promise<Tour[]> {
 export default async function ToursPage() {
   const tours = await getTours()
 
-  // Map to serializable data for client component
+  // Map to serializable data for client component (include i18n for translations)
   const toursForClient = tours.map((t) => ({
     id: t.id,
     slug: t.slug,
@@ -74,6 +91,7 @@ export default async function ToursPage() {
     durationHours: t.durationHours,
     confirmedCount: t.confirmedCount,
     bookingCount: t.bookingCount,
+    i18n: t.i18n ?? null,
   }))
 
   return (

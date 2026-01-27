@@ -1,4 +1,5 @@
 import BookingSidebarClient from '../../components/BookingSidebarClient'
+import { TourTitleClient, TourDescriptionClient, BackToToursClient, HighlightsTitleClient, NoImageClient } from './TourTitleClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,18 +44,23 @@ type MediaDoc = {
   alt?: string | null
 }
 
+type I18nGroup = {
+  [key: string]: string | unknown | undefined
+}
+
 type Tour = {
   id: string | number
   title?: string
   slug?: string
   shortDescription?: string
-  longDescription?: any
+  longDescription?: unknown
   heroImage?: MediaDoc | null
   priceFrom?: number
   price1to3?: number
   price4to7?: number
   durationHours?: number
   highlights?: { text: string }[]
+  i18n?: I18nGroup | null
 }
 
 async function getTourBySlug(slug: string): Promise<Tour | null> {
@@ -88,19 +94,16 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
   }
 
   const imgUrl = typeof tour.heroImage?.url === 'string' ? toPublicURL(tour.heroImage.url) : null
-  const longText = lexicalToPlainText(tour.longDescription)
 
   return (
     <main style={{ padding: 24 }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="card" style={{ padding: 24 }}>
           <p style={{ marginBottom: 16 }}>
-            <a href="/tours" style={{ textDecoration: 'underline' }}>
-              ← Back to Tours
-            </a>
+            <BackToToursClient />
           </p>
 
-          <h1 className="titlePremium" style={{ fontSize: 38, marginBottom: 20 }}>{tour.title}</h1>
+          <TourTitleClient tour={{ title: tour.title, i18n: tour.i18n }} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: 22 }}>
           {/* LEFT: image + description */}
@@ -120,26 +123,23 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
               ) : (
-                <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, opacity: 0.5 }}>
-                  No image
-                </div>
+                <NoImageClient />
               )}
             </div>
 
             <div style={{ padding: 20 }}>
-              <div className="prose" style={{ fontSize: 15 }}>
-                {longText ? (
-                  <p style={{ whiteSpace: 'pre-wrap' }}>{longText}</p>
-                ) : tour.shortDescription ? (
-                  <p>{tour.shortDescription}</p>
-                ) : (
-                  <p className="muted">No description yet.</p>
-                )}
-              </div>
+              <TourDescriptionClient
+                tour={{
+                  title: tour.title,
+                  shortDescription: tour.shortDescription,
+                  longDescription: tour.longDescription,
+                  i18n: tour.i18n,
+                }}
+              />
 
               {tour.highlights && tour.highlights.length > 0 ? (
                 <div style={{ marginTop: 20 }}>
-                  <h2 className="titlePremium" style={{ fontSize: 16, marginBottom: 10 }}>Highlights</h2>
+                  <HighlightsTitleClient />
                   <ul className="prose" style={{ display: 'grid', gap: 6 }}>
                     {tour.highlights.map((h, idx) => (
                       <li key={idx}>{h.text}</li>

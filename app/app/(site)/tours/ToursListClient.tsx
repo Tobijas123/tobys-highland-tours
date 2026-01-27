@@ -1,6 +1,13 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useLanguage } from '../lib/LanguageContext'
+import { pickI18n } from '../lib/pickI18n'
+import { t as tr } from '../lib/translations'
+
+type I18nGroup = {
+  [key: string]: string | unknown | undefined
+}
 
 type TourItem = {
   id: string | number
@@ -14,6 +21,7 @@ type TourItem = {
   durationHours?: number
   confirmedCount?: number
   bookingCount?: number
+  i18n?: I18nGroup | null
 }
 
 interface ToursListClientProps {
@@ -38,6 +46,7 @@ function matchesKeyword(tour: TourItem, keywords: string[]): boolean {
 }
 
 export default function ToursListClient({ tours }: ToursListClientProps) {
+  const { lang } = useLanguage()
   const [activeFilter, setActiveFilter] = useState<FilterKey>('all')
 
   // Determine popular tours: sort by confirmedCount, fallback to bookingCount, keep original order if both missing
@@ -210,11 +219,11 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
 
                 <div style={{ padding: 16 }}>
                   <div className="titlePremium" style={{ fontSize: 18, marginBottom: 6 }}>
-                    {t.title ?? 'Tour'}
+                    {pickI18n(t, 'title', lang, t.title ?? 'Tour')}
                   </div>
 
                   <div className="muted" style={{ fontSize: 13, lineHeight: 1.45, minHeight: 36 }}>
-                    {t.shortDescription ?? 'No short description yet.'}
+                    {pickI18n(t, 'shortDescription', lang, t.shortDescription ?? 'No short description yet.')}
                   </div>
 
                   <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
@@ -224,13 +233,13 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
                   </div>
                   <div className="priceGrid">
                     <div className="pricePill pricePillGold">
-                      <span className="label">1–3 people</span>
+                      <span className="label">{tr('price.1to3', lang)}</span>
                       <span className="price">
                         {typeof t.price1to3 === 'number' ? `£${t.price1to3}` : '—'}
                       </span>
                     </div>
                     <div className="pricePill pricePillMoss">
-                      <span className="label">4–7 people</span>
+                      <span className="label">{tr('price.4to7', lang)}</span>
                       <span className="price">
                         {typeof t.price4to7 === 'number' ? `£${t.price4to7}` : '—'}
                       </span>

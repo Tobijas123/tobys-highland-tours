@@ -108,7 +108,51 @@ const translations = {
 
   // Common
   'common.noDescription': { en: 'No description yet.', pl: 'Brak opisu.' },
-  'common.noImage': { en: 'No image', pl: 'Brak zdj\u0119cia' },
+  'common.noImage': { en: 'No image', pl: 'Brak zdjęcia' },
+  'common.tour': { en: 'Tour', pl: 'Wycieczka' },
+  'common.transfer': { en: 'Transfer', pl: 'Transfer' },
+  'common.backToTours': { en: '← Back to Tours', pl: '← Powrót do wycieczek' },
+  'common.highlights': { en: 'Highlights', pl: 'Atrakcje' },
+
+  // Booking widget
+  'booking.duration': { en: 'Duration', pl: 'Czas trwania' },
+  'booking.partySize': { en: 'Party size', pl: 'Wielkość grupy' },
+  'booking.people': { en: 'people', pl: 'osoby' },
+  'booking.pickDate': { en: 'Pick a date', pl: 'Wybierz datę' },
+  'booking.selectedDate': { en: 'Selected date:', pl: 'Wybrana data:' },
+  'booking.pickupDetails': { en: 'Pickup details', pl: 'Szczegóły odbioru' },
+  'booking.yourDetails': { en: 'Your details', pl: 'Twoje dane' },
+  'booking.pax': { en: 'Pax *', pl: 'Osoby *' },
+  'booking.pickupLocation': { en: 'Pickup location *', pl: 'Miejsce odbioru *' },
+  'booking.dropoffLocation': { en: 'Drop-off location *', pl: 'Miejsce docelowe *' },
+  'booking.yourName': { en: 'Your name *', pl: 'Twoje imię *' },
+  'booking.yourEmail': { en: 'Your email *', pl: 'Twój email *' },
+  'booking.phone': { en: 'Phone (optional)', pl: 'Telefon (opcjonalnie)' },
+  'booking.requestBooking': { en: 'Request a booking', pl: 'Wyślij zapytanie' },
+  'booking.sending': { en: 'Sending...', pl: 'Wysyłanie...' },
+  'booking.orContactUs': { en: 'Or contact us directly:', pl: 'Lub skontaktuj się bezpośrednio:' },
+  'booking.openGmail': { en: 'Open Gmail', pl: 'Otwórz Gmail' },
+  'booking.openMailApp': { en: 'Open mail app', pl: 'Otwórz aplikację mail' },
+  'booking.copyEmail': { en: 'Copy email text', pl: 'Kopiuj tekst emaila' },
+  'booking.copied': { en: 'Copied ✓', pl: 'Skopiowano ✓' },
+  'booking.requestSent': { en: 'Request Sent!', pl: 'Zapytanie wysłane!' },
+  'booking.confirmationText': {
+    en: "We've received your booking request. We'll confirm by email shortly.",
+    pl: 'Otrzymaliśmy Twoje zapytanie. Potwierdzimy emailem wkrótce.',
+  },
+  'booking.bookingId': { en: 'Booking ID:', pl: 'Nr rezerwacji:' },
+  'booking.fullyBookedMessage': {
+    en: "We're fully booked on some dates. Contact us and we'll try to arrange an alternative:",
+    pl: 'Niektóre terminy są zajęte. Skontaktuj się z nami, postaramy się znaleźć alternatywę:',
+  },
+  'booking.errorTimeout': {
+    en: 'Request timed out. Server may be busy. Please try again or use the email option below.',
+    pl: 'Przekroczono limit czasu. Serwer może być zajęty. Spróbuj ponownie lub użyj opcji email poniżej.',
+  },
+  'booking.errorNetwork': {
+    en: 'Network error. Please try again or use the email option below.',
+    pl: 'Błąd sieci. Spróbuj ponownie lub użyj opcji email poniżej.',
+  },
 } as const
 
 type TranslationKey = keyof typeof translations
