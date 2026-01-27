@@ -1,6 +1,7 @@
 'use client'
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
 
 // All supported language codes (translations only for en/pl, others fallback to en)
 export type Lang = 'en' | 'pl' | 'es' | 'pt' | 'hi' | 'zh'
@@ -31,6 +32,7 @@ function isValidLang(value: string): value is Lang {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>('en')
+  const router = useRouter()
 
   useEffect(() => {
     const saved = getCookie('site_lang')
@@ -42,6 +44,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLang = (newLang: Lang) => {
     setLangState(newLang)
     setCookie('site_lang', newLang)
+    // Refresh server components to pick up new cookie value
+    router.refresh()
+    // Dispatch event for any listeners
+    setTimeout(() => window.dispatchEvent(new Event('languagechange')), 0)
   }
 
   return (

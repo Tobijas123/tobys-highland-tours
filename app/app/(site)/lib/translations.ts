@@ -98,8 +98,14 @@ const translations = {
   'tours.noTours': { en: 'No tours available yet.', pl: 'Brak dost\u0119pnych wycieczek.' },
   'tours.filter.all': { en: 'All', pl: 'Wszystkie' },
   'tours.filter.popular': { en: 'Most popular', pl: 'Najpopularniejsze' },
-  'tours.filter.halfDay': { en: 'Half-day', pl: 'P\u00f3\u0142dniowe' },
-  'tours.filter.fullDay': { en: 'Full-day', pl: 'Ca\u0142odniowe' },
+  'tours.filter.halfDay': { en: 'Half-day', pl: 'Półdniowe' },
+  'tours.filter.fullDay': { en: 'Full-day', pl: 'Całodniowe' },
+  'tours.showing': { en: 'Showing', pl: 'Pokazuję' },
+  'tours.tour': { en: 'tour', pl: 'wycieczka' },
+  'tours.tours': { en: 'tours', pl: 'wycieczek' },
+  'tours.noMatch': { en: 'No tours match this filter', pl: 'Brak wycieczek dla tego filtra' },
+  'tours.tryAnother': { en: 'Try another filter or view all tours.', pl: 'Spróbuj innego filtra lub zobacz wszystkie.' },
+  'tours.viewAll': { en: 'View all', pl: 'Zobacz wszystkie' },
 
   // Transfers page
   'transfers.title': { en: 'Transfers', pl: 'Transfery' },

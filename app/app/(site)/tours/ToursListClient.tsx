@@ -30,14 +30,22 @@ interface ToursListClientProps {
 
 type FilterKey = 'all' | 'popular' | 'half-day' | 'full-day' | 'loch-ness' | 'skye' | 'whisky'
 
-const FILTERS: { key: FilterKey; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'popular', label: 'Most popular' },
-  { key: 'half-day', label: 'Half-day' },
-  { key: 'full-day', label: 'Full-day' },
-  { key: 'loch-ness', label: 'Loch Ness' },
-  { key: 'skye', label: 'Skye' },
-  { key: 'whisky', label: 'Whisky' },
+// Filter keys that have translations
+const FILTER_TRANSLATION_KEYS: Partial<Record<FilterKey, string>> = {
+  'all': 'tours.filter.all',
+  'popular': 'tours.filter.popular',
+  'half-day': 'tours.filter.halfDay',
+  'full-day': 'tours.filter.fullDay',
+}
+
+const FILTERS: { key: FilterKey; fallbackLabel: string }[] = [
+  { key: 'all', fallbackLabel: 'All' },
+  { key: 'popular', fallbackLabel: 'Most popular' },
+  { key: 'half-day', fallbackLabel: 'Half-day' },
+  { key: 'full-day', fallbackLabel: 'Full-day' },
+  { key: 'loch-ness', fallbackLabel: 'Loch Ness' },
+  { key: 'skye', fallbackLabel: 'Skye' },
+  { key: 'whisky', fallbackLabel: 'Whisky' },
 ]
 
 function matchesKeyword(tour: TourItem, keywords: string[]): boolean {
@@ -108,31 +116,35 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
           WebkitOverflowScrolling: 'touch',
         }}
       >
-        {FILTERS.map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setActiveFilter(f.key)}
-            style={{
-              flexShrink: 0,
-              padding: '8px 14px',
-              fontSize: 13,
-              fontWeight: 600,
-              borderRadius: 999,
-              border: activeFilter === f.key ? '1px solid var(--navy)' : '1px solid rgba(0,0,0,0.15)',
-              background: activeFilter === f.key ? 'var(--navy)' : '#fff',
-              color: activeFilter === f.key ? '#fff' : 'inherit',
-              cursor: 'pointer',
-              transition: 'all 150ms ease',
-            }}
-          >
-            {f.label}
-          </button>
-        ))}
+        {FILTERS.map((f) => {
+          const translationKey = FILTER_TRANSLATION_KEYS[f.key]
+          const label = translationKey ? t(translationKey as any) : f.fallbackLabel
+          return (
+            <button
+              key={f.key}
+              onClick={() => setActiveFilter(f.key)}
+              style={{
+                flexShrink: 0,
+                padding: '8px 14px',
+                fontSize: 13,
+                fontWeight: 600,
+                borderRadius: 999,
+                border: activeFilter === f.key ? '1px solid var(--navy)' : '1px solid rgba(0,0,0,0.15)',
+                background: activeFilter === f.key ? 'var(--navy)' : '#fff',
+                color: activeFilter === f.key ? '#fff' : 'inherit',
+                cursor: 'pointer',
+                transition: 'all 150ms ease',
+              }}
+            >
+              {label}
+            </button>
+          )
+        })}
       </div>
 
       {/* Count */}
       <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.5)', marginBottom: 12 }}>
-        Showing {filteredTours.length} tour{filteredTours.length !== 1 ? 's' : ''}
+        {t('tours.showing')} {filteredTours.length} {filteredTours.length !== 1 ? t('tours.tours') : t('tours.tour')}
       </div>
 
       {/* Tours grid */}
@@ -149,10 +161,10 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
           }}
         >
           <div style={{ fontSize: 17, fontWeight: 700, marginBottom: 6, color: '#111' }}>
-            No tours match this filter
+            {t('tours.noMatch')}
           </div>
           <p style={{ fontSize: 14, color: 'rgba(0,0,0,0.55)', margin: '0 0 16px' }}>
-            Try another filter or view all tours.
+            {t('tours.tryAnother')}
           </p>
           <button
             onClick={() => setActiveFilter('all')}
@@ -168,7 +180,7 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
               transition: 'all 150ms ease',
             }}
           >
-            View all
+            {t('tours.viewAll')}
           </button>
         </div>
       ) : (
@@ -213,7 +225,7 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
                         opacity: 0.6,
                       }}
                     >
-                      No image
+                      {t('common.noImage')}
                     </div>
                   )}
                 </div>
@@ -224,7 +236,7 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
                   </div>
 
                   <div className="muted" style={{ fontSize: 13, lineHeight: 1.45, minHeight: 36 }}>
-                    {pickI18n(tour, 'shortDescription', lang, tour.shortDescription ?? 'No short description yet.')}
+                    {pickI18n(tour, 'shortDescription', lang, tour.shortDescription ?? t('common.noDescription'))}
                   </div>
 
                   <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
