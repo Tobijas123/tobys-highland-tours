@@ -3,10 +3,10 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 
-// All supported language codes (translations only for en/pl, others fallback to en)
-export type Lang = 'en' | 'pl' | 'es' | 'pt' | 'hi' | 'zh'
+// Supported language codes: EN (default) + ES
+export type Lang = 'en' | 'es'
 
-const VALID_LANGS: Lang[] = ['en', 'pl', 'es', 'pt', 'hi', 'zh']
+const VALID_LANGS: Lang[] = ['en', 'es']
 
 type LanguageContextType = {
   lang: Lang
