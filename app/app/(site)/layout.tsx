@@ -10,28 +10,32 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
         <LanguageProvider>
         <style>{`
           :root{
-            /* Premium Scottish palette + higher contrast */
-            --bg:#f3f1ea;
-            --surface:#ffffff;
-            --surface2:rgba(255,255,255,.70);
+            /* Soft Scottish Highland palette */
+            --bg:#f7f5f0;
+            --surface:#fdfcfa;
+            --surface2:#f9f7f3;
+            --cream:#faf8f4;
 
-            --ink:#0b1220;
-            --muted:rgba(11,18,32,.72);
+            --ink:#3d3a36;
+            --muted:#6b665e;
 
-            /* Highland tones */
-            --navy:#071a34;
-            --moss:#275548;
-            --heather:#5b4b8a;
-            --gold:#c9a227;
-            --heatherSoft:rgba(91,75,138,.14);
+            /* Highland pastels */
+            --navy:#2c3e50;
+            --moss:#4a7c6f;
+            --heather:#7d6b9e;
+            --gold:#c4a35a;
+            --stone:#9a8b7a;
+            --heatherSoft:rgba(125,107,158,.12);
+            --mossSoft:rgba(74,124,111,.10);
+            --stoneSoft:rgba(154,139,122,.10);
 
-            /* Stronger separation */
-            --border:rgba(11,18,32,.16);
-            --border2:rgba(11,18,32,.22);
-            --shadow:0 14px 34px rgba(7,26,52,.10);
-            --shadow2:0 22px 60px rgba(7,26,52,.14);
+            /* Soft separation */
+            --border:rgba(61,58,54,.12);
+            --border2:rgba(61,58,54,.18);
+            --shadow:0 8px 24px rgba(61,58,54,.06);
+            --shadow2:0 12px 32px rgba(61,58,54,.08);
 
-            --ring:rgba(201,162,39,.30);
+            --ring:rgba(125,107,158,.25);
           }
 
           html,body{
@@ -39,42 +43,40 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             color:var(--ink);
             font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
             background:
-              radial-gradient(1100px 620px at 14% -6%, rgba(91,75,138,.22), transparent 62%),
-              radial-gradient(1100px 620px at 88% 0%, rgba(39,85,72,.20), transparent 60%),
-              linear-gradient(180deg, rgba(11,31,58,.06), rgba(243,241,234,1));
+              radial-gradient(1100px 620px at 14% -6%, var(--heatherSoft), transparent 62%),
+              radial-gradient(1100px 620px at 88% 0%, var(--mossSoft), transparent 60%),
+              linear-gradient(180deg, var(--surface2), var(--bg));
           }
 
-          a{ color: var(--navy); }
-          a:hover{ color: var(--heather); }
+          a{ color: var(--navy); text-decoration-color: rgba(44,62,80,.3); }
+          a:hover{ color: var(--moss); }
 
           img{ max-width:100%; height:auto; display:block; }
 
           /* Panel = frosted glass section container */
           .panel{
-            background: rgba(255,255,255,.62);
-            border: 1px solid rgba(11,31,58,.14);
+            background: rgba(253,252,250,.72);
+            border: 1px solid var(--border);
             border-radius: 20px;
-            box-shadow: 0 14px 40px rgba(11,31,58,.10);
+            box-shadow: var(--shadow);
             backdrop-filter: blur(10px);
             padding: 18px;
           }
 
           /* Cards = main contrast tool */
           .card{
-            background: linear-gradient(180deg, rgba(255,255,255,.99), rgba(255,255,255,.94));
-            border: 1px solid rgba(11,31,58,.24);
+            background: linear-gradient(180deg, var(--surface), var(--surface2));
+            border: 1px solid var(--border2);
             border-radius: 16px;
-            box-shadow: 0 22px 70px rgba(11,31,58,.18);
+            box-shadow: var(--shadow);
             backdrop-filter: blur(6px);
             overflow: hidden;
-            transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease, outline 200ms ease;
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
           }
           .card:hover{
-            transform: translateY(-6px);
-            border-color: rgba(91,75,138,.42);
-            box-shadow: 0 34px 110px rgba(11,31,58,.24);
-            outline: 3px solid var(--ring);
-            outline-offset: 2px;
+            transform: translateY(-3px);
+            border-color: rgba(74,124,111,.32);
+            box-shadow: var(--shadow2);
           }
 
           /* Typography helpers */
@@ -82,21 +84,23 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
           .muted{ color: var(--muted); }
 
           .badge{
-            border: 1px solid rgba(11,31,58,.18);
+            border: 1px solid var(--border);
             border-radius: 999px;
             padding: 6px 10px;
             font-size: 12px;
-            font-weight: 900;
-            color: rgba(11,31,58,.92);
-            background: rgba(11,31,58,.06);
+            font-weight: 800;
+            color: var(--ink);
+            background: var(--stoneSoft);
           }
           .badgeGold{
-            border-color: rgba(201,162,39,.40);
-            background: rgba(201,162,39,.12);
+            border-color: rgba(196,163,90,.35);
+            background: rgba(196,163,90,.14);
+            color: #8b6914;
           }
           .badgeMoss{
-            border-color: rgba(39,85,72,.38);
-            background: rgba(39,85,72,.10);
+            border-color: rgba(74,124,111,.32);
+            background: var(--mossSoft);
+            color: var(--moss);
           }
 
           /* Price pills for dual-tier pricing */
@@ -114,15 +118,15 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             text-align: center;
             font-size: 11px;
             font-weight: 800;
-            border: 1px solid rgba(11,31,58,.18);
-            background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.85));
-            box-shadow: 0 2px 6px rgba(11,31,58,.06);
+            border: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--cream), var(--surface2));
+            box-shadow: 0 2px 6px rgba(61,58,54,.04);
           }
           .pricePill .label{
             display: block;
             font-size: 10px;
             font-weight: 700;
-            opacity: 0.7;
+            color: var(--muted);
             margin-bottom: 2px;
           }
           .pricePill .price{
@@ -132,12 +136,12 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             color: var(--navy);
           }
           .pricePillGold{
-            border-color: rgba(201,162,39,.40);
-            background: linear-gradient(180deg, rgba(201,162,39,.12), rgba(255,255,255,.92));
+            border-color: rgba(196,163,90,.30);
+            background: linear-gradient(180deg, rgba(196,163,90,.12), var(--cream));
           }
           .pricePillMoss{
-            border-color: rgba(39,85,72,.38);
-            background: linear-gradient(180deg, rgba(39,85,72,.10), rgba(255,255,255,.92));
+            border-color: rgba(74,124,111,.28);
+            background: linear-gradient(180deg, var(--mossSoft), var(--cream));
           }
 
           /* Party size selector */
@@ -150,21 +154,23 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             flex: 1;
             padding: 10px 8px;
             border-radius: 10px;
-            border: 1px solid rgba(11,31,58,.18);
-            background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.85));
+            border: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--surface), var(--surface2));
             font-size: 11px;
             font-weight: 800;
+            color: var(--muted);
             cursor: pointer;
             text-align: center;
             transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
           }
           .partySizeBtn:hover{
-            border-color: rgba(91,75,138,.38);
+            border-color: rgba(74,124,111,.32);
+            background: linear-gradient(180deg, var(--cream), var(--surface));
           }
           .partySizeBtn.active{
-            border-color: var(--navy);
-            background: linear-gradient(180deg, rgba(7,26,52,.08), rgba(255,255,255,.95));
-            box-shadow: 0 0 0 2px rgba(7,26,52,.12);
+            border-color: var(--moss);
+            background: linear-gradient(180deg, var(--mossSoft), var(--cream));
+            box-shadow: 0 0 0 2px rgba(74,124,111,.12);
           }
           .partySizeBtn .count{
             display: block;
@@ -178,8 +184,8 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             width: 100%;
             padding: 10px 12px;
             border-radius: 10px;
-            border: 1px solid rgba(11,31,58,.18);
-            background: rgba(255,255,255,.95);
+            border: 1px solid var(--border);
+            background: var(--surface);
             font-size: 13px;
             font-family: inherit;
             color: var(--ink);
@@ -187,11 +193,11 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
           }
           .bookingInput:focus{
             outline: none;
-            border-color: var(--navy);
-            box-shadow: 0 0 0 3px rgba(7,26,52,.08);
+            border-color: var(--moss);
+            box-shadow: 0 0 0 3px rgba(74,124,111,.10);
           }
           .bookingInput::placeholder{
-            color: rgba(11,31,58,.45);
+            color: var(--stone);
           }
 
           .tourCard{ overflow:hidden; }
@@ -205,7 +211,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             content:"";
             position:absolute;
             inset:0;
-            background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(11,31,58,.32));
+            background: linear-gradient(180deg, rgba(0,0,0,0) 40%, rgba(44,62,80,.28));
             pointer-events:none;
           }
 
@@ -251,17 +257,17 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             width:100%;
             padding: 12px 14px;
             border-radius: 12px;
-            border: 1px solid rgba(11,31,58,.22);
-            background: linear-gradient(180deg, #fff, rgba(255,255,255,.92));
+            border: 1px solid var(--border2);
+            background: linear-gradient(180deg, var(--surface), var(--cream));
             font-weight: 900;
             font-size: 14px;
             cursor: pointer;
             text-decoration: none;
             color: var(--ink);
-            box-shadow: 0 4px 12px rgba(11,31,58,.08);
+            box-shadow: 0 4px 12px rgba(61,58,54,.06);
             transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease, opacity 160ms ease;
           }
-          .btn:focus-visible{ outline: none; box-shadow: var(--ring); }
+          .btn:focus-visible{ outline: none; box-shadow: 0 0 0 3px var(--ring); }
           .btn[aria-disabled="true"]{
             opacity: 0.5;
             cursor: not-allowed;
@@ -269,35 +275,35 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
           }
 
           .btnPrimary{
-            background: linear-gradient(180deg, var(--navy), rgba(7,26,52,.88));
+            background: linear-gradient(180deg, var(--navy), #1e3040);
             color:#fff !important;
-            border-color: rgba(7,26,52,.50);
-            box-shadow: 0 6px 20px rgba(7,26,52,.18);
+            border-color: rgba(44,62,80,.60);
+            box-shadow: 0 6px 20px rgba(44,62,80,.20);
           }
           .btnPrimary:hover{
             transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(7,26,52,.28), 0 0 0 3px rgba(201,162,39,.22);
+            box-shadow: 0 12px 35px rgba(44,62,80,.28), 0 0 0 3px rgba(74,124,111,.18);
           }
 
           .btnSecondary{
-            background: linear-gradient(180deg, rgba(39,85,72,.12), rgba(255,255,255,.95));
-            border-color: rgba(39,85,72,.30);
-            color: rgba(39,85,72,1);
+            background: linear-gradient(180deg, var(--mossSoft), var(--cream));
+            border-color: rgba(74,124,111,.28);
+            color: var(--moss);
           }
           .btnSecondary:hover{
             transform: translateY(-2px);
-            border-color: rgba(39,85,72,.50);
-            box-shadow: 0 10px 28px rgba(39,85,72,.16);
+            border-color: rgba(74,124,111,.45);
+            box-shadow: 0 10px 28px rgba(74,124,111,.14);
           }
 
           .btnGhost{
-            background: rgba(255,255,255,.82);
-            border-color: rgba(11,31,58,.18);
+            background: rgba(253,252,250,.85);
+            border-color: var(--border);
           }
           .btnGhost:hover{
             transform: translateY(-1px);
-            border-color: rgba(91,75,138,.38);
-            box-shadow: 0 10px 24px rgba(91,75,138,.12);
+            border-color: rgba(125,107,158,.32);
+            box-shadow: 0 10px 24px rgba(125,107,158,.10);
           }
 
           /* Layout helpers */
@@ -392,10 +398,10 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             right: 0;
             margin-top: 4px;
             padding: 6px 0;
-            background: var(--surface);
+            background: var(--cream);
             border: 1px solid var(--border);
             border-radius: 10px;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow2);
             list-style: none;
             z-index: 100;
             min-width: 140px;
@@ -415,10 +421,10 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             transition: background 120ms ease;
           }
           .langOption:hover{
-            background: rgba(11,31,58,.06);
+            background: var(--stoneSoft);
           }
           .langOption.active{
-            background: rgba(201,162,39,.14);
+            background: var(--mossSoft);
             font-weight: 700;
           }
 
@@ -655,7 +661,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
           .viewAllLink{
             font-size: 14px;
             font-weight: 800;
-            color: var(--navy);
+            color: var(--moss);
             text-decoration: none;
             display: flex;
             align-items: center;
@@ -663,7 +669,7 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             transition: color 160ms ease;
           }
           .viewAllLink:hover{
-            color: var(--heather);
+            color: var(--navy);
           }
 
           /* Product grid */
@@ -671,6 +677,178 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
+          }
+
+          /* === Toby's Highland Tours Footer === */
+          .thtFooter{
+            margin-top: clamp(28px, 4vw, 56px);
+            background: linear-gradient(180deg, #071b2d 0%, #051423 100%);
+            color: rgba(243, 249, 239, 0.92);
+            border-top: 1px solid rgba(255,255,255,0.10);
+          }
+          .thtFooterInner{
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 44px 20px 20px;
+          }
+          .thtFooterGrid{
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr 1fr;
+            gap: 28px;
+            align-items: start;
+          }
+          .thtFooterCol{ min-width: 0; }
+
+          .thtFooterBrand{
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+          }
+          .thtFooterLogo{
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            background: rgba(255,255,255,0.08);
+            border: 1px dashed rgba(255,255,255,0.25);
+            color: rgba(243,249,239,0.75);
+          }
+          .thtFooterTitle{
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1.15;
+          }
+          .thtFooterTagline{
+            margin: 4px 0 0;
+            font-size: 13px;
+            color: rgba(243,249,239,0.72);
+          }
+
+          .thtFooterHeading{
+            margin: 0 0 12px;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+            color: #f99536;
+          }
+
+          .thtFooterText{
+            margin: 10px 0 14px;
+            font-size: 14px;
+            line-height: 1.55;
+            color: rgba(243,249,239,0.72);
+          }
+
+          .thtFooterBadges{
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+          }
+          .thtFooterBadge{
+            display: inline-flex;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.12);
+            font-size: 12px;
+            color: rgba(243,249,239,0.82);
+          }
+
+          .thtFooterLinks{
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            gap: 9px;
+          }
+          .thtFooterLinks a{
+            color: rgba(243,249,239,0.90);
+            text-decoration: none;
+          }
+          .thtFooterLinks a:hover{
+            text-decoration: underline;
+          }
+
+          .thtFooterAddress{
+            font-style: normal;
+            line-height: 1.55;
+            margin: 0 0 12px;
+            color: rgba(243,249,239,0.72);
+          }
+          .thtFooterContacts{
+            display: grid;
+            gap: 8px;
+            margin: 0 0 14px;
+          }
+          .thtFooterContact{
+            color: rgba(243,249,239,0.90);
+            text-decoration: none;
+          }
+          .thtFooterContact:hover{
+            text-decoration: underline;
+          }
+
+          .thtFooterCtas{
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+          }
+          .thtFooterBtn{
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-weight: 900;
+            text-decoration: none;
+            border: 1px solid rgba(249,149,54,0.65);
+            background: rgba(249,149,54,0.12);
+            color: rgba(243,249,239,0.95);
+            transition: transform 120ms ease, background 120ms ease;
+          }
+          .thtFooterBtn:hover{
+            background: rgba(249,149,54,0.18);
+            transform: translateY(-1px);
+          }
+          .thtFooterBtnGhost{
+            border-color: rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.06);
+          }
+
+          .thtFooterBottom{
+            margin-top: 26px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.10);
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: rgba(243,249,239,0.70);
+          }
+          .thtFooterBottomLink{
+            color: rgba(243,249,239,0.85);
+            text-decoration: none;
+          }
+          .thtFooterBottomLink:hover{
+            text-decoration: underline;
+          }
+
+          @media (max-width: 900px){
+            .thtFooterGrid{ grid-template-columns: 1fr; }
+            .thtFooterCtas{ flex-direction: column; align-items: stretch; }
+          }
+
+          .thtFooterLogoImg{
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            display: block;
           }
         `}</style>
 
@@ -725,8 +903,8 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
 
         <header
           style={{
-            borderBottom: '1px solid rgba(11,18,32,.14)',
-            background: 'linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.74))',
+            borderBottom: '1px solid var(--border)',
+            background: 'linear-gradient(180deg, rgba(253,252,250,.94), rgba(250,248,244,.82))',
             backdropFilter: 'blur(10px)',
             position: 'sticky',
             top: 0,

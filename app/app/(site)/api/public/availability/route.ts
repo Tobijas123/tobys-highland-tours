@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { pickVehicle, getRequiredSeats } from '../../../lib/vehicleAllocation'
 
 export async function GET(request: Request) {
   try {
@@ -40,32 +41,28 @@ export async function GET(request: Request) {
     const firstDay = `${month}-01`
     const lastDay = new Date(year, monthNum, 0).toISOString().split('T')[0]
 
-    // Determine required seats based on party size
-    const requiredSeats = partySize === '1-3' ? 3 : 7
-
     const payload = await getPayload({ config })
 
-    // Fetch active vehicles with enough seats
+    // Fetch ALL active vehicles sorted by seats ASC
     const vehiclesResult = await payload.find({
       collection: 'vehicles',
-      where: {
-        isActive: { equals: true },
-        seats: { greater_than_equal: requiredSeats },
-      },
+      where: { isActive: { equals: true } },
+      sort: 'seats',
       limit: 100,
       depth: 0,
     })
 
-    const vehicles = vehiclesResult.docs
-    const vehicleIds = new Set(vehicles.map((v) => v.id))
+    const vehicles = vehiclesResult.docs.map((v: any) => ({
+      id: v.id as number,
+      seats: v.seats as number,
+    }))
 
-    // Fetch confirmed bookings in date range with a vehicle assigned
+    // Fetch non-cancelled bookings in date range (pending + confirmed block)
     const bookingsResult = await payload.find({
       collection: 'bookings',
       where: {
         and: [
-          { status: { equals: 'confirmed' } },
-          { vehicle: { exists: true } },
+          { status: { not_equals: 'cancelled' } },
           { date: { greater_than_equal: firstDay } },
           { date: { less_than_equal: lastDay } },
         ],
@@ -74,40 +71,26 @@ export async function GET(request: Request) {
       depth: 0,
     })
 
-    // Build map: date -> set of booked vehicle IDs
-    const bookedByDate = new Map<string, Set<number>>()
-
-    for (const booking of bookingsResult.docs) {
-      const bookingDate = booking.date as string
-      const vehicleId = typeof booking.vehicle === 'object'
-        ? (booking.vehicle as any)?.id
-        : booking.vehicle
-
-      if (!vehicleId) continue
-
-      if (!bookedByDate.has(bookingDate)) {
-        bookedByDate.set(bookingDate, new Set())
-      }
-      bookedByDate.get(bookingDate)!.add(vehicleId as number)
+    // Group bookings by date
+    const byDate = new Map<string, { vehicle: number | null; partySize: string }[]>()
+    for (const b of bookingsResult.docs) {
+      const d = b.date as string
+      if (!byDate.has(d)) byDate.set(d, [])
+      byDate.get(d)!.push({
+        vehicle: typeof b.vehicle === 'object' ? (b.vehicle as any)?.id : (b.vehicle as number) || null,
+        partySize: b.partySize as string,
+      })
     }
 
-    // Generate all dates in month and check availability
+    // Check each day using pickVehicle
     const disabledDates: { date: string; reason: string }[] = []
     const daysInMonth = new Date(year, monthNum, 0).getDate()
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${month}-${String(day).padStart(2, '0')}`
-      const bookedVehicles = bookedByDate.get(dateStr) || new Set()
-
-      // Count available vehicles (have enough seats AND not booked on this date)
-      let availableCount = 0
-      for (const vId of vehicleIds) {
-        if (!bookedVehicles.has(vId as number)) {
-          availableCount++
-        }
-      }
-
-      if (availableCount === 0) {
+      const dayBookings = byDate.get(dateStr) || []
+      const result = pickVehicle(vehicles, dayBookings, partySize)
+      if (!result) {
         disabledDates.push({ date: dateStr, reason: 'fully_booked' })
       }
     }

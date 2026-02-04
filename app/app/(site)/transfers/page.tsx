@@ -72,11 +72,6 @@ export default async function TransfersPage() {
             {t('transfers.subtitle', lang)}
           </div>
 
-          {transfers.length === 0 ? (
-          <div className="card" style={{ padding: 16 }}>
-            {t('transfers.noTransfers', lang)}
-          </div>
-        ) : (
           <div
             style={{
               display: 'grid',
@@ -85,6 +80,102 @@ export default async function TransfersPage() {
               alignItems: 'stretch',
             }}
           >
+            {/* Request a Quote tile - always first */}
+            <a
+              href="/transfers/request"
+              className="card tourCard"
+              style={{
+                textDecoration: 'none',
+                color: 'inherit',
+                display: 'flex',
+                flexDirection: 'column',
+                background: 'linear-gradient(180deg, var(--mossSoft), var(--surface))',
+                borderColor: 'rgba(74,124,111,.25)',
+              }}
+            >
+              {/* Mini gallery 3x2 */}
+              <div style={{ padding: 10, paddingBottom: 0 }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: 4,
+                    borderRadius: 10,
+                    overflow: 'hidden',
+                  }}
+                >
+                  {transfers.slice(0, 6).map((tr, idx) => {
+                    const imgUrl = typeof tr.heroImage?.url === 'string' ? toPublicURL(tr.heroImage.url) : null
+                    return (
+                      <div
+                        key={idx}
+                        style={{
+                          aspectRatio: '4/3',
+                          background: 'var(--stoneSoft)',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        {imgUrl ? (
+                          <img
+                            src={imgUrl}
+                            alt=""
+                            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', background: 'var(--stoneSoft)' }} />
+                        )}
+                      </div>
+                    )
+                  })}
+                  {/* Placeholders if less than 6 transfers */}
+                  {Array.from({ length: Math.max(0, 6 - transfers.length) }).map((_, idx) => (
+                    <div
+                      key={`ph-${idx}`}
+                      style={{
+                        aspectRatio: '4/3',
+                        background: 'var(--stoneSoft)',
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ padding: 16 }}>
+                <div
+                  className="titlePremium"
+                  style={{
+                    fontSize: 18,
+                    marginBottom: 6,
+                    color: 'var(--moss)',
+                  }}
+                >
+                  {t('transferRequest.cardTitle', lang)}
+                </div>
+                <div
+                  className="muted"
+                  style={{ fontSize: 13, lineHeight: 1.45 }}
+                >
+                  {t('transferRequest.cardSubtitle', lang)}
+                </div>
+                <div
+                  style={{
+                    marginTop: 12,
+                    fontSize: 12,
+                    fontWeight: 800,
+                    color: 'var(--moss)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 4,
+                  }}
+                >
+                  {lang === 'es' ? 'Solicitar' : 'Get a quote'}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M5 12h14M12 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+            </a>
+
             {transfers.map((tr) => {
               const href = `/transfers/${tr.slug ?? tr.id}`
               const imgUrl =
@@ -165,7 +256,6 @@ export default async function TransfersPage() {
               )
             })}
           </div>
-        )}
         </div>
 
         <style>{`

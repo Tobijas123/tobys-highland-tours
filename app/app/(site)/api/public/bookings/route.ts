@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { isRateLimited, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
+import { allocateVehicleForDate } from '../../../lib/vehicleAllocation'
 
 const ADMIN_EMAIL = 'info@tobyshighlandtours.com'
 
@@ -150,6 +151,16 @@ export async function POST(request: Request) {
     } else {
       bookingData.transfer = item.id
     }
+
+    // Vehicle allocation
+    const allocatedVehicle = await allocateVehicleForDate(date, partySize)
+    if (!allocatedVehicle) {
+      return NextResponse.json(
+        { error: 'No vehicles available for this date. Please choose another date.' },
+        { status: 409 }
+      )
+    }
+    bookingData.vehicle = allocatedVehicle.id
 
     console.log('[BOOKING API] Creating booking...', Date.now() - startTime, 'ms')
     const booking = await payload.create({

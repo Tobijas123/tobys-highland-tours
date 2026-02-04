@@ -107,10 +107,46 @@ const translations = {
   'tours.tryAnother': { en: 'Try another filter or view all tours.', es: 'Prueba otro filtro o ve todos los tours.' },
   'tours.viewAll': { en: 'View all', es: 'Ver todos' },
 
+  // Bespoke tours
+  'bespoke.cardTitle': { en: 'Bespoke Tours', es: 'Tours Personalizados' },
+  'bespoke.cardSubtitle': { en: 'Create your perfect Highland adventure', es: 'Crea tu aventura perfecta en las Highlands' },
+  'bespoke.title': { en: 'Bespoke Tours', es: 'Tours Personalizados' },
+  'bespoke.subtitle': {
+    en: 'Design your own Highland experience — choose your destinations, set your pace, and let us handle the rest.',
+    es: 'Diseña tu propia experiencia en las Highlands — elige tus destinos, marca tu ritmo y nosotros nos encargamos del resto.',
+  },
+  'bespoke.galleryTitle': { en: 'Inspiration gallery', es: 'Galería de inspiración' },
+  'bespoke.descTitle': { en: 'What you can customise', es: 'Qué puedes personalizar' },
+  'bespoke.descIntro': {
+    en: "Every bespoke tour is unique. Tell us what you'd love to see and we'll craft the perfect itinerary.",
+    es: 'Cada tour personalizado es único. Cuéntanos qué te gustaría ver y crearemos el itinerario perfecto.',
+  },
+  'bespoke.descBullet1': { en: 'Pick your destinations — Loch Ness, Skye, whisky distilleries, or hidden gems', es: 'Elige tus destinos — Loch Ness, Skye, destilerías de whisky o joyas ocultas' },
+  'bespoke.descBullet2': { en: 'Set your own pace — half-day, full-day, or multi-day adventures', es: 'Marca tu propio ritmo — medio día, día completo o aventuras de varios días' },
+  'bespoke.descBullet3': { en: 'Special requests welcome — photography stops, accessibility needs, child-friendly routes', es: 'Solicitudes especiales bienvenidas — paradas fotográficas, necesidades de accesibilidad, rutas para niños' },
+  'bespoke.whatsappCta': { en: 'Chat on WhatsApp', es: 'Chatea por WhatsApp' },
+  'bespoke.orFillForm': { en: 'Or fill out the form below:', es: 'O completa el formulario:' },
+
   // Transfers page
   'transfers.title': { en: 'Transfers', es: 'Traslados' },
   'transfers.subtitle': { en: 'Airport pickups, hotel transfers and more.', es: 'Recogida en aeropuerto, traslados a hotel y más.' },
   'transfers.noTransfers': { en: 'No transfers yet.', es: 'No hay traslados aún.' },
+
+  // Transfer request / quote
+  'transferRequest.cardTitle': { en: 'Request a Quote', es: 'Solicitar Presupuesto' },
+  'transferRequest.cardSubtitle': { en: 'Custom transfer to any destination', es: 'Traslado personalizado a cualquier destino' },
+  'transferRequest.title': { en: 'Request a Custom Transfer', es: 'Solicita un Traslado Personalizado' },
+  'transferRequest.subtitle': {
+    en: "Need a transfer to a destination not listed? Tell us where and when - we'll arrange everything.",
+    es: '¿Necesitas un traslado a un destino no listado? Dinos dónde y cuándo - nosotros organizamos todo.',
+  },
+  'transferRequest.galleryTitle': { en: 'We cover all of Scotland', es: 'Cubrimos toda Escocia' },
+  'transferRequest.descTitle': { en: 'What to include in your request', es: 'Qué incluir en tu solicitud' },
+  'transferRequest.bullet1': { en: 'Pickup location and destination (airport, hotel, cruise port, etc.)', es: 'Lugar de recogida y destino (aeropuerto, hotel, puerto de cruceros, etc.)' },
+  'transferRequest.bullet2': { en: 'Date, time and number of passengers', es: 'Fecha, hora y número de pasajeros' },
+  'transferRequest.bullet3': { en: 'Any special requirements (child seats, wheelchair access, extra luggage)', es: 'Requisitos especiales (sillas para niños, acceso para silla de ruedas, equipaje extra)' },
+  'transferRequest.whatsappCta': { en: 'Chat on WhatsApp', es: 'Chatea por WhatsApp' },
+  'transferRequest.orFillForm': { en: 'Or fill out the form below:', es: 'O completa el formulario:' },
 
   // Common
   'common.noDescription': { en: 'No description yet.', es: 'Sin descripción aún.' },
@@ -138,9 +174,7 @@ const translations = {
   'booking.sending': { en: 'Sending...', es: 'Enviando...' },
   'booking.orContactUs': { en: 'Or contact us directly:', es: 'O contáctanos directamente:' },
   'booking.openGmail': { en: 'Open Gmail', es: 'Abrir Gmail' },
-  'booking.openMailApp': { en: 'Open mail app', es: 'Abrir app de correo' },
-  'booking.copyEmail': { en: 'Copy email text', es: 'Copiar texto del email' },
-  'booking.copied': { en: 'Copied ✓', es: 'Copiado ✓' },
+  'booking.openWhatsApp': { en: 'Open WhatsApp', es: 'Abrir WhatsApp' },
   'booking.requestSent': { en: 'Request Sent!', es: '¡Solicitud enviada!' },
   'booking.confirmationText': {
     en: "We've received your booking request. We'll confirm by email shortly.",
@@ -158,6 +192,10 @@ const translations = {
   'booking.errorNetwork': {
     en: 'Network error. Please try again or use the email option below.',
     es: 'Error de red. Inténtalo de nuevo o usa la opción de email.',
+  },
+  'booking.noVehicles': {
+    en: 'No vehicles available for this date. Please choose another date.',
+    es: 'No hay vehículos disponibles para esta fecha. Por favor elige otra fecha.',
   },
 } as const
 

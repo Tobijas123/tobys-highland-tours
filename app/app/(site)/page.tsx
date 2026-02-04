@@ -30,6 +30,7 @@ import ContactFormClient from './components/ContactFormClient'
 import PromoSectionClient from './components/PromoSectionClient'
 import ReviewsRotatorClient from './components/ReviewsRotatorClient'
 import SectionHeaderClient from './components/SectionHeaderClient'
+import { SiteFooter } from './components/SiteFooter'
 
 function toPublicURL(url: string) {
   const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -309,6 +310,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <div id="top" />
       <HeroSliderClient slides={heroSlides} logoUrl={heroLogoUrl} />
 
       {promo?.enabled && (
@@ -390,6 +392,8 @@ export default async function HomePage() {
       <section style={{ marginTop: 48 }}>
         <ContactFormClient />
       </section>
+
+      <SiteFooter />
     </>
   )
 }

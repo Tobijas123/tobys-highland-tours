@@ -124,6 +124,15 @@ const Homepage: GlobalConfig = {
         { name: 'ctaHref', type: 'text', label: 'CTA link (optional, e.g. /products or https://...)' },
       ],
     },
+    {
+      name: 'footerLogo',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Footer logo',
+      admin: {
+        description: 'Transparent PNG recommended.',
+      },
+    },
   ],
 }
 

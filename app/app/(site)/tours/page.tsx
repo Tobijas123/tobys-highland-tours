@@ -32,17 +32,9 @@ type MediaDoc = {
 
 type I18nGroup = {
   title_en?: string
-  title_pl?: string
   title_es?: string
-  title_pt?: string
-  title_hi?: string
-  title_zh?: string
   shortDescription_en?: string
-  shortDescription_pl?: string
   shortDescription_es?: string
-  shortDescription_pt?: string
-  shortDescription_hi?: string
-  shortDescription_zh?: string
   [key: string]: string | unknown | undefined
 }
 
@@ -67,7 +59,7 @@ function toPublicURL(url: string) {
 }
 
 async function getTours(): Promise<Tour[]> {
-  const res = await fetch(`${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/tours?limit=50&depth=1`, {
+  const res = await fetch(`${process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'}/api/tours?limit=50&depth=2`, {
     cache: 'no-store',
   })
   if (!res.ok) return []

@@ -185,6 +185,99 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
         </div>
       ) : (
         <div className="toursGrid">
+          {/* Bespoke Tours tile - always first */}
+          <a
+            href="/tours/bespoke"
+            className="card tourCard"
+            style={{
+              textDecoration: 'none',
+              color: 'inherit',
+              display: 'flex',
+              flexDirection: 'column',
+              background: 'linear-gradient(180deg, var(--heatherSoft), var(--surface))',
+              borderColor: 'rgba(125,107,158,.25)',
+            }}
+          >
+            {/* Mini gallery 3x2 */}
+            <div style={{ padding: 10, paddingBottom: 0 }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: 4,
+                  borderRadius: 10,
+                  overflow: 'hidden',
+                }}
+              >
+                {tours.slice(0, 6).map((tour, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      aspectRatio: '4/3',
+                      background: 'var(--stoneSoft)',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {tour.imageUrl ? (
+                      <img
+                        src={tour.imageUrl}
+                        alt=""
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', background: 'var(--stoneSoft)' }} />
+                    )}
+                  </div>
+                ))}
+                {/* Placeholders if less than 6 tours */}
+                {Array.from({ length: Math.max(0, 6 - tours.length) }).map((_, idx) => (
+                  <div
+                    key={`ph-${idx}`}
+                    style={{
+                      aspectRatio: '4/3',
+                      background: 'var(--stoneSoft)',
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div style={{ padding: 16 }}>
+              <div
+                className="titlePremium"
+                style={{
+                  fontSize: 18,
+                  marginBottom: 6,
+                  color: 'var(--heather)',
+                }}
+              >
+                {t('bespoke.cardTitle')}
+              </div>
+              <div
+                className="muted"
+                style={{ fontSize: 13, lineHeight: 1.45 }}
+              >
+                {t('bespoke.cardSubtitle')}
+              </div>
+              <div
+                style={{
+                  marginTop: 12,
+                  fontSize: 12,
+                  fontWeight: 800,
+                  color: 'var(--heather)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4,
+                }}
+              >
+                {lang === 'es' ? 'Ver más' : 'Learn more'}
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M5 12h14M12 5l7 7-7 7" />
+                </svg>
+              </div>
+            </div>
+          </a>
+
           {filteredTours.map((tour) => {
             const href = `/tours/${tour.slug ?? tour.id}`
 

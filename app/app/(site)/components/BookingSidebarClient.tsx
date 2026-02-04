@@ -33,7 +33,6 @@ export default function BookingSidebarClient({ itemType, itemId, itemTitle, pric
   const [submitted, setSubmitted] = useState(false)
   const [submittedBookingId, setSubmittedBookingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [copied, setCopied] = useState(false)
 
   // Availability state
   const [calendarMonth, setCalendarMonth] = useState<string>(() => {
@@ -70,7 +69,7 @@ export default function BookingSidebarClient({ itemType, itemId, itemTitle, pric
   const currentPrice = partySize === '1-3' ? price1to3 : partySize === '4-7' ? price4to7 : null
   const typeLabel = itemType === 'tour' ? 'Tour' : 'Transfer'
 
-  const { gmail, mailto, subject, bodyText } = useMemo(() => {
+  const { gmail } = useMemo(() => {
     const subjectText = `Booking request – ${itemTitle}`
     const partySizeLabel = partySize === '1-3' ? '1–3 people' : partySize === '4-7' ? '4–7 people' : 'TBD'
     const priceLabel = currentPrice !== null ? `£${currentPrice}` : 'TBD'
@@ -102,18 +101,8 @@ Thanks!`
       subjectText,
     )}&body=${encodeURIComponent(body)}`
 
-    return { gmail: gmailHref, mailto: mailtoHref, subject: subjectText, bodyText: body }
+    return { gmail: gmailHref }
   }, [itemTitle, itemType, typeLabel, selected, pickupTime, pickupLocation, dropoffLocation, paxCount, partySize, currentPrice, customerName, customerEmail, customerPhone])
-
-  async function copyToClipboard() {
-    try {
-      await navigator.clipboard.writeText(`To: ${BOOKING_EMAIL}\nSubject: ${subject}\n\n${bodyText}`)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 1800)
-    } catch {
-      // ignore
-    }
-  }
 
   async function handleSubmit() {
     if (!selected || !pickupTime || !pickupLocation.trim() || !dropoffLocation.trim() || !paxCount || !partySize || !customerName.trim() || !customerEmail.trim()) return
@@ -370,21 +359,14 @@ Thanks!`
           </a>
 
           <a
-            href={mailto}
+            href="https://wa.me/447383488007"
+            target="_blank"
+            rel="noreferrer"
             className="btn btnGhost"
             style={{ fontSize: 12, padding: '8px 10px', marginTop: 6 }}
           >
-            {t('booking.openMailApp')}
+            {t('booking.openWhatsApp')}
           </a>
-
-          <button
-            type="button"
-            onClick={copyToClipboard}
-            className="btn btnGhost"
-            style={{ fontSize: 12, padding: '8px 10px', marginTop: 6 }}
-          >
-            {copied ? t('booking.copied') : t('booking.copyEmail')}
-          </button>
         </div>
       </div>
     </div>
