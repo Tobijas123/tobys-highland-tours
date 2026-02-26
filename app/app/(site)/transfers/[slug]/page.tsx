@@ -47,7 +47,6 @@ type Transfer = {
   id: string | number
   title?: string
   slug?: string
-  shortDescription?: string
   longDescription?: any
   heroImage?: MediaDoc | null
   price1to3?: number
@@ -111,7 +110,7 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: 22 }}>
+          <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-4 md:gap-6">
           {/* LEFT: image + description */}
           <div className="card" style={{ padding: 0 }}>
             <div
@@ -139,8 +138,6 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
               <div className="prose" style={{ fontSize: 15 }}>
                 {longText ? (
                   <p style={{ whiteSpace: 'pre-wrap' }}>{longText}</p>
-                ) : transfer.shortDescription ? (
-                  <p>{transfer.shortDescription}</p>
                 ) : (
                   <p className="muted">No description yet.</p>
                 )}
@@ -161,12 +158,11 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
 
           {/* RIGHT: booking sidebar */}
           <aside
-            className="card"
+            className="card w-full max-w-full overflow-x-hidden md:sticky md:top-[18px]"
             style={{
-              padding: 14,
+              padding: 18,
+              boxSizing: 'border-box',
               height: 'fit-content',
-              position: 'sticky',
-              top: 18,
             }}
           >
             <BookingSidebarClient
@@ -180,13 +176,6 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
           </aside>
           </div>
         </div>
-
-        <style>{`
-          @media (max-width: 980px) {
-            main div[style*="grid-template-columns: 3fr 1fr"] { grid-template-columns: 1fr !important; }
-            aside { position: static !important; }
-          }
-        `}</style>
       </div>
     </main>
   )

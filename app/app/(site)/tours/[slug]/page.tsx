@@ -105,7 +105,7 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
 
           <TourTitleClient tour={{ title: tour.title, i18n: tour.i18n }} />
 
-          <div style={{ display: 'grid', gridTemplateColumns: '3fr 1fr', gap: 22 }}>
+          <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-4 md:gap-6">
           {/* LEFT: image + description */}
           <div className="card" style={{ padding: 0 }}>
             <div
@@ -128,14 +128,12 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
             </div>
 
             <div style={{ padding: 20 }}>
-              <TourDescriptionClient
-                tour={{
-                  title: tour.title,
-                  shortDescription: tour.shortDescription,
-                  longDescription: tour.longDescription,
-                  i18n: tour.i18n,
-                }}
-              />
+              <div className="prose">
+                {tour.shortDescription ? <p>{tour.shortDescription}</p> : null}
+                {lexicalToPlainText(tour.longDescription) ? (
+                  <div style={{ whiteSpace: 'pre-wrap' }}>{lexicalToPlainText(tour.longDescription)}</div>
+                ) : null}
+              </div>
 
               {tour.highlights && tour.highlights.length > 0 ? (
                 <div style={{ marginTop: 20 }}>
@@ -152,12 +150,11 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
 
           {/* RIGHT: booking sidebar */}
           <aside
-            className="card"
+            className="card w-full max-w-full overflow-x-hidden md:sticky md:top-[18px]"
             style={{
-              padding: 14,
+              padding: 18,
+              boxSizing: 'border-box',
               height: 'fit-content',
-              position: 'sticky',
-              top: 18,
             }}
           >
             <BookingSidebarClient
@@ -172,12 +169,6 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
           </div>
         </div>
 
-        <style>{`
-          @media (max-width: 980px) {
-            main div[style*="grid-template-columns: 3fr 1fr"] { grid-template-columns: 1fr !important; }
-            aside { position: static !important; }
-          }
-        `}</style>
       </div>
     </main>
   )

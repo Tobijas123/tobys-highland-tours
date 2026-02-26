@@ -182,7 +182,7 @@ Thanks!`
 
   if (submitted) {
     return (
-      <div className="card" style={{ padding: 14 }}>
+      <div className="card w-full max-w-full overflow-x-hidden" style={{ padding: 14, boxSizing: 'border-box' }}>
         <div style={{ textAlign: 'center', padding: '20px 0' }}>
           <div style={{ fontSize: 28, marginBottom: 8 }}>✓</div>
           <div style={{ fontSize: 16, fontWeight: 900, marginBottom: 8 }}>{t('booking.requestSent')}</div>
