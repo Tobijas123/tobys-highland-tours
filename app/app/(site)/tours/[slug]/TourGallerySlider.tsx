@@ -1,6 +1,8 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+
+const AUTOPLAY_DELAY = 4500
 
 type Slide = {
   url: string
@@ -9,19 +11,32 @@ type Slide = {
 
 export default function TourGallerySlider({ slides }: { slides: Slide[] }) {
   const [current, setCurrent] = useState(0)
+  const [paused, setPaused] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const next = useCallback(() =>
+    setCurrent(i => (i === slides.length - 1 ? 0 : i + 1)), [slides.length])
 
   const prev = useCallback(() =>
     setCurrent(i => (i === 0 ? slides.length - 1 : i - 1)), [slides.length])
 
-  const next = useCallback(() =>
-    setCurrent(i => (i === slides.length - 1 ? 0 : i + 1)), [slides.length])
+  // Auto-play: restart timer whenever current slide changes or pause state changes
+  useEffect(() => {
+    if (slides.length <= 1 || paused) return
+    timerRef.current = setTimeout(next, AUTOPLAY_DELAY)
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [current, paused, next, slides.length])
 
   if (slides.length === 0) return null
 
   const showControls = slides.length > 1
 
   return (
-    <div style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', background: 'rgba(11,31,58,.04)' }}>
+    <div
+      style={{ position: 'relative', width: '100%', aspectRatio: '16/9', overflow: 'hidden', background: 'rgba(11,31,58,.04)' }}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
       {/* slides */}
       <div
         style={{
