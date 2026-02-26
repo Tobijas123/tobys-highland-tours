@@ -56,7 +56,7 @@ const Transfers: CollectionConfig = {
     },
     {
       name: 'longDescription',
-      type: 'richText',
+      type: 'textarea',
     },
     {
       name: 'heroImage',

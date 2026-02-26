@@ -119,7 +119,7 @@ const Homepage: GlobalConfig = {
             { label: 'Outline', value: 'outline' },
           ],
         },
-        { name: 'content', type: 'richText', label: 'Content' },
+        { name: 'content', type: 'textarea', label: 'Content' },
         { name: 'ctaLabel', type: 'text', label: 'CTA label (optional)' },
         { name: 'ctaHref', type: 'text', label: 'CTA link (optional, e.g. /products or https://...)' },
       ],

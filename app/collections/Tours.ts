@@ -56,7 +56,7 @@ const Tours: CollectionConfig = {
     },
     {
       name: 'longDescription',
-      type: 'richText',
+      type: 'textarea',
     },
     {
       name: 'heroImage',
@@ -162,13 +162,13 @@ const Tours: CollectionConfig = {
         // ── Long description translations ──
         {
           name: 'longDescription_en',
-          type: 'richText',
+          type: 'textarea',
           label: 'Long Description (English)',
           admin: { description: 'Default language' },
         },
         {
           name: 'longDescription_es',
-          type: 'richText',
+          type: 'textarea',
           label: 'Long Description (Español)',
         },
       ],
