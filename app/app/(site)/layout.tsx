@@ -2,11 +2,13 @@ import type { ReactNode } from 'react'
 import TopBarClient from './components/TopBarClient'
 import NavigationClient from './components/NavigationClient'
 import { LanguageProvider } from './lib/LanguageContext'
+import GoogleAnalytics from './components/GoogleAnalytics'
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body style={{ margin: 0 }}>
+        <GoogleAnalytics />
         <LanguageProvider>
         <style>{`
           :root{
@@ -149,6 +151,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             display: flex;
             gap: 6px;
             margin: 10px 0;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
           }
           .partySizeBtn{
             flex: 1;
@@ -162,6 +167,9 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             cursor: pointer;
             text-align: center;
             transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
           }
           .partySizeBtn:hover{
             border-color: rgba(74,124,111,.32);
@@ -179,7 +187,27 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             color: var(--navy);
           }
 
-          /* Booking form inputs */
+          
+
+          .card input,
+          .card select,
+          .card textarea{
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+          }
+
+
+
+          .card a,
+          .card button{
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            display: block;
+          }
+
+/* Booking form inputs */
           .bookingInput{
             width: 100%;
             padding: 10px 12px;
