@@ -63,6 +63,20 @@ const Tours: CollectionConfig = {
       type: 'relationship',
       relationTo: 'media',
     },
+    {
+      name: 'gallery',
+      type: 'array',
+      label: 'Gallery',
+      admin: { description: 'Additional images shown in the tour page slider' },
+      fields: [
+        {
+          name: 'image',
+          type: 'relationship',
+          relationTo: 'media',
+          required: true,
+        },
+      ],
+    },
 
     {
       name: 'priceFrom',

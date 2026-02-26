@@ -1,5 +1,6 @@
 import BookingSidebarClient from '../../components/BookingSidebarClient'
 import { TourTitleClient, TourDescriptionClient, BackToToursClient, HighlightsTitleClient, NoImageClient } from './TourTitleClient'
+import TourGallerySlider from './TourGallerySlider'
 
 export const dynamic = 'force-dynamic'
 
@@ -55,6 +56,7 @@ type Tour = {
   shortDescription?: string
   longDescription?: unknown
   heroImage?: MediaDoc | null
+  gallery?: { id: string; image?: MediaDoc | null }[]
   priceFrom?: number
   price1to3?: number
   price4to7?: number
@@ -93,7 +95,18 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
     )
   }
 
-  const imgUrl = typeof tour.heroImage?.url === 'string' ? toPublicURL(tour.heroImage.url) : null
+  // Build slides: gallery first, fallback to heroImage
+  const slides: { url: string; alt: string }[] = []
+  if (tour.gallery && tour.gallery.length > 0) {
+    for (const item of tour.gallery) {
+      if (typeof item.image?.url === 'string') {
+        slides.push({ url: toPublicURL(item.image.url), alt: item.image.alt || tour.title || 'Tour image' })
+      }
+    }
+  }
+  if (slides.length === 0 && typeof tour.heroImage?.url === 'string') {
+    slides.push({ url: toPublicURL(tour.heroImage.url), alt: tour.heroImage.alt || tour.title || 'Tour image' })
+  }
 
   return (
     <main style={{ padding: 24 }}>
@@ -108,24 +121,13 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
           <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-4 md:gap-6">
           {/* LEFT: image + description */}
           <div className="card" style={{ padding: 0 }}>
-            <div
-              className="tourMedia"
-              style={{
-                width: '100%',
-                aspectRatio: '16/9',
-                background: 'rgba(11,31,58,.04)',
-              }}
-            >
-              {imgUrl ? (
-                <img
-                  src={imgUrl}
-                  alt={tour.heroImage?.alt || tour.title || 'Tour image'}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                />
-              ) : (
+            {slides.length > 0 ? (
+              <TourGallerySlider slides={slides} />
+            ) : (
+              <div className="tourMedia" style={{ width: '100%', aspectRatio: '16/9', background: 'rgba(11,31,58,.04)' }}>
                 <NoImageClient />
-              )}
-            </div>
+              </div>
+            )}
 
             <div style={{ padding: 20 }}>
               <div className="prose">
