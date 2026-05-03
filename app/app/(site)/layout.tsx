@@ -53,7 +53,14 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
           a{ color: var(--navy); text-decoration-color: rgba(44,62,80,.3); }
           a:hover{ color: var(--moss); }
 
-          img{ max-width:100%; height:auto; display:block; }
+          img{
+            max-width:100%;
+            height:auto;
+            display:block;
+            image-rendering:auto;
+            backface-visibility:hidden;
+            transform:translateZ(0);
+          }
 
           /* Panel = frosted glass section container */
           .panel{
@@ -877,6 +884,13 @@ export default function SiteLayout({ children }: { children: ReactNode }) {
             height: 64px;
             object-fit: contain;
             display: block;
+          }
+
+          .heroSlide img,
+          .tourMedia img,
+          .card img{
+            object-fit:cover;
+            object-position:center;
           }
         `}</style>
 

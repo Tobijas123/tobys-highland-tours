@@ -3,43 +3,11 @@
 import { useLanguage } from '../../lib/LanguageContext'
 import { pickI18n, pickI18nRichText } from '../../lib/pickI18n'
 import { useT } from '../../lib/translations'
+import { RichText } from '@payloadcms/richtext-lexical/react'
+import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 
 type I18nGroup = {
   [key: string]: string | unknown | undefined
-}
-
-// Lexical richText to plain text converter (client-side)
-function lexicalToPlainText(value: unknown): string {
-  if (!value) return ''
-  if (typeof value === 'string') return value
-
-  const out: string[] = []
-
-  const walk = (node: unknown) => {
-    if (!node) return
-    if (Array.isArray(node)) return node.forEach(walk)
-
-    const n = node as { type?: string; text?: string; children?: unknown }
-
-    if (n.type === 'text' && typeof n.text === 'string') {
-      out.push(n.text)
-      return
-    }
-
-    if (n.type === 'paragraph' || n.type === 'heading') {
-      if (n.children) walk(n.children)
-      out.push('\n\n')
-      return
-    }
-
-    if (n.children) walk(n.children)
-  }
-
-  const v = value as { root?: { children?: unknown } }
-  if (v?.root?.children) walk(v.root.children)
-  else walk(value)
-
-  return out.join('').replace(/\n{3,}/g, '\n\n').trim()
 }
 
 export function TourTitleClient({ tour }: { tour: { title?: string; i18n?: I18nGroup | null } }) {
@@ -65,14 +33,15 @@ export function TourDescriptionClient({ tour }: TourDescriptionClientProps) {
   const t = useT()
 
   const shortDescription = pickI18n(tour, 'shortDescription', lang, tour.shortDescription ?? '')
-
   const longDescRaw = pickI18nRichText(tour, 'longDescription', lang) ?? tour.longDescription ?? null
-  const longText = lexicalToPlainText(longDescRaw)
+
+  // Check if we have valid richText data
+  const hasRichText = longDescRaw && typeof longDescRaw === 'object' && 'root' in (longDescRaw as object)
 
   return (
     <div className="prose" style={{ fontSize: 15 }}>
-      {longText ? (
-        <p style={{ whiteSpace: 'pre-wrap' }}>{longText}</p>
+      {hasRichText ? (
+        <RichText data={longDescRaw as SerializedEditorState} />
       ) : shortDescription ? (
         <p>{shortDescription}</p>
       ) : (

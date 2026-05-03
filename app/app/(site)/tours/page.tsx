@@ -28,6 +28,11 @@ import ToursListClient from './ToursListClient'
 type MediaDoc = {
   url?: string
   alt?: string | null
+  sizes?: {
+    thumbnail?: { url?: string }
+    card?: { url?: string }
+    hero?: { url?: string }
+  }
 }
 
 type I18nGroup = {
@@ -76,7 +81,7 @@ export default async function ToursPage() {
     slug: t.slug,
     title: t.title,
     shortDescription: t.shortDescription,
-    imageUrl: typeof t.heroImage?.url === 'string' ? toPublicURL(t.heroImage.url) : null,
+    imageUrl: typeof t.heroImage?.url === 'string' ? toPublicURL(t.heroImage.sizes?.card?.url || t.heroImage.url) : null,
     imageAlt: t.heroImage?.alt ?? null,
     price1to3: t.price1to3,
     price4to7: t.price4to7,

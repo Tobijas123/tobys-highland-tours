@@ -1,4 +1,6 @@
 import BookingSidebarClient from '../../components/BookingSidebarClient'
+import { RichText } from '@payloadcms/richtext-lexical/react'
+import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,46 +10,25 @@ function toPublicURL(url: string) {
   return url.replace(/^http:\/\/localhost:3000/, base)
 }
 
-function lexicalToPlainText(value: any): string {
-  if (!value) return ''
-  if (typeof value === 'string') return value
-
-  const out: string[] = []
-
-  const walk = (node: any) => {
-    if (!node) return
-    if (Array.isArray(node)) return node.forEach(walk)
-
-    if (node.type === 'text' && typeof node.text === 'string') {
-      out.push(node.text)
-      return
-    }
-
-    if (node.type === 'paragraph' || node.type === 'heading') {
-      if (node.children) walk(node.children)
-      out.push('\n\n')
-      return
-    }
-
-    if (node.children) walk(node.children)
-  }
-
-  if (value?.root?.children) walk(value.root.children)
-  else walk(value)
-
-  return out.join('').replace(/\n{3,}/g, '\n\n').trim()
-}
-
 type MediaDoc = {
   url?: string
   alt?: string | null
+}
+
+type DescriptionStyle = {
+  backgroundColor?: string
+  textColor?: string
+  padding?: string
+  borderRadius?: string
 }
 
 type Transfer = {
   id: string | number
   title?: string
   slug?: string
+  shortDescription?: string
   longDescription?: any
+  descriptionStyle?: DescriptionStyle | null
   heroImage?: MediaDoc | null
   price1to3?: number
   price4to7?: number
@@ -88,7 +69,7 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
   }
 
   const imgUrl = typeof transfer.heroImage?.url === 'string' ? toPublicURL(transfer.heroImage.url) : null
-  const longText = lexicalToPlainText(transfer.longDescription)
+  const hasRichText = transfer.longDescription && typeof transfer.longDescription === 'object' && 'root' in transfer.longDescription
   const routeInfo = transfer.fromLocation && transfer.toLocation
     ? `${transfer.fromLocation} → ${transfer.toLocation}`
     : null
@@ -112,7 +93,13 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
 
           <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-4 md:gap-6">
           {/* LEFT: image + description */}
-          <div className="card" style={{ padding: 0 }}>
+          <div
+            className="card"
+            style={{
+              padding: 0,
+              ...(transfer.descriptionStyle?.backgroundColor && { background: transfer.descriptionStyle.backgroundColor }),
+            }}
+          >
             <div
               className="tourMedia"
               style={{
@@ -134,10 +121,20 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
               )}
             </div>
 
-            <div style={{ padding: 20 }}>
+            <div
+              style={{
+                display: 'flow-root',
+                width: '100%',
+                boxSizing: 'border-box',
+                padding: transfer.descriptionStyle?.padding || 32,
+                color: transfer.descriptionStyle?.textColor || 'inherit',
+              }}
+            >
               <div className="prose" style={{ fontSize: 15 }}>
-                {longText ? (
-                  <p style={{ whiteSpace: 'pre-wrap' }}>{longText}</p>
+                {hasRichText ? (
+                  <RichText data={transfer.longDescription as SerializedEditorState} />
+                ) : transfer.shortDescription ? (
+                  <p>{transfer.shortDescription}</p>
                 ) : (
                   <p className="muted">No description yet.</p>
                 )}

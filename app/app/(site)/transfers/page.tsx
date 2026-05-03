@@ -34,6 +34,11 @@ function toPublicURL(url: string) {
 type MediaDoc = {
   url?: string
   alt?: string | null
+  sizes?: {
+    thumbnail?: { url?: string }
+    card?: { url?: string }
+    hero?: { url?: string }
+  }
 }
 
 type Transfer = {
@@ -105,7 +110,7 @@ export default async function TransfersPage() {
                   }}
                 >
                   {transfers.slice(0, 6).map((tr, idx) => {
-                    const imgUrl = typeof tr.heroImage?.url === 'string' ? toPublicURL(tr.heroImage.url) : null
+                    const imgUrl = typeof tr.heroImage?.url === 'string' ? toPublicURL(tr.heroImage.sizes?.card?.url || tr.heroImage.url) : null
                     return (
                       <div
                         key={idx}
@@ -179,7 +184,7 @@ export default async function TransfersPage() {
             {transfers.map((tr) => {
               const href = `/transfers/${tr.slug ?? tr.id}`
               const imgUrl =
-                typeof tr.heroImage?.url === 'string' ? toPublicURL(tr.heroImage.url) : null
+                typeof tr.heroImage?.url === 'string' ? toPublicURL(tr.heroImage.sizes?.card?.url || tr.heroImage.url) : null
 
               return (
                 <a

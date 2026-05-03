@@ -59,6 +59,48 @@ const Transfers: CollectionConfig = {
       type: 'textarea',
     },
     {
+      name: 'descriptionStyle',
+      type: 'group',
+      label: 'Description Section Style',
+      admin: {
+        description: 'Customize the appearance of the description section',
+      },
+      fields: [
+        {
+          name: 'backgroundColor',
+          type: 'text',
+          label: 'Background Color',
+          admin: {
+            description: 'CSS color value (e.g., #f5f5f5, rgb(245,245,245), transparent)',
+          },
+        },
+        {
+          name: 'textColor',
+          type: 'text',
+          label: 'Text Color',
+          admin: {
+            description: 'CSS color value (e.g., #333333, rgb(51,51,51))',
+          },
+        },
+        {
+          name: 'padding',
+          type: 'text',
+          label: 'Padding',
+          admin: {
+            description: 'CSS padding value (e.g., 20px, 1rem 2rem)',
+          },
+        },
+        {
+          name: 'borderRadius',
+          type: 'text',
+          label: 'Border Radius',
+          admin: {
+            description: 'CSS border-radius value (e.g., 8px, 1rem)',
+          },
+        },
+      ],
+    },
+    {
       name: 'heroImage',
       type: 'upload',
       relationTo: 'media',

@@ -1,10 +1,36 @@
+import sharp from 'sharp'
 import path from 'path'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { fileURLToPath } from 'url'
 
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import {
+  lexicalEditor,
+  BoldFeature,
+  ItalicFeature,
+  UnderlineFeature,
+  StrikethroughFeature,
+  SubscriptFeature,
+  SuperscriptFeature,
+  HeadingFeature,
+  ParagraphFeature,
+  BlockquoteFeature,
+  OrderedListFeature,
+  UnorderedListFeature,
+  ChecklistFeature,
+  LinkFeature,
+  UploadFeature,
+  HorizontalRuleFeature,
+  EXPERIMENTAL_TableFeature,
+  IndentFeature,
+  AlignFeature,
+  RelationshipFeature,
+  TextStateFeature,
+  FixedToolbarFeature,
+  InlineToolbarFeature,
+  defaultColors,
+} from '@payloadcms/richtext-lexical'
 import Tours from './collections/Tours'
 import Media from './collections/Media'
 import Bookings from './collections/Bookings'
@@ -66,7 +92,50 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
     },
   }),
 
-  editor: lexicalEditor(),
+  editor: lexicalEditor({
+    features: [
+      // Toolbars
+      FixedToolbarFeature(),
+      InlineToolbarFeature(),
+      // Text formatting
+      BoldFeature(),
+      ItalicFeature(),
+      UnderlineFeature(),
+      StrikethroughFeature(),
+      SubscriptFeature(),
+      SuperscriptFeature(),
+      // Text colors (text color + background color)
+      TextStateFeature({
+        state: {
+          textColor: {
+            ...defaultColors.text,
+          },
+          backgroundColor: {
+            ...defaultColors.background,
+          },
+        },
+      }),
+      // Block types
+      HeadingFeature({ enabledHeadingSizes: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] }),
+      ParagraphFeature(),
+      BlockquoteFeature(),
+      // Lists
+      OrderedListFeature(),
+      UnorderedListFeature(),
+      ChecklistFeature(),
+      // Insertions
+      LinkFeature(),
+      UploadFeature({ collections: { media: { fields: [] } } }),
+      HorizontalRuleFeature(),
+      EXPERIMENTAL_TableFeature(),
+      RelationshipFeature(),
+      // Layout
+      IndentFeature(),
+      AlignFeature(),
+    ],
+  }),
+
+  sharp,
 
   collections: [
     {

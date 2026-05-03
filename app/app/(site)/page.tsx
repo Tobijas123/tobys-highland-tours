@@ -41,6 +41,11 @@ function toPublicURL(url: string) {
 type MediaDoc = {
   url?: string
   alt?: string | null
+  sizes?: {
+    thumbnail?: { url?: string }
+    card?: { url?: string }
+    hero?: { url?: string }
+  }
 }
 
 type Tour = {
@@ -200,7 +205,7 @@ function ProductCard({
   badge?: string
   lang: 'en' | 'es'
 }) {
-  const imgUrl = typeof image?.url === 'string' ? toPublicURL(image.url) : null
+  const imgUrl = typeof image?.url === 'string' ? toPublicURL(image.sizes?.card?.url || image.url) : null
 
   return (
     <a
@@ -292,7 +297,7 @@ export default async function HomePage() {
   const heroSlides = homepage?.heroSlides
     ?.filter((s) => s.image?.url)
     .map((s) => ({
-      image: toPublicURL(s.image!.url!),
+      image: toPublicURL(s.image!.sizes?.hero?.url || s.image!.url!),
       heading: s.heading,
       subheading: s.subheading,
     }))
@@ -304,7 +309,7 @@ export default async function HomePage() {
   const promoBackgroundImages = promo?.backgroundImages
     ?.filter((b) => b.image?.url)
     .map((b) => ({
-      url: toPublicURL(b.image!.url!),
+      url: toPublicURL(b.image!.sizes?.card?.url || b.image!.url!),
       focus: b.focus || 'center',
     })) ?? []
 

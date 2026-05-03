@@ -10,36 +10,6 @@ function toPublicURL(url: string) {
   return url.replace(/^http:\/\/localhost:3000/, base)
 }
 
-function lexicalToPlainText(value: any): string {
-  if (!value) return ''
-  if (typeof value === 'string') return value
-
-  const out: string[] = []
-
-  const walk = (node: any) => {
-    if (!node) return
-    if (Array.isArray(node)) return node.forEach(walk)
-
-    if (node.type === 'text' && typeof node.text === 'string') {
-      out.push(node.text)
-      return
-    }
-
-    if (node.type === 'paragraph' || node.type === 'heading') {
-      if (node.children) walk(node.children)
-      out.push('\n\n')
-      return
-    }
-
-    if (node.children) walk(node.children)
-  }
-
-  if (value?.root?.children) walk(value.root.children)
-  else walk(value)
-
-  return out.join('').replace(/\n{3,}/g, '\n\n').trim()
-}
-
 type MediaDoc = {
   url?: string
   alt?: string | null
@@ -49,12 +19,20 @@ type I18nGroup = {
   [key: string]: string | unknown | undefined
 }
 
+type DescriptionStyle = {
+  backgroundColor?: string
+  textColor?: string
+  padding?: string
+  borderRadius?: string
+}
+
 type Tour = {
   id: string | number
   title?: string
   slug?: string
   shortDescription?: string
   longDescription?: unknown
+  descriptionStyle?: DescriptionStyle | null
   heroImage?: MediaDoc | null
   gallery?: { id: string; image?: MediaDoc | null }[]
   priceFrom?: number
@@ -120,7 +98,13 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
 
           <div className="grid grid-cols-1 md:grid-cols-[3fr_1fr] gap-4 md:gap-6">
           {/* LEFT: image + description */}
-          <div className="card" style={{ padding: 0 }}>
+          <div
+            className="card"
+            style={{
+              padding: 0,
+              ...(tour.descriptionStyle?.backgroundColor && { background: tour.descriptionStyle.backgroundColor }),
+            }}
+          >
             {slides.length > 0 ? (
               <TourGallerySlider slides={slides} />
             ) : (
@@ -129,13 +113,23 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
               </div>
             )}
 
-            <div style={{ padding: 20 }}>
-              <div className="prose">
-                {tour.shortDescription ? <p>{tour.shortDescription}</p> : null}
-                {lexicalToPlainText(tour.longDescription) ? (
-                  <div style={{ whiteSpace: 'pre-wrap' }}>{lexicalToPlainText(tour.longDescription)}</div>
-                ) : null}
-              </div>
+            <div
+              style={{
+                display: 'flow-root',
+                width: '100%',
+                boxSizing: 'border-box',
+                padding: tour.descriptionStyle?.padding || 32,
+                color: tour.descriptionStyle?.textColor || 'inherit',
+              }}
+            >
+              <TourDescriptionClient
+                tour={{
+                  title: tour.title,
+                  shortDescription: tour.shortDescription,
+                  longDescription: tour.longDescription,
+                  i18n: tour.i18n,
+                }}
+              />
 
               {tour.highlights && tour.highlights.length > 0 ? (
                 <div style={{ marginTop: 20 }}>
@@ -175,4 +169,3 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
     </main>
   )
 }
-
