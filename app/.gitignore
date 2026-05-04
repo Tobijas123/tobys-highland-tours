@@ -32,8 +32,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Payload auto-generated
-app/(payload)/admin/importMap.js
+# Payload auto-generated (but we commit importMap.js manually because npx payload generate:importmap fails on Node 20)
+# app/(payload)/admin/importMap.js
 
 # Uploaded media (not versioned)
 media/

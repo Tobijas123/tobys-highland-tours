@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev -H 0.0.0.0 -p 3000",
-    "build": "next build",
+    "build": "cp app/(payload)/admin/importMap.js /tmp/importMap.backup.js && next build && cp /tmp/importMap.backup.js app/(payload)/admin/importMap.js",
+    "build:next": "next build",
     "start": "next start",
     "lint": "eslint",
     "migrate:tours-i18n-en": "tsx scripts/migrate-tours-i18n-en.ts",
