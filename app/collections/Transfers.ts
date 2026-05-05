@@ -56,7 +56,7 @@ const Transfers: CollectionConfig = {
     },
     {
       name: 'longDescription',
-      type: 'textarea',
+      type: 'richText',
     },
     {
       name: 'descriptionStyle',
