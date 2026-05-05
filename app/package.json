@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "migrate:tours-i18n-en": "tsx scripts/migrate-tours-i18n-en.ts",
+    "migrate-longdesc": "npx tsx scripts/migrate-longdesc.ts",
     "migrate:tours-i18n-en-to-es": "tsx scripts/migrate-tours-i18n-en-to-es.ts",
     "optimize-images": "npx tsx scripts/optimize-images.ts",
     "reupload-media": "npx tsx scripts/reupload-media.ts"
