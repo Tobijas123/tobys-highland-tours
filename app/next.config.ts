@@ -53,6 +53,26 @@ const nextConfig: NextConfig = {
     },
   },
 
+  async redirects() {
+    return [
+      {
+        source: '/tours/loch-ness-360-private-tour-around-the-legendary-loch',
+        destination: '/tours/loch-ness-360',
+        permanent: true,
+      },
+      {
+        source: '/tours/private-highland-shore-excursion-from-invergordon',
+        destination: '/tours/invergordon-shore-excursion',
+        permanent: true,
+      },
+      {
+        source: '/tours/custom-highland-shore-excursion-from-invergordon',
+        destination: '/tours/invergordon-custom-tour',
+        permanent: true,
+      },
+    ]
+  },
+
   async headers() {
     return [
       {

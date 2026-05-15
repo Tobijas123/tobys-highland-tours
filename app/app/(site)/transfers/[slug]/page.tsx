@@ -1,8 +1,11 @@
+import type { Metadata } from 'next'
 import BookingSidebarClient from '../../components/BookingSidebarClient'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 
 export const dynamic = 'force-dynamic'
+
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://tobyshighlandtours.com').replace(/\/$/, '')
 
 function toPublicURL(url: string) {
   const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -51,6 +54,49 @@ async function getTransferBySlug(slug: string): Promise<Transfer | null> {
   return transfer ?? null
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const transfer = await getTransferBySlug(slug)
+
+  if (!transfer) {
+    return {
+      title: "Transfer Not Found | Toby's Highland Tours",
+    }
+  }
+
+  const routeInfo = transfer.fromLocation && transfer.toLocation
+    ? `${transfer.fromLocation} to ${transfer.toLocation}`
+    : ''
+  const title = `${transfer.title} | Toby's Highland Tours`
+  const description = transfer.shortDescription || `Private ${routeInfo} transfer. Door-to-door service, flexible pickup, professional driver.`
+  const heroImageUrl = transfer.heroImage?.url ? toPublicURL(transfer.heroImage.url) : undefined
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/transfers/${transfer.slug}`,
+    },
+    openGraph: {
+      title: transfer.title,
+      description,
+      url: `${siteUrl}/transfers/${transfer.slug}`,
+      type: 'website',
+      ...(heroImageUrl && {
+        images: [{ url: heroImageUrl, width: 1200, height: 630, alt: transfer.title }],
+      }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: transfer.title,
+      description,
+      ...(heroImageUrl && {
+        images: [heroImageUrl],
+      }),
+    },
+  }
+}
+
 export default async function TransferPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const transfer = await getTransferBySlug(slug)
@@ -74,7 +120,34 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
     ? `${transfer.fromLocation} → ${transfer.toLocation}`
     : null
 
+  const lowestPrice = transfer.price1to3 ?? transfer.price4to7
+
+  const transferSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: transfer.title,
+    description: transfer.shortDescription,
+    ...(imgUrl && { image: imgUrl }),
+    provider: {
+      '@type': 'TravelAgency',
+      name: "Toby's Highland Tours",
+      url: siteUrl,
+    },
+    offers: {
+      '@type': 'Offer',
+      ...(lowestPrice && { price: lowestPrice }),
+      priceCurrency: 'GBP',
+      availability: 'https://schema.org/InStock',
+      url: `${siteUrl}/transfers/${transfer.slug}`,
+    },
+  }
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(transferSchema) }}
+      />
     <main style={{ padding: 24 }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="card" style={{ padding: 24 }}>
@@ -175,5 +248,6 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
         </div>
       </div>
     </main>
+    </>
   )
 }

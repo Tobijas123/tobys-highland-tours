@@ -46,7 +46,7 @@ export async function SiteFooter() {
             </p>
 
             <div className="thtFooterBadges" aria-label="Highlights">
-              <span className="thtFooterBadge">English / Español</span>
+              <span className="thtFooterBadge">Local guide</span>
               <span className="thtFooterBadge">Flexible pickup</span>
               <span className="thtFooterBadge">Fast replies</span>
             </div>

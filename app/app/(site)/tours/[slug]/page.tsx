@@ -1,8 +1,11 @@
+import type { Metadata } from 'next'
 import BookingSidebarClient from '../../components/BookingSidebarClient'
 import { TourTitleClient, TourDescriptionClient, BackToToursClient, HighlightsTitleClient, NoImageClient } from './TourTitleClient'
 import TourGallerySlider from './TourGallerySlider'
 
 export const dynamic = 'force-dynamic'
+
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://tobyshighlandtours.com').replace(/\/$/, '')
 
 function toPublicURL(url: string) {
   const base = process.env.PAYLOAD_PUBLIC_SERVER_URL
@@ -56,6 +59,46 @@ async function getTourBySlug(slug: string): Promise<Tour | null> {
   return tour ?? null
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const tour = await getTourBySlug(slug)
+
+  if (!tour) {
+    return {
+      title: "Tour Not Found | Toby's Highland Tours",
+    }
+  }
+
+  const title = `${tour.title} | Toby's Highland Tours`
+  const description = tour.shortDescription || `Private ${tour.title} from Inverness. Flexible stops, small groups, local driver-guide.`
+  const heroImageUrl = tour.heroImage?.url ? toPublicURL(tour.heroImage.url) : undefined
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/tours/${tour.slug}`,
+    },
+    openGraph: {
+      title: tour.title,
+      description,
+      url: `${siteUrl}/tours/${tour.slug}`,
+      type: 'website',
+      ...(heroImageUrl && {
+        images: [{ url: heroImageUrl, width: 1200, height: 630, alt: tour.title }],
+      }),
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: tour.title,
+      description,
+      ...(heroImageUrl && {
+        images: [heroImageUrl],
+      }),
+    },
+  }
+}
+
 export default async function TourPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const tour = await getTourBySlug(slug)
@@ -86,7 +129,36 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
     slides.push({ url: toPublicURL(tour.heroImage.url), alt: tour.heroImage.alt || tour.title || 'Tour image' })
   }
 
+  const heroImageUrl = tour.heroImage?.url ? toPublicURL(tour.heroImage.url) : undefined
+  const lowestPrice = tour.price1to3 ?? tour.price4to7 ?? tour.priceFrom
+
+  const tourSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristTrip',
+    name: tour.title,
+    description: tour.shortDescription,
+    ...(heroImageUrl && { image: heroImageUrl }),
+    ...(tour.durationHours && { duration: `PT${tour.durationHours}H` }),
+    provider: {
+      '@type': 'TravelAgency',
+      name: "Toby's Highland Tours",
+      url: siteUrl,
+    },
+    offers: {
+      '@type': 'Offer',
+      ...(lowestPrice && { price: lowestPrice }),
+      priceCurrency: 'GBP',
+      availability: 'https://schema.org/InStock',
+      url: `${siteUrl}/tours/${tour.slug}`,
+    },
+  }
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(tourSchema) }}
+      />
     <main style={{ padding: 24 }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="card" style={{ padding: 24 }}>
@@ -167,5 +239,6 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
 
       </div>
     </main>
+    </>
   )
 }

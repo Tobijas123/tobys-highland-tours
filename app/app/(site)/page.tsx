@@ -313,8 +313,44 @@ export default async function HomePage() {
       focus: b.focus || 'center',
     })) ?? []
 
+  const localBusinessSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TravelAgency',
+    name: "Toby's Highland Tours",
+    image: `${siteUrl}/opengraph-image`,
+    '@id': siteUrl,
+    url: siteUrl,
+    telephone: '+447383488007',
+    email: 'info@tobyshighlandtours.com',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '184 Murray Terrace',
+      addressLocality: 'Inverness',
+      postalCode: 'IV2 7WZ',
+      addressCountry: 'GB',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 57.4596,
+      longitude: -4.2264,
+    },
+    priceRange: '£45–£620',
+    areaServed: {
+      '@type': 'Place',
+      name: 'Scottish Highlands',
+    },
+    sameAs: [
+      'https://www.facebook.com/profile.php?id=61556286421645',
+      'https://www.instagram.com/tobyshighlandtours',
+    ],
+  }
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
       <div id="top" />
       <HeroSliderClient slides={heroSlides} logoUrl={heroLogoUrl} />
 

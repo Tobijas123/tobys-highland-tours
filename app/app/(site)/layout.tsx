@@ -1,8 +1,15 @@
 import type { ReactNode } from 'react'
+import type { Metadata } from 'next'
 import TopBarClient from './components/TopBarClient'
 import NavigationClient from './components/NavigationClient'
 import { LanguageProvider } from './lib/LanguageContext'
 import GoogleAnalytics from './components/GoogleAnalytics'
+
+const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://tobyshighlandtours.com').replace(/\/$/, '')
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+}
 
 export default function SiteLayout({ children }: { children: ReactNode }) {
   return (
