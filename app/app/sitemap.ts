@@ -2,6 +2,10 @@ import type { MetadataRoute } from 'next'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 
+// Force dynamic generation at runtime (not static at build time)
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const rawUrl = process.env.SITE_URL || process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://tobyshighlandtours.com'
   const baseUrl = rawUrl.replace(/\/$/, '')
