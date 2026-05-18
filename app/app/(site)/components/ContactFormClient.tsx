@@ -3,7 +3,20 @@
 import { useState } from 'react'
 import { useT } from '../lib/translations'
 
-export default function ContactFormClient() {
+// GTM dataLayer type declaration
+declare global {
+  interface Window {
+    dataLayer: Record<string, unknown>[]
+  }
+}
+
+type FormType = 'transfer_request' | 'bespoke_tour' | 'general_contact'
+
+interface ContactFormClientProps {
+  formType?: FormType
+}
+
+export default function ContactFormClient({ formType = 'general_contact' }: ContactFormClientProps) {
   const t = useT()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -41,6 +54,15 @@ export default function ContactFormClient() {
       if (!res.ok) {
         setError(data.error || 'Something went wrong. Please try again.')
         return
+      }
+
+      // Push to GTM dataLayer for conversion tracking
+      if (typeof window !== 'undefined') {
+        window.dataLayer = window.dataLayer || []
+        window.dataLayer.push({
+          event: 'form_submitted',
+          form_type: formType,
+        })
       }
 
       setSubmitted(true)

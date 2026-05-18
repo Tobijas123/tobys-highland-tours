@@ -246,7 +246,7 @@ export default async function TransferRequestPage() {
           </p>
 
           {/* Contact form */}
-          <ContactFormClient />
+          <ContactFormClient formType="transfer_request" />
         </div>
       </div>
 

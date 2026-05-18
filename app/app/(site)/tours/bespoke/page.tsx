@@ -256,7 +256,7 @@ export default async function BespokePage() {
           </p>
 
           {/* Contact form */}
-          <ContactFormClient />
+          <ContactFormClient formType="bespoke_tour" />
         </div>
       </div>
 
