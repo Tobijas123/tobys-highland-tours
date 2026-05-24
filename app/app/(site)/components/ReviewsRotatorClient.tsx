@@ -14,6 +14,8 @@ interface Testimonial {
 
 interface ReviewsRotatorProps {
   testimonials: Testimonial[]
+  /** Optional: filter testimonials by tour slug. Currently unused (shows all). */
+  tourSlug?: string
 }
 
 function StarRating({ rating }: { rating: number }) {
@@ -135,7 +137,9 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   )
 }
 
-export default function ReviewsRotatorClient({ testimonials }: ReviewsRotatorProps) {
+export default function ReviewsRotatorClient({ testimonials, tourSlug }: ReviewsRotatorProps) {
+  // TODO: When per-tour reviews are available, filter by tourSlug here
+  void tourSlug // Suppress unused variable warning for now
   const [pairIndex, setPairIndex] = useState(0)
   const [fade, setFade] = useState(true)
 

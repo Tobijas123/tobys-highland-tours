@@ -1,7 +1,13 @@
 import type { Metadata } from 'next'
+import type { SerializedEditorState } from '@payloadcms/richtext-lexical/lexical'
 import BookingSidebarClient from '../../components/BookingSidebarClient'
 import { TourTitleClient, TourDescriptionClient, BackToToursClient, HighlightsTitleClient, NoImageClient } from './TourTitleClient'
 import TourGallerySlider from './TourGallerySlider'
+import FaqAccordion from '../../components/FaqAccordion'
+import ItineraryTimeline from '../../components/ItineraryTimeline'
+import RelatedTours from '../../components/RelatedTours'
+import AboutDriver from '../../components/AboutDriver'
+import ReviewsRotatorClient from '../../components/ReviewsRotatorClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,6 +35,38 @@ type DescriptionStyle = {
   borderRadius?: string
 }
 
+type ItineraryStop = {
+  time?: string
+  location: string
+  description?: string
+  duration?: string
+}
+
+type FaqItem = {
+  question: string
+  answer: string
+}
+
+type RelatedTour = {
+  id: string | number
+  title?: string
+  slug?: string
+  shortDescription?: string
+  heroImage?: MediaDoc | null
+  price1to3?: number
+  durationHours?: number
+}
+
+type Testimonial = {
+  id: string
+  authorName: string
+  text: string
+  rating: number
+  source: 'facebook' | 'google' | 'manual'
+  sourceUrl?: string
+  featured?: boolean
+}
+
 type Tour = {
   id: string | number
   title?: string
@@ -44,6 +82,16 @@ type Tour = {
   durationHours?: number
   highlights?: { text: string }[]
   i18n?: I18nGroup | null
+  // SEO & Landing Page fields
+  metaTitle?: string
+  metaDescription?: string
+  itinerary?: ItineraryStop[]
+  faqs?: FaqItem[]
+  whyChooseUs?: SerializedEditorState | null
+  whatToBring?: { item: string }[]
+  aboutDriver?: SerializedEditorState | null
+  driverPhoto?: MediaDoc | null
+  relatedTours?: RelatedTour[]
 }
 
 async function getTourBySlug(slug: string): Promise<Tour | null> {
@@ -59,6 +107,20 @@ async function getTourBySlug(slug: string): Promise<Tour | null> {
   return tour ?? null
 }
 
+async function getTestimonials(): Promise<Testimonial[]> {
+  try {
+    const res = await fetch(
+      `http://127.0.0.1:3000/api/testimonials?where[featured][equals]=true&limit=12&sort=order`,
+      { cache: 'no-store' }
+    )
+    if (!res.ok) return []
+    const data = await res.json()
+    return (data?.docs ?? []) as Testimonial[]
+  } catch {
+    return []
+  }
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const tour = await getTourBySlug(slug)
@@ -69,8 +131,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     }
   }
 
-  const title = `${tour.title} | Toby's Highland Tours`
-  const description = tour.shortDescription || `Private ${tour.title} from Inverness. Flexible stops, small groups, local driver-guide.`
+  const title = tour.metaTitle || `${tour.title} | Toby's Highland Tours`
+  const description = tour.metaDescription || tour.shortDescription || `Private ${tour.title} from Inverness. Flexible stops, small groups, local driver-guide.`
   const heroImageUrl = tour.heroImage?.url ? toPublicURL(tour.heroImage.url) : undefined
 
   return {
@@ -101,7 +163,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function TourPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const tour = await getTourBySlug(slug)
+  const [tour, testimonials] = await Promise.all([
+    getTourBySlug(slug),
+    getTestimonials(),
+  ])
 
   if (!tour) {
     return (
@@ -131,18 +196,32 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
 
   const heroImageUrl = tour.heroImage?.url ? toPublicURL(tour.heroImage.url) : undefined
   const lowestPrice = tour.price1to3 ?? tour.price4to7 ?? tour.priceFrom
+  const driverPhotoUrl = tour.driverPhoto?.url ? toPublicURL(tour.driverPhoto.url) : undefined
+
+  // Process related tours images
+  const relatedToursWithImages = tour.relatedTours?.map((rt) => ({
+    ...rt,
+    heroImage: rt.heroImage?.url ? { ...rt.heroImage, url: toPublicURL(rt.heroImage.url) } : rt.heroImage,
+  }))
 
   const tourSchema = {
     '@context': 'https://schema.org',
     '@type': 'TouristTrip',
-    name: tour.title,
-    description: tour.shortDescription,
+    name: tour.metaTitle || tour.title,
+    description: tour.metaDescription || tour.shortDescription,
     ...(heroImageUrl && { image: heroImageUrl }),
     ...(tour.durationHours && { duration: `PT${tour.durationHours}H` }),
+    touristType: 'Couples, Families, Solo travelers, Small groups',
+    availableLanguage: ['English'],
     provider: {
       '@type': 'TravelAgency',
       name: "Toby's Highland Tours",
       url: siteUrl,
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Inverness',
+        addressCountry: 'GB',
+      },
     },
     offers: {
       '@type': 'Offer',
@@ -151,7 +230,32 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
       availability: 'https://schema.org/InStock',
       url: `${siteUrl}/tours/${tour.slug}`,
     },
+    ...(tour.itinerary && tour.itinerary.length > 0 && {
+      itinerary: {
+        '@type': 'ItemList',
+        itemListElement: tour.itinerary.map((stop, idx) => ({
+          '@type': 'ListItem',
+          position: idx + 1,
+          name: stop.location,
+          description: stop.description,
+        })),
+      },
+    }),
   }
+
+  // FAQ Schema (separate for Google FAQ rich results)
+  const faqSchema = tour.faqs && tour.faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: tour.faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.answer,
+      },
+    })),
+  } : null
 
   return (
     <>
@@ -159,6 +263,12 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(tourSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
     <main style={{ padding: 24 }}>
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="card" style={{ padding: 24 }}>
@@ -213,6 +323,65 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
                   </ul>
                 </div>
               ) : null}
+
+              {/* Itinerary Timeline */}
+              {tour.itinerary && tour.itinerary.length > 0 && (
+                <ItineraryTimeline stops={tour.itinerary} />
+              )}
+
+              {/* Why Choose This Tour */}
+              {tour.whyChooseUs && (
+                <div style={{ marginTop: 32 }}>
+                  <h2
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 800,
+                      marginBottom: 12,
+                      color: 'var(--navy)',
+                    }}
+                  >
+                    Why Choose a Private Tour?
+                  </h2>
+                  <div className="prose" style={{ fontSize: 14, lineHeight: 1.7 }}>
+                    {(() => {
+                      const { RichText } = require('@payloadcms/richtext-lexical/react')
+                      return <RichText data={tour.whyChooseUs} />
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {/* What to Bring */}
+              {tour.whatToBring && tour.whatToBring.length > 0 && (
+                <div style={{ marginTop: 32 }}>
+                  <h2
+                    style={{
+                      fontSize: 22,
+                      fontWeight: 800,
+                      marginBottom: 12,
+                      color: 'var(--navy)',
+                    }}
+                  >
+                    What to Bring
+                  </h2>
+                  <ul className="prose" style={{ display: 'grid', gap: 6 }}>
+                    {tour.whatToBring.map((item, idx) => (
+                      <li key={idx}>{item.item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* About Your Driver */}
+              <AboutDriver
+                content={tour.aboutDriver}
+                photo={driverPhotoUrl ? { url: driverPhotoUrl, alt: 'Your driver' } : null}
+              />
+
+              {/* FAQs */}
+              {tour.faqs && tour.faqs.length > 0 && (
+                <FaqAccordion faqs={tour.faqs} />
+              )}
             </div>
           </div>
 
@@ -237,6 +406,27 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
           </div>
         </div>
 
+        {/* Reviews Section */}
+        {testimonials.length > 0 && (
+          <div style={{ marginTop: 40 }}>
+            <h2
+              style={{
+                fontSize: 22,
+                fontWeight: 800,
+                marginBottom: 16,
+                color: 'var(--navy)',
+              }}
+            >
+              What Our Guests Say
+            </h2>
+            <ReviewsRotatorClient testimonials={testimonials} tourSlug={tour.slug} />
+          </div>
+        )}
+
+        {/* Related Tours */}
+        {relatedToursWithImages && relatedToursWithImages.length > 0 && (
+          <RelatedTours tours={relatedToursWithImages} />
+        )}
       </div>
     </main>
     </>

@@ -179,6 +179,126 @@ const Tours: CollectionConfig = {
     },
 
     // ─────────────────────────────────────────────────────────────
+    // SEO & Landing Page Fields
+    // ─────────────────────────────────────────────────────────────
+    {
+      name: 'metaTitle',
+      type: 'text',
+      label: 'SEO Title',
+      admin: {
+        description: 'Override for page title tag (e.g., "Isle of Skye Tour from Inverness"). If empty, uses tour title.',
+      },
+    },
+    {
+      name: 'metaDescription',
+      type: 'textarea',
+      label: 'SEO Meta Description',
+      admin: {
+        description: 'Meta description for search engines (150-160 characters recommended)',
+      },
+    },
+    {
+      name: 'itinerary',
+      type: 'array',
+      label: 'Detailed Itinerary',
+      admin: {
+        description: 'Day timeline with stops and times. Complements the highlights list.',
+      },
+      fields: [
+        {
+          name: 'time',
+          type: 'text',
+          label: 'Time',
+          admin: { description: 'e.g., "8:00 AM" or "Morning"', width: '20%' },
+        },
+        {
+          name: 'location',
+          type: 'text',
+          required: true,
+          admin: { width: '30%' },
+        },
+        {
+          name: 'description',
+          type: 'textarea',
+          admin: { width: '40%' },
+        },
+        {
+          name: 'duration',
+          type: 'text',
+          label: 'Stop Duration',
+          admin: { description: 'e.g., "30 mins", "1 hour"', width: '10%' },
+        },
+      ],
+    },
+    {
+      name: 'faqs',
+      type: 'array',
+      label: 'FAQs',
+      admin: {
+        description: 'Frequently asked questions. These generate FAQPage schema for Google.',
+      },
+      fields: [
+        {
+          name: 'question',
+          type: 'text',
+          required: true,
+        },
+        {
+          name: 'answer',
+          type: 'textarea',
+          required: true,
+        },
+      ],
+    },
+    {
+      name: 'whyChooseUs',
+      type: 'richText',
+      label: 'Why Choose This Tour',
+      admin: {
+        description: 'Compare private vs bus tours, highlight unique benefits',
+      },
+    },
+    {
+      name: 'whatToBring',
+      type: 'array',
+      label: 'What to Bring',
+      fields: [
+        {
+          name: 'item',
+          type: 'text',
+          required: true,
+        },
+      ],
+    },
+    {
+      name: 'aboutDriver',
+      type: 'richText',
+      label: 'About Your Driver',
+      admin: {
+        description: 'Personal intro from the driver/guide (first person). Major trust signal.',
+      },
+    },
+    {
+      name: 'driverPhoto',
+      type: 'relationship',
+      relationTo: 'media',
+      label: 'Driver Photo',
+      admin: {
+        description: 'Photo of the driver/guide for the About section',
+      },
+    },
+    {
+      name: 'relatedTours',
+      type: 'relationship',
+      relationTo: 'tours',
+      hasMany: true,
+      label: 'Related Tours',
+      admin: {
+        description: 'Cross-link to other tours shown at bottom of page',
+      },
+    },
+
+    // ─────────────────────────────────────────────────────────────
     // Multilingual fields (EN is default, others optional)
     // ─────────────────────────────────────────────────────────────
     {
