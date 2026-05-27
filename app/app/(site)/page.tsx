@@ -146,29 +146,13 @@ async function getTours(): Promise<Tour[]> {
 async function getTransfers(): Promise<Transfer[]> {
   const baseUrl = process.env.PAYLOAD_PUBLIC_SERVER_URL ?? 'http://localhost:3000'
 
-  // First try: sort by confirmedCount (most confirmed first)
   const res = await fetch(
-    `${baseUrl}/api/transfers?limit=6&depth=1&sort=-confirmedCount`,
+    `${baseUrl}/api/transfers?where[isActive][equals]=true&limit=8&depth=1&sort=-featured,-bookingCount,-createdAt`,
     { cache: 'no-store' }
   )
   if (!res.ok) return []
   const data = await res.json()
-  const docs = (data?.docs ?? []) as Transfer[]
-
-  // If all have confirmedCount = 0, fallback to bookingCount
-  const hasConfirmed = docs.some((d: Transfer & { confirmedCount?: number }) => (d.confirmedCount ?? 0) > 0)
-  if (!hasConfirmed && docs.length > 0) {
-    const fallbackRes = await fetch(
-      `${baseUrl}/api/transfers?limit=6&depth=1&sort=-bookingCount`,
-      { cache: 'no-store' }
-    )
-    if (fallbackRes.ok) {
-      const fallbackData = await fallbackRes.json()
-      return (fallbackData?.docs ?? []) as Transfer[]
-    }
-  }
-
-  return docs
+  return (data?.docs ?? []) as Transfer[]
 }
 
 async function getTestimonials(): Promise<Testimonial[]> {

@@ -111,6 +111,14 @@ const Transfers: CollectionConfig = {
       defaultValue: true,
     },
     {
+      name: 'featured',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'Show on home page even if not yet popular. Use for new or seasonal transfers.',
+      },
+    },
+    {
       name: 'price1to3',
       type: 'number',
       min: 0,
