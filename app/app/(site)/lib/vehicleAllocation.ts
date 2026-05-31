@@ -5,7 +5,7 @@ type VehicleInfo = { id: number; seats: number }
 type BookingInfo = { vehicle: number | null; partySize: string }
 
 export function getRequiredSeats(partySize: string): number {
-  return partySize === '4-7' ? 7 : 3
+  return partySize === '5-7' ? 7 : 4
 }
 
 /**
@@ -25,12 +25,12 @@ export function pickVehicle(
     if (b.vehicle) occupied.add(b.vehicle)
   }
 
-  // 2. Virtual-allocate for unassigned bookings (4-7 first so they grab buses)
+  // 2. Virtual-allocate for unassigned bookings (5-7 first so they grab buses)
   const unassigned = bookingsForDate
     .filter((b) => !b.vehicle)
     .sort((a, b) => {
-      if (a.partySize === '4-7' && b.partySize !== '4-7') return -1
-      if (a.partySize !== '4-7' && b.partySize === '4-7') return 1
+      if (a.partySize === '5-7' && b.partySize !== '5-7') return -1
+      if (a.partySize !== '5-7' && b.partySize === '5-7') return 1
       return 0
     })
 

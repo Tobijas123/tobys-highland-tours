@@ -53,7 +53,7 @@ type RelatedTour = {
   slug?: string
   shortDescription?: string
   heroImage?: MediaDoc | null
-  price1to3?: number
+  price1to4?: number
   durationHours?: number
 }
 
@@ -77,8 +77,8 @@ type Tour = {
   heroImage?: MediaDoc | null
   gallery?: { id: string; image?: MediaDoc | null }[]
   priceFrom?: number
-  price1to3?: number
-  price4to7?: number
+  price1to4?: number
+  price5to7?: number
   durationHours?: number
   highlights?: { text: string }[]
   i18n?: I18nGroup | null
@@ -195,7 +195,7 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
   }
 
   const heroImageUrl = tour.heroImage?.url ? toPublicURL(tour.heroImage.url) : undefined
-  const lowestPrice = tour.price1to3 ?? tour.price4to7 ?? tour.priceFrom
+  const lowestPrice = tour.price1to4 ?? tour.price5to7 ?? tour.priceFrom
   const driverPhotoUrl = tour.driverPhoto?.url ? toPublicURL(tour.driverPhoto.url) : undefined
 
   // Process related tours images
@@ -398,8 +398,8 @@ export default async function TourPage({ params }: { params: Promise<{ slug: str
               itemType="tour"
               itemId={typeof tour.id === 'number' ? tour.id : Number(tour.id)}
               itemTitle={tour.title ?? 'Tour'}
-              price1to3={typeof tour.price1to3 === 'number' ? tour.price1to3 : null}
-              price4to7={typeof tour.price4to7 === 'number' ? tour.price4to7 : null}
+              price1to4={typeof tour.price1to4 === 'number' ? tour.price1to4 : null}
+              price5to7={typeof tour.price5to7 === 'number' ? tour.price5to7 : null}
               durationText={typeof tour.durationHours === 'number' ? `${tour.durationHours} hours` : '—'}
             />
           </aside>

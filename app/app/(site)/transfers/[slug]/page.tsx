@@ -33,8 +33,8 @@ type Transfer = {
   longDescription?: any
   descriptionStyle?: DescriptionStyle | null
   heroImage?: MediaDoc | null
-  price1to3?: number
-  price4to7?: number
+  price1to4?: number
+  price5to7?: number
   durationText?: string
   fromLocation?: string
   toLocation?: string
@@ -120,7 +120,7 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
     ? `${transfer.fromLocation} → ${transfer.toLocation}`
     : null
 
-  const lowestPrice = transfer.price1to3 ?? transfer.price4to7
+  const lowestPrice = transfer.price1to4 ?? transfer.price5to7
 
   const transferSchema = {
     '@context': 'https://schema.org',
@@ -239,8 +239,8 @@ export default async function TransferPage({ params }: { params: Promise<{ slug:
               itemType="transfer"
               itemId={typeof transfer.id === 'number' ? transfer.id : Number(transfer.id)}
               itemTitle={transfer.title ?? 'Transfer'}
-              price1to3={typeof transfer.price1to3 === 'number' ? transfer.price1to3 : null}
-              price4to7={typeof transfer.price4to7 === 'number' ? transfer.price4to7 : null}
+              price1to4={typeof transfer.price1to4 === 'number' ? transfer.price1to4 : null}
+              price5to7={typeof transfer.price5to7 === 'number' ? transfer.price5to7 : null}
               durationText={transfer.durationText ?? '—'}
             />
           </aside>

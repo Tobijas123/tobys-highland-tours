@@ -4,21 +4,21 @@ import { useEffect, useMemo, useState } from 'react'
 import BookingCalendar from './BookingCalendar'
 import { useT } from '../lib/translations'
 
-type PartySize = '1-3' | '4-7'
+type PartySize = '1-4' | '5-7'
 type ItemType = 'tour' | 'transfer'
 
 type Props = {
   itemType: ItemType
   itemId: number
   itemTitle: string
-  price1to3: number | null
-  price4to7: number | null
+  price1to4: number | null
+  price5to7: number | null
   durationText: string
 }
 
 const BOOKING_EMAIL = 'info@tobyshighlandtours.com'
 
-export default function BookingSidebarClient({ itemType, itemId, itemTitle, price1to3, price4to7, durationText }: Props) {
+export default function BookingSidebarClient({ itemType, itemId, itemTitle, price1to4, price5to7, durationText }: Props) {
   const t = useT()
   const [selected, setSelected] = useState<string | null>(null)
   const [pickupTime, setPickupTime] = useState('')
@@ -66,12 +66,12 @@ export default function BookingSidebarClient({ itemType, itemId, itemTitle, pric
     return () => controller.abort()
   }, [partySize, calendarMonth])
 
-  const currentPrice = partySize === '1-3' ? price1to3 : partySize === '4-7' ? price4to7 : null
+  const currentPrice = partySize === '1-4' ? price1to4 : partySize === '5-7' ? price5to7 : null
   const typeLabel = itemType === 'tour' ? 'Tour' : 'Transfer'
 
   const { gmail } = useMemo(() => {
     const subjectText = `Booking request – ${itemTitle}`
-    const partySizeLabel = partySize === '1-3' ? '1–3 people' : partySize === '4-7' ? '4–7 people' : 'TBD'
+    const partySizeLabel = partySize === '1-4' ? '1–4 people' : partySize === '5-7' ? '5–7 people' : 'TBD'
     const priceLabel = currentPrice !== null ? `£${currentPrice}` : 'TBD'
     const body = `Hi Toby,
 
@@ -205,26 +205,26 @@ Thanks!`
         <div className="partySizeGrid">
           <button
             type="button"
-            className={`partySizeBtn${partySize === '1-3' ? ' active' : ''}`}
-            onClick={() => setPartySize('1-3')}
-            disabled={price1to3 === null}
+            className={`partySizeBtn${partySize === '1-4' ? ' active' : ''}`}
+            onClick={() => setPartySize('1-4')}
+            disabled={price1to4 === null}
           >
-            <span className="count">1–3</span>
+            <span className="count">1–4</span>
             <span>{t('booking.people')}</span>
             <span style={{ marginTop: 4, fontWeight: 950 }}>
-              {price1to3 !== null ? `£${price1to3}` : '—'}
+              {price1to4 !== null ? `£${price1to4}` : '—'}
             </span>
           </button>
           <button
             type="button"
-            className={`partySizeBtn${partySize === '4-7' ? ' active' : ''}`}
-            onClick={() => setPartySize('4-7')}
-            disabled={price4to7 === null}
+            className={`partySizeBtn${partySize === '5-7' ? ' active' : ''}`}
+            onClick={() => setPartySize('5-7')}
+            disabled={price5to7 === null}
           >
-            <span className="count">4–7</span>
+            <span className="count">5–7</span>
             <span>{t('booking.people')}</span>
             <span style={{ marginTop: 4, fontWeight: 950 }}>
-              {price4to7 !== null ? `£${price4to7}` : '—'}
+              {price5to7 !== null ? `£${price5to7}` : '—'}
             </span>
           </button>
         </div>

@@ -18,9 +18,9 @@ export async function GET(request: Request) {
     }
 
     // Validate partySize param
-    if (!partySize || !['1-3', '4-7'].includes(partySize)) {
+    if (!partySize || !['1-4', '5-7'].includes(partySize)) {
       return NextResponse.json(
-        { error: 'partySize parameter is required ("1-3" or "4-7")' },
+        { error: 'partySize parameter is required ("1-4" or "5-7")' },
         { status: 400 }
       )
     }

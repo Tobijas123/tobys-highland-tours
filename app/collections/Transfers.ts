@@ -21,7 +21,7 @@ const Transfers: CollectionConfig = {
 
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'fromLocation', 'toLocation', 'price1to3', 'price4to7', 'isActive'],
+    defaultColumns: ['title', 'fromLocation', 'toLocation', 'price1to4', 'price5to7', 'isActive'],
   },
 
   fields: [
@@ -119,16 +119,16 @@ const Transfers: CollectionConfig = {
       },
     },
     {
-      name: 'price1to3',
+      name: 'price1to4',
       type: 'number',
       min: 0,
-      admin: { description: 'Price for 1–3 people (£)' },
+      admin: { description: 'Price for 1–4 people (£)' },
     },
     {
-      name: 'price4to7',
+      name: 'price5to7',
       type: 'number',
       min: 0,
-      admin: { description: 'Price for 4–7 people (£)' },
+      admin: { description: 'Price for 5–7 people (£)' },
     },
     {
       name: 'durationText',

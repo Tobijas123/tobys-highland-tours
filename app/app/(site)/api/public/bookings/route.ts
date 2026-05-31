@@ -80,8 +80,8 @@ export async function POST(request: Request) {
     }
 
     // Party size validation
-    if (!partySize || !['1-3', '4-7'].includes(partySize)) {
-      return NextResponse.json({ error: 'partySize must be "1-3" or "4-7"', field: 'partySize' }, { status: 400 })
+    if (!partySize || !['1-4', '5-7'].includes(partySize)) {
+      return NextResponse.json({ error: 'partySize must be "1-4" or "5-7"', field: 'partySize' }, { status: 400 })
     }
 
     // Customer validation
@@ -125,7 +125,7 @@ export async function POST(request: Request) {
     }
 
     // Derive priceTier from partySize
-    const priceTier = partySize === '1-3' ? 'price1to3' : 'price4to7'
+    const priceTier = partySize === '1-4' ? 'price1to4' : 'price5to7'
 
     // Create booking
     const bookingData: any = {
@@ -170,7 +170,7 @@ export async function POST(request: Request) {
     console.log('[BOOKING API] Booking created:', booking.id, Date.now() - startTime, 'ms')
 
     // Send notification email to admin
-    const partyLabel = partySize === '1-3' ? '1–3 people' : '4–7 people'
+    const partyLabel = partySize === '1-4' ? '1–4 people' : '5–7 people'
     const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
     const phoneInfo = customerPhone?.trim() ? `<li><strong>Phone:</strong> ${customerPhone.trim()}</li>` : ''
 

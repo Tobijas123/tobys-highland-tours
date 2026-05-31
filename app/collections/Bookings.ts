@@ -40,7 +40,7 @@ const Bookings: CollectionConfig = {
         const partySize = data.partySize
         if (!partySize) return data
 
-        const priceField = partySize === '1-3' ? 'price1to3' : 'price4to7'
+        const priceField = partySize === '1-4' ? 'price1to4' : 'price5to7'
         let price: number | null = null
 
         if (data.type === 'tour' && data.tour) {
@@ -265,7 +265,7 @@ const Bookings: CollectionConfig = {
           }
         }
 
-        const partyLabel = doc.partySize === '1-3' ? '1–3 people' : '4–7 people'
+        const partyLabel = doc.partySize === '1-4' ? '1–4 people' : '5–7 people'
         const paymentLabel = doc.paymentStatus === 'paid' ? 'Paid' : doc.paymentStatus === 'deposit' ? 'Deposit paid' : 'Unpaid'
         const priceInfo = typeof doc.totalPrice === 'number' ? `£${doc.totalPrice}` : '—'
 
@@ -410,16 +410,16 @@ const Bookings: CollectionConfig = {
       type: 'select',
       required: true,
       options: [
-        { label: '1–3 people', value: '1-3' },
-        { label: '4–7 people', value: '4-7' },
+        { label: '1–4 people', value: '1-4' },
+        { label: '5–7 people', value: '5-7' },
       ],
     },
     {
       name: 'priceTier',
       type: 'select',
       options: [
-        { label: 'Price 1–3', value: 'price1to3' },
-        { label: 'Price 4–7', value: 'price4to7' },
+        { label: 'Price 1–4', value: 'price1to4' },
+        { label: 'Price 5–7', value: 'price5to7' },
       ],
       admin: { description: 'Auto-set from party size', readOnly: true },
     },
