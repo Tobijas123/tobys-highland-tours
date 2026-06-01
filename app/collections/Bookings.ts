@@ -512,6 +512,50 @@ const Bookings: CollectionConfig = {
         description: 'Internal flag: true if this booking was counted in confirmedCount',
       },
     },
+
+    // === STRIPE & PAYMENT TRACKING ===
+    {
+      name: 'stripePaymentIntentId',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        description: 'Stripe Payment Intent ID (auto-set)',
+      },
+    },
+    {
+      name: 'stripeChargeId',
+      type: 'text',
+      admin: {
+        readOnly: true,
+        position: 'sidebar',
+        description: 'Stripe Charge ID (auto-set)',
+      },
+    },
+    {
+      name: 'depositPaidAt',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        description: 'When the 20% deposit was paid',
+      },
+    },
+    {
+      name: 'remainingPaidAt',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        description: 'When the remaining 80% balance was paid',
+      },
+    },
+    {
+      name: 'reminderSentAt',
+      type: 'date',
+      admin: {
+        readOnly: true,
+        description: 'When the day-before reminder email was sent',
+      },
+    },
   ],
 
   timestamps: true,
