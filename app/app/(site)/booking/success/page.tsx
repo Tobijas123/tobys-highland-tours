@@ -5,7 +5,7 @@ import Stripe from 'stripe'
 import Link from 'next/link'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil',
+  apiVersion: '2025-02-24.acacia',
 })
 
 type Props = {
