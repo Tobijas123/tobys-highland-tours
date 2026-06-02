@@ -39,8 +39,8 @@ const translations = {
   'section.reviews': { en: 'What guests say', es: 'Lo que dicen nuestros clientes' },
 
   // Pricing
-  'price.1to3': { en: '1–3 people', es: '1–3 personas' },
-  'price.4to7': { en: '4–7 people', es: '4–7 personas' },
+  'price.1to4': { en: '1–4 people', es: '1–4 personas' },
+  'price.5to7': { en: '5–7 people', es: '5–7 personas' },
 
   // Contact
   'contact.title': { en: 'Contact us', es: 'Contáctanos' },

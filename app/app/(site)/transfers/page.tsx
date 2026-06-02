@@ -47,8 +47,8 @@ type Transfer = {
   slug?: string
   shortDescription?: string
   heroImage?: MediaDoc | null
-  price1to3?: number
-  price4to7?: number
+  price1to4?: number
+  price5to7?: number
   durationText?: string
   fromLocation?: string
   toLocation?: string
@@ -244,15 +244,15 @@ export default async function TransfersPage() {
                     </div>
                     <div className="priceGrid">
                       <div className="pricePill pricePillGold">
-                        <span className="label">{t('price.1to3', lang)}</span>
+                        <span className="label">{t('price.1to4', lang)}</span>
                         <span className="price">
-                          {typeof tr.price1to3 === 'number' ? `£${tr.price1to3}` : '—'}
+                          {typeof tr.price1to4 === 'number' ? `£${tr.price1to4}` : '—'}
                         </span>
                       </div>
                       <div className="pricePill pricePillMoss">
-                        <span className="label">{t('price.4to7', lang)}</span>
+                        <span className="label">{t('price.5to7', lang)}</span>
                         <span className="price">
-                          {typeof tr.price4to7 === 'number' ? `£${tr.price4to7}` : '—'}
+                          {typeof tr.price5to7 === 'number' ? `£${tr.price5to7}` : '—'}
                         </span>
                       </div>
                     </div>

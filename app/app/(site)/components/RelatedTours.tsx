@@ -9,7 +9,7 @@ type RelatedTour = {
     url?: string
     alt?: string | null
   } | null
-  price1to3?: number
+  price1to4?: number
   durationHours?: number
 }
 
@@ -116,8 +116,8 @@ export default function RelatedTours({ tours, title = 'You Might Also Like' }: R
                 {typeof tour.durationHours === 'number' && (
                   <span className="badge badgeMoss">{tour.durationHours}h</span>
                 )}
-                {typeof tour.price1to3 === 'number' && (
-                  <span className="badge">From £{tour.price1to3}</span>
+                {typeof tour.price1to4 === 'number' && (
+                  <span className="badge">From £{tour.price1to4}</span>
                 )}
               </div>
             </div>

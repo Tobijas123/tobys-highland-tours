@@ -16,8 +16,8 @@ type TourItem = {
   shortDescription?: string
   imageUrl?: string | null
   imageAlt?: string | null
-  price1to3?: number
-  price4to7?: number
+  price1to4?: number
+  price5to7?: number
   durationHours?: number
   confirmedCount?: number
   bookingCount?: number
@@ -339,15 +339,15 @@ export default function ToursListClient({ tours }: ToursListClientProps) {
                   </div>
                   <div className="priceGrid">
                     <div className="pricePill pricePillGold">
-                      <span className="label">{t('price.1to3')}</span>
+                      <span className="label">{t('price.1to4')}</span>
                       <span className="price">
-                        {typeof tour.price1to3 === 'number' ? `£${tour.price1to3}` : '—'}
+                        {typeof tour.price1to4 === 'number' ? `£${tour.price1to4}` : '—'}
                       </span>
                     </div>
                     <div className="pricePill pricePillMoss">
-                      <span className="label">{t('price.4to7')}</span>
+                      <span className="label">{t('price.5to7')}</span>
                       <span className="price">
-                        {typeof tour.price4to7 === 'number' ? `£${tour.price4to7}` : '—'}
+                        {typeof tour.price5to7 === 'number' ? `£${tour.price5to7}` : '—'}
                       </span>
                     </div>
                   </div>

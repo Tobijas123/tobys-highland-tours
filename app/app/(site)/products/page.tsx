@@ -17,8 +17,8 @@ type Tour = {
   slug?: string
   shortDescription?: string
   heroImage?: MediaDoc | null
-  price1to3?: number
-  price4to7?: number
+  price1to4?: number
+  price5to7?: number
   durationHours?: number
 }
 
@@ -28,8 +28,8 @@ type Transfer = {
   slug?: string
   shortDescription?: string
   heroImage?: MediaDoc | null
-  price1to3?: number
-  price4to7?: number
+  price1to4?: number
+  price5to7?: number
 }
 
 async function getTours(): Promise<Tour[]> {
@@ -57,16 +57,16 @@ function ProductCard({
   image,
   title,
   description,
-  price1to3,
-  price4to7,
+  price1to4,
+  price5to7,
   badge,
 }: {
   href: string
   image: MediaDoc | null | undefined
   title: string
   description: string
-  price1to3?: number
-  price4to7?: number
+  price1to4?: number
+  price5to7?: number
   badge?: string
 }) {
   const imgUrl = typeof image?.url === 'string' ? toPublicURL(image.url) : null
@@ -129,15 +129,15 @@ function ProductCard({
 
         <div className="priceGrid">
           <div className="pricePill pricePillGold">
-            <span className="label">1–3 people</span>
+            <span className="label">1–4 people</span>
             <span className="price">
-              {typeof price1to3 === 'number' ? `£${price1to3}` : '—'}
+              {typeof price1to4 === 'number' ? `£${price1to4}` : '—'}
             </span>
           </div>
           <div className="pricePill pricePillMoss">
-            <span className="label">4–7 people</span>
+            <span className="label">5–7 people</span>
             <span className="price">
-              {typeof price4to7 === 'number' ? `£${price4to7}` : '—'}
+              {typeof price5to7 === 'number' ? `£${price5to7}` : '—'}
             </span>
           </div>
         </div>
@@ -181,8 +181,8 @@ export default async function ProductsPage() {
                 image={t.heroImage}
                 title={t.title ?? 'Tour'}
                 description={t.shortDescription ?? 'No description yet.'}
-                price1to3={t.price1to3}
-                price4to7={t.price4to7}
+                price1to4={t.price1to4}
+                price5to7={t.price5to7}
                 badge={typeof t.durationHours === 'number' ? `${t.durationHours}h` : undefined}
               />
             ))}
@@ -215,8 +215,8 @@ export default async function ProductsPage() {
                 image={t.heroImage}
                 title={t.title ?? 'Transfer'}
                 description={t.shortDescription ?? 'No description yet.'}
-                price1to3={t.price1to3}
-                price4to7={t.price4to7}
+                price1to4={t.price1to4}
+                price5to7={t.price5to7}
               />
             ))}
           </div>

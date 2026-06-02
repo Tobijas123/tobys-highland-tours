@@ -49,8 +49,8 @@ type Tour = {
   slug?: string
   shortDescription?: string
   heroImage?: MediaDoc | null
-  price1to3?: number
-  price4to7?: number
+  price1to4?: number
+  price5to7?: number
   durationHours?: number
   confirmedCount?: number
   bookingCount?: number
@@ -83,8 +83,8 @@ export default async function ToursPage() {
     shortDescription: t.shortDescription,
     imageUrl: typeof t.heroImage?.url === 'string' ? toPublicURL(t.heroImage.sizes?.card?.url || t.heroImage.url) : null,
     imageAlt: t.heroImage?.alt ?? null,
-    price1to3: t.price1to3,
-    price4to7: t.price4to7,
+    price1to4: t.price1to4,
+    price5to7: t.price5to7,
     durationHours: t.durationHours,
     confirmedCount: t.confirmedCount,
     bookingCount: t.bookingCount,
