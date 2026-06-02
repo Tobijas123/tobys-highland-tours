@@ -5,13 +5,11 @@ import Stripe from 'stripe'
 import { isRateLimited, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
 import { allocateVehicleForDate } from '../../../../lib/vehicleAllocation'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia',
-})
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://tobyshighlandtours.com'
-
 export async function POST(request: Request) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-02-24.acacia',
+  })
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://tobyshighlandtours.com'
   const startTime = Date.now()
   console.log('[CHECKOUT API] Request started')
 

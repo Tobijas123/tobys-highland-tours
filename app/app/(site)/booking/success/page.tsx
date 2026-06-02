@@ -4,15 +4,15 @@ import config from '@payload-config'
 import Stripe from 'stripe'
 import Link from 'next/link'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-02-24.acacia',
-})
-
 type Props = {
   searchParams: Promise<{ session_id?: string }>
 }
 
 export default async function BookingSuccessPage({ searchParams }: Props) {
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+    apiVersion: '2025-02-24.acacia',
+  })
+
   const params = await searchParams
   const sessionId = params.session_id
 
