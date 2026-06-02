@@ -202,14 +202,13 @@ const Bookings: CollectionConfig = {
         const newStatus = doc.status
         if (newStatus !== 'confirmed' && newStatus !== 'cancelled') return doc
 
-        // Skip if this update was triggered by Stripe webhook (paymentStatus changed unpaid → deposit)
-        // The webhook already sent customer + admin emails
+        // Skip confirmation email if customer already received it from Stripe webhook on payment
+        // (paymentStatus is 'deposit', 'paid', or 'refunded' means they paid via Stripe)
         if (
           newStatus === 'confirmed' &&
-          previousDoc.paymentStatus === 'unpaid' &&
-          doc.paymentStatus === 'deposit'
+          ['deposit', 'paid', 'refunded'].includes(doc.paymentStatus)
         ) {
-          console.log('[EMAIL] Skipping confirmation email - already sent by Stripe webhook')
+          console.log('[EMAIL] Skipping confirmation email - customer already notified via Stripe webhook')
           return doc
         }
 

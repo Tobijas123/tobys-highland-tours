@@ -115,14 +115,13 @@ async function handleCheckoutCompleted(payload: any, session: Stripe.Checkout.Se
     ? session.payment_intent
     : session.payment_intent?.id || null
 
-  // Update the booking
+  // Update the booking (status stays 'pending' until driver assigned by admin)
   try {
     await payload.update({
       collection: 'bookings',
       id: Number(bookingId),
       data: {
         paymentStatus: 'deposit',
-        status: 'confirmed',
         stripePaymentIntentId: paymentIntentId,
         depositPaidAt: new Date().toISOString(),
       },
