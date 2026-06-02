@@ -16,6 +16,10 @@ type Props = {
   durationText: string
 }
 
+type FieldErrors = {
+  [key: string]: string | undefined
+}
+
 const BOOKING_EMAIL = 'info@tobyshighlandtours.com'
 
 export default function BookingSidebarClient({ itemType, itemId, itemTitle, price1to4, price5to7, durationText }: Props) {
@@ -33,6 +37,7 @@ export default function BookingSidebarClient({ itemType, itemId, itemTitle, pric
   const [submitted, setSubmitted] = useState(false)
   const [submittedBookingId, setSubmittedBookingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
 
   // Availability state
   const [calendarMonth, setCalendarMonth] = useState<string>(() => {
@@ -104,15 +109,40 @@ Thanks!`
     return { gmail: gmailHref }
   }, [itemTitle, itemType, typeLabel, selected, pickupTime, pickupLocation, dropoffLocation, paxCount, partySize, currentPrice, customerName, customerEmail, customerPhone])
 
+  // Clear field error when field value changes
+  function clearFieldError(field: string) {
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: undefined }))
+    }
+  }
+
   async function handleSubmit() {
-    if (!selected || !pickupTime || !pickupLocation.trim() || !dropoffLocation.trim() || !paxCount || !partySize || !customerName.trim() || !customerEmail.trim()) return
+    // Client-side validation with field errors
+    const newFieldErrors: FieldErrors = {}
+
+    if (!partySize) newFieldErrors.partySize = 'Please select party size'
+    if (!selected) newFieldErrors.date = 'Please select a date'
+    if (!pickupTime) newFieldErrors.pickupTime = 'Pickup time is required'
+    if (!pickupLocation.trim()) newFieldErrors.pickupLocation = 'Pickup location is required'
+    if (!dropoffLocation.trim()) newFieldErrors.dropoffLocation = 'Drop-off location is required'
+    if (!paxCount) newFieldErrors.paxCount = 'Number of passengers is required'
+    if (!customerName.trim()) newFieldErrors.customerName = 'Your name is required'
+    if (!customerEmail.trim()) newFieldErrors.customerEmail = 'Your email is required'
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) newFieldErrors.customerEmail = 'Please enter a valid email'
+
+    if (Object.keys(newFieldErrors).length > 0) {
+      setFieldErrors(newFieldErrors)
+      setError('Please fix the errors below')
+      return
+    }
 
     setSubmitting(true)
     setError(null)
+    setFieldErrors({})
 
-    // Create AbortController with 15s timeout
+    // Create AbortController with 30s timeout for Stripe
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 15000)
+    const timeoutId = setTimeout(() => controller.abort(), 30000)
 
     try {
       const requestPayload: Record<string, any> = {
@@ -134,7 +164,7 @@ Thanks!`
         requestPayload.transferId = itemId
       }
 
-      const res = await fetch('/api/public/bookings', {
+      const res = await fetch('/api/public/bookings/create-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(requestPayload),
@@ -151,12 +181,20 @@ Thanks!`
       }
 
       if (!res.ok) {
+        // Handle field-level error from server
+        if (data.field) {
+          setFieldErrors({ [data.field]: data.error })
+        }
         setError(data.error || `Server error (${res.status}). Please try again or use email below.`)
         return
       }
 
-      setSubmittedBookingId(data.bookingId || null)
-      setSubmitted(true)
+      // Redirect to Stripe Checkout
+      if (data.checkoutUrl) {
+        window.location.href = data.checkoutUrl
+      } else {
+        setError('Failed to create checkout session. Please try again.')
+      }
     } catch (err: any) {
       clearTimeout(timeoutId)
       if (err?.name === 'AbortError') {
@@ -255,67 +293,86 @@ Thanks!`
         <div style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
           <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>{t('booking.pickupDetails')}</div>
 
-          <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-            <input
-              type="time"
-              value={pickupTime}
-              onChange={(e) => setPickupTime(e.target.value)}
-              className="bookingInput"
-              style={{ flex: 1 }}
-              required
-            />
-            <input
-              type="number"
-              placeholder={t('booking.pax')}
-              min={1}
-              max={50}
-              value={paxCount}
-              onChange={(e) => setPaxCount(e.target.value ? parseInt(e.target.value) : '')}
-              className="bookingInput"
-              style={{ width: 70 }}
-              required
-            />
+          <div style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
+            <div style={{ flex: 1 }}>
+              <input
+                type="time"
+                value={pickupTime}
+                onChange={(e) => { setPickupTime(e.target.value); clearFieldError('pickupTime') }}
+                className="bookingInput"
+                style={{ width: '100%', borderColor: fieldErrors.pickupTime ? '#c33' : undefined }}
+                required
+              />
+              {fieldErrors.pickupTime && <div style={{ fontSize: 11, color: '#c33', marginTop: 2 }}>{fieldErrors.pickupTime}</div>}
+            </div>
+            <div style={{ width: 70 }}>
+              <input
+                type="number"
+                placeholder={t('booking.pax')}
+                min={1}
+                max={50}
+                value={paxCount}
+                onChange={(e) => { setPaxCount(e.target.value ? parseInt(e.target.value) : ''); clearFieldError('paxCount') }}
+                className="bookingInput"
+                style={{ width: '100%', borderColor: fieldErrors.paxCount ? '#c33' : undefined }}
+                required
+              />
+              {fieldErrors.paxCount && <div style={{ fontSize: 11, color: '#c33', marginTop: 2 }}>{fieldErrors.paxCount}</div>}
+            </div>
           </div>
 
-          <input
-            type="text"
-            placeholder={t('booking.pickupLocation')}
-            value={pickupLocation}
-            onChange={(e) => setPickupLocation(e.target.value)}
-            className="bookingInput"
-            style={{ marginBottom: 8 }}
-            required
-          />
-          <input
-            type="text"
-            placeholder={t('booking.dropoffLocation')}
-            value={dropoffLocation}
-            onChange={(e) => setDropoffLocation(e.target.value)}
-            className="bookingInput"
-            required
-          />
+          <div style={{ marginTop: 8 }}>
+            <input
+              type="text"
+              placeholder={t('booking.pickupLocation')}
+              value={pickupLocation}
+              onChange={(e) => { setPickupLocation(e.target.value); clearFieldError('pickupLocation') }}
+              className="bookingInput"
+              style={{ marginBottom: 4, borderColor: fieldErrors.pickupLocation ? '#c33' : undefined }}
+              required
+            />
+            {fieldErrors.pickupLocation && <div style={{ fontSize: 11, color: '#c33', marginBottom: 4 }}>{fieldErrors.pickupLocation}</div>}
+          </div>
+          <div>
+            <input
+              type="text"
+              placeholder={t('booking.dropoffLocation')}
+              value={dropoffLocation}
+              onChange={(e) => { setDropoffLocation(e.target.value); clearFieldError('dropoffLocation') }}
+              className="bookingInput"
+              style={{ borderColor: fieldErrors.dropoffLocation ? '#c33' : undefined }}
+              required
+            />
+            {fieldErrors.dropoffLocation && <div style={{ fontSize: 11, color: '#c33', marginTop: 2 }}>{fieldErrors.dropoffLocation}</div>}
+          </div>
         </div>
 
         {/* Contact details */}
         <div style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 12 }}>
           <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 8 }}>{t('booking.yourDetails')}</div>
 
-          <input
-            type="text"
-            placeholder={t('booking.yourName')}
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            className="bookingInput"
-            style={{ marginBottom: 8 }}
-          />
-          <input
-            type="email"
-            placeholder={t('booking.yourEmail')}
-            value={customerEmail}
-            onChange={(e) => setCustomerEmail(e.target.value)}
-            className="bookingInput"
-            style={{ marginBottom: 8 }}
-          />
+          <div style={{ marginBottom: 4 }}>
+            <input
+              type="text"
+              placeholder={t('booking.yourName')}
+              value={customerName}
+              onChange={(e) => { setCustomerName(e.target.value); clearFieldError('customerName') }}
+              className="bookingInput"
+              style={{ marginBottom: 4, borderColor: fieldErrors.customerName ? '#c33' : undefined }}
+            />
+            {fieldErrors.customerName && <div style={{ fontSize: 11, color: '#c33', marginBottom: 4 }}>{fieldErrors.customerName}</div>}
+          </div>
+          <div style={{ marginBottom: 4 }}>
+            <input
+              type="email"
+              placeholder={t('booking.yourEmail')}
+              value={customerEmail}
+              onChange={(e) => { setCustomerEmail(e.target.value); clearFieldError('customerEmail') }}
+              className="bookingInput"
+              style={{ marginBottom: 4, borderColor: fieldErrors.customerEmail ? '#c33' : undefined }}
+            />
+            {fieldErrors.customerEmail && <div style={{ fontSize: 11, color: '#c33', marginBottom: 4 }}>{fieldErrors.customerEmail}</div>}
+          </div>
           <input
             type="tel"
             placeholder={t('booking.phone')}
@@ -331,6 +388,25 @@ Thanks!`
           </div>
         )}
 
+        {/* Deposit info */}
+        {currentPrice !== null && (
+          <div style={{ marginTop: 12, padding: 10, background: 'rgba(0,0,0,0.03)', borderRadius: 8, fontSize: 12 }}>
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>Payment Summary</div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span>Total price:</span>
+              <span style={{ fontWeight: 700 }}>£{currentPrice}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#275548' }}>
+              <span>Deposit (20%):</span>
+              <span style={{ fontWeight: 700 }}>£{Math.round(currentPrice * 0.20)}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: 0.7 }}>
+              <span>Remaining (80%):</span>
+              <span>£{Math.round(currentPrice * 0.80)}</span>
+            </div>
+          </div>
+        )}
+
         {/* Submit booking */}
         <button
           type="button"
@@ -339,7 +415,12 @@ Thanks!`
           aria-disabled={!canSubmit || submitting}
           style={{ marginTop: 12 }}
         >
-          {submitting ? t('booking.sending') : t('booking.requestBooking')}
+          {submitting
+            ? 'Processing...'
+            : currentPrice !== null
+              ? `Pay £${Math.round(currentPrice * 0.20)} deposit`
+              : 'Select party size'
+          }
         </button>
 
         {/* Fallback options */}
