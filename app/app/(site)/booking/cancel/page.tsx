@@ -3,6 +3,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   searchParams: Promise<{ booking_id?: string }>
 }

@@ -4,6 +4,8 @@ import config from '@payload-config'
 import Stripe from 'stripe'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 type Props = {
   searchParams: Promise<{ session_id?: string }>
 }
