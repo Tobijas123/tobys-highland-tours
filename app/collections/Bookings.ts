@@ -202,6 +202,17 @@ const Bookings: CollectionConfig = {
         const newStatus = doc.status
         if (newStatus !== 'confirmed' && newStatus !== 'cancelled') return doc
 
+        // Skip if this update was triggered by Stripe webhook (paymentStatus changed unpaid → deposit)
+        // The webhook already sent customer + admin emails
+        if (
+          newStatus === 'confirmed' &&
+          previousDoc.paymentStatus === 'unpaid' &&
+          doc.paymentStatus === 'deposit'
+        ) {
+          console.log('[EMAIL] Skipping confirmation email - already sent by Stripe webhook')
+          return doc
+        }
+
         // Determine type and title
         const bookingType = doc.type || 'tour'
         const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
@@ -437,6 +448,7 @@ const Bookings: CollectionConfig = {
         { label: 'Unpaid', value: 'unpaid' },
         { label: 'Deposit paid', value: 'deposit' },
         { label: 'Paid', value: 'paid' },
+        { label: 'Refunded', value: 'refunded' },
       ],
     },
 
