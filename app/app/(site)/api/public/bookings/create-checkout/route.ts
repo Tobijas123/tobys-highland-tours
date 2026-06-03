@@ -39,12 +39,21 @@ export async function POST(request: Request) {
       customerEmail,
       customerPhone,
       message,
+      agreedToTerms,
     } = body
 
     // Honeypot check (if frontend adds hidden field)
     if (body.website || body.url || body.honeypot) {
       // Silently reject bots
       return NextResponse.json({ success: true, bookingId: 0, checkoutUrl: '/' }, { status: 201 })
+    }
+
+    // Terms agreement validation (must be checked before creating booking/Stripe session)
+    if (agreedToTerms !== true) {
+      return NextResponse.json(
+        { error: 'You must agree to the cancellation policy before booking', field: 'agreedToTerms' },
+        { status: 400 }
+      )
     }
 
     // Validation: must have exactly one of tourId or transferId

@@ -38,6 +38,7 @@ export default function BookingSidebarClient({ itemType, itemId, itemTitle, pric
   const [submittedBookingId, setSubmittedBookingId] = useState<number | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
+  const [agreedToTerms, setAgreedToTerms] = useState(false)
 
   // Availability state
   const [calendarMonth, setCalendarMonth] = useState<string>(() => {
@@ -129,6 +130,7 @@ Thanks!`
     if (!customerName.trim()) newFieldErrors.customerName = 'Your name is required'
     if (!customerEmail.trim()) newFieldErrors.customerEmail = 'Your email is required'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) newFieldErrors.customerEmail = 'Please enter a valid email'
+    if (!agreedToTerms) newFieldErrors.agreedToTerms = t('cancellation.agreeError')
 
     if (Object.keys(newFieldErrors).length > 0) {
       setFieldErrors(newFieldErrors)
@@ -155,6 +157,7 @@ Thanks!`
         customerName: customerName.trim(),
         customerEmail: customerEmail.trim(),
         customerPhone: customerPhone.trim() || undefined,
+        agreedToTerms,
       }
 
       // Send tourId or transferId based on itemType
@@ -215,7 +218,8 @@ Thanks!`
     paxCount &&
     partySize &&
     customerName.trim() &&
-    customerEmail.trim()
+    customerEmail.trim() &&
+    agreedToTerms
   )
 
   if (submitted) {
@@ -406,6 +410,43 @@ Thanks!`
             </div>
           </div>
         )}
+
+        {/* Cancellation policy */}
+        <div style={{ marginTop: 14, padding: 12, background: '#fff8e6', borderRadius: 8, fontSize: 12, border: '1px solid #f0e0b0' }}>
+          <div style={{ fontWeight: 700, marginBottom: 8, color: '#856404' }}>{t('cancellation.title')}</div>
+          <ul style={{ margin: 0, paddingLeft: 16, lineHeight: 1.6, color: '#6b5a2f' }}>
+            <li>{t('cancellation.48plus')}</li>
+            <li>{t('cancellation.24to48')}</li>
+            <li>{t('cancellation.under24')}</li>
+            <li>{t('cancellation.weCancel')}</li>
+            <li>{itemType === 'tour' ? t('cancellation.remainingTour') : t('cancellation.remainingTransfer')}</li>
+          </ul>
+        </div>
+
+        {/* Agreement checkbox */}
+        <div style={{ marginTop: 12 }}>
+          <label style={{ display: 'flex', alignItems: 'flex-start', gap: 8, cursor: 'pointer', fontSize: 12 }}>
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => { setAgreedToTerms(e.target.checked); clearFieldError('agreedToTerms') }}
+              style={{
+                marginTop: 2,
+                accentColor: '#275548',
+                width: 16,
+                height: 16,
+                flexShrink: 0,
+                borderColor: fieldErrors.agreedToTerms ? '#c33' : undefined,
+              }}
+            />
+            <span style={{ color: fieldErrors.agreedToTerms ? '#c33' : 'inherit' }}>
+              {t('cancellation.agreeLabel')}
+            </span>
+          </label>
+          {fieldErrors.agreedToTerms && (
+            <div style={{ fontSize: 11, color: '#c33', marginTop: 4, marginLeft: 24 }}>{fieldErrors.agreedToTerms}</div>
+          )}
+        </div>
 
         {/* Submit booking */}
         <button

@@ -403,9 +403,12 @@ function generateCustomerConfirmationEmail(data: {
 
         <div style="background: #fff3cd; padding: 16px; border-radius: 8px; margin: 24px 0;">
           <strong style="color: #856404;">Cancellation Policy</strong>
-          <p style="color: #856404; margin: 8px 0 0; font-size: 14px;">
-            Free cancellation up to 48 hours before your booking. Deposits are non-refundable within 48 hours of the scheduled date.
-          </p>
+          <ul style="color: #856404; margin: 8px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.6;">
+            <li>48+ hours before: full refund of deposit</li>
+            <li>24-48 hours before: 50% refund of deposit</li>
+            <li>Less than 24 hours, or no-show: deposit non-refundable</li>
+            <li>If we cancel (weather, illness): full refund or reschedule</li>
+          </ul>
         </div>
 
         <p>If you have any questions, reply to this email or contact us:</p>

@@ -197,6 +197,17 @@ const translations = {
     en: 'No vehicles available for this date. Please choose another date.',
     es: 'No hay vehículos disponibles para esta fecha. Por favor elige otra fecha.',
   },
+
+  // Cancellation policy
+  'cancellation.title': { en: 'Cancellation Policy', es: 'Política de Cancelación' },
+  'cancellation.48plus': { en: '48+ hours before: full refund of deposit', es: 'Más de 48 horas antes: reembolso total del depósito' },
+  'cancellation.24to48': { en: '24-48 hours before: 50% refund of deposit', es: '24-48 horas antes: reembolso del 50% del depósito' },
+  'cancellation.under24': { en: 'Less than 24 hours, or no-show: deposit non-refundable', es: 'Menos de 24 horas o no presentarse: depósito no reembolsable' },
+  'cancellation.weCancel': { en: 'If we cancel (weather, illness): full refund or reschedule', es: 'Si cancelamos nosotros (clima, enfermedad): reembolso total o reprogramación' },
+  'cancellation.remainingTour': { en: 'Remaining 80% balance payable in cash, card, or bank transfer on the day', es: 'El 80% restante pagadero en efectivo, tarjeta o transferencia el día del tour' },
+  'cancellation.remainingTransfer': { en: 'Remaining 80% balance payable via email link sent the day before', es: 'El 80% restante pagadero mediante enlace enviado el día anterior' },
+  'cancellation.agreeLabel': { en: 'I have read and agree to the Cancellation Policy', es: 'He leído y acepto la Política de Cancelación' },
+  'cancellation.agreeError': { en: 'You must agree to the cancellation policy before booking', es: 'Debes aceptar la política de cancelación antes de reservar' },
 } as const
 
 type TranslationKey = keyof typeof translations
