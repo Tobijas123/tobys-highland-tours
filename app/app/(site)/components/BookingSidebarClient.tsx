@@ -218,8 +218,7 @@ Thanks!`
     paxCount &&
     partySize &&
     customerName.trim() &&
-    customerEmail.trim() &&
-    agreedToTerms
+    customerEmail.trim()
   )
 
   if (submitted) {
