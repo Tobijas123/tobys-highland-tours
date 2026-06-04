@@ -130,7 +130,7 @@ Thanks!`
     if (!customerName.trim()) newFieldErrors.customerName = 'Your name is required'
     if (!customerEmail.trim()) newFieldErrors.customerEmail = 'Your email is required'
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) newFieldErrors.customerEmail = 'Please enter a valid email'
-    if (!agreedToTerms) newFieldErrors.agreedToTerms = t('cancellation.agreeError')
+    if (!agreedToTerms) newFieldErrors.agreedToTerms = 'You must agree to the cancellation policy before booking'
 
     if (Object.keys(newFieldErrors).length > 0) {
       setFieldErrors(newFieldErrors)
