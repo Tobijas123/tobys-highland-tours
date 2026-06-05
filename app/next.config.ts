@@ -51,6 +51,7 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '20mb',
     },
+    instrumentationHook: true,
   },
 
   async redirects() {
