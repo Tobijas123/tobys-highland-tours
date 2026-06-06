@@ -1,14 +1,11 @@
-import type { AdminViewServerProps } from 'payload'
 import { DefaultTemplate } from '@payloadcms/next/templates'
 import { Gutter } from '@payloadcms/ui'
 import React from 'react'
 import BookingsCalendar from './BookingsCalendar'
 
-export default function CalendarView({
-  initPageResult,
-  params,
-  searchParams,
-}: AdminViewServerProps) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default function CalendarView(props: any) {
+  const { initPageResult, params, searchParams } = props
   return (
     <DefaultTemplate
       i18n={initPageResult.req.i18n}

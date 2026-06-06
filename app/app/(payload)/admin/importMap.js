@@ -24,6 +24,8 @@ import { ItalicFeatureClient as ItalicFeatureClient_f474b4942f35f97fa383c14c4296
 import { InlineToolbarFeatureClient as InlineToolbarFeatureClient_f474b4942f35f97fa383c14c429698ec } from '@payloadcms/richtext-lexical/client'
 import { FixedToolbarFeatureClient as FixedToolbarFeatureClient_f474b4942f35f97fa383c14c429698ec } from '@payloadcms/richtext-lexical/client'
 import { CollectionCards as CollectionCards_3ed28a3131660ced7d03924789f9ad35 } from '@payloadcms/ui/rsc'
+import { default as CalendarView_toby } from '@/components/admin/CalendarView'
+import { default as CalendarNavLink_toby } from '@/components/admin/CalendarNavLink'
 
 export const importMap = {
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_f474b4942f35f97fa383c14c429698ec,
@@ -51,5 +53,7 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_f474b4942f35f97fa383c14c429698ec,
   "@payloadcms/richtext-lexical/client#InlineToolbarFeatureClient": InlineToolbarFeatureClient_f474b4942f35f97fa383c14c429698ec,
   "@payloadcms/richtext-lexical/client#FixedToolbarFeatureClient": FixedToolbarFeatureClient_f474b4942f35f97fa383c14c429698ec,
-  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_3ed28a3131660ced7d03924789f9ad35
+  "@payloadcms/ui/rsc#CollectionCards": CollectionCards_3ed28a3131660ced7d03924789f9ad35,
+  "/components/admin/CalendarView#default": CalendarView_toby,
+  "/components/admin/CalendarNavLink#default": CalendarNavLink_toby
 }
