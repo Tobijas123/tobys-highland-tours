@@ -159,6 +159,15 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    components: {
+      views: {
+        calendar: {
+          Component: '/components/admin/CalendarView#default',
+          path: '/calendar',
+        },
+      },
+      afterNavLinks: ['/components/admin/CalendarNavLink#default'],
+    },
     // @ts-expect-error -- css exists at runtime in Payload 3.x but missing from type defs
     css: path.resolve(dirname, 'app/admin.css'),
   },
