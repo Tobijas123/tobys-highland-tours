@@ -99,6 +99,13 @@ async function handleCheckoutCompleted(payload: any, session: Stripe.Checkout.Se
     return
   }
 
+  // Check if this is a remaining balance payment
+  const paymentType = session.metadata?.paymentType
+  if (paymentType === 'remaining') {
+    await handleRemainingPaid(payload, session, booking)
+    return
+  }
+
   // Get item title
   const bookingType = booking.type || 'tour'
   const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
@@ -195,6 +202,133 @@ async function handleCheckoutCompleted(payload: any, session: Stripe.Checkout.Se
     console.log('[WEBHOOK] Toby notification email sent to:', BOOKING_EMAIL)
   } catch (err) {
     console.error('[WEBHOOK] Failed to send Toby notification email:', err)
+  }
+}
+
+async function handleRemainingPaid(payload: any, session: Stripe.Checkout.Session, booking: any) {
+  console.log('[WEBHOOK] Processing remaining balance payment for booking:', booking.id)
+
+  // Extract payment intent ID
+  const paymentIntentId = typeof session.payment_intent === 'string'
+    ? session.payment_intent
+    : session.payment_intent?.id || null
+
+  // Update the booking to fully paid
+  try {
+    await payload.update({
+      collection: 'bookings',
+      id: booking.id,
+      data: {
+        paymentStatus: 'paid',
+        remainingPaidAt: new Date().toISOString(),
+      },
+    })
+    console.log('[WEBHOOK] Booking marked as fully paid:', booking.id)
+  } catch (err) {
+    console.error('[WEBHOOK] Failed to update booking:', booking.id, err)
+    return
+  }
+
+  // Get item title
+  const bookingType = booking.type || 'tour'
+  const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
+  let itemTitle = typeLabel
+
+  if (bookingType === 'tour' && booking.tour) {
+    itemTitle = typeof booking.tour === 'object' ? booking.tour.title || 'Tour' : 'Tour'
+  } else if (bookingType === 'transfer' && booking.transfer) {
+    itemTitle = typeof booking.transfer === 'object' ? booking.transfer.title || 'Transfer' : 'Transfer'
+  }
+
+  const amountPaid = session.amount_total ? (session.amount_total / 100) : Math.round((booking.totalPrice || 0) * 0.80)
+
+  // Send confirmation email to customer
+  const customerSubject = `Payment Complete - ${itemTitle} on ${booking.date}`
+  const customerHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: #071a34; color: #fff; padding: 24px; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">Toby's Highland Tours</h1>
+      </div>
+
+      <div style="padding: 24px;">
+        <div style="text-align: center; margin-bottom: 24px;">
+          <div style="font-size: 48px; color: #275548;">✓</div>
+          <h2 style="color: #071a34; margin: 8px 0;">Payment Complete!</h2>
+        </div>
+
+        <p>Hi ${booking.customerName},</p>
+        <p>Thank you! Your remaining balance of <strong>£${amountPaid}</strong> has been received.</p>
+        <p>Your <strong>${itemTitle}</strong> on <strong>${booking.date}</strong> is now fully paid.</p>
+
+        <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 24px 0; border-left: 4px solid #275548;">
+          <p style="margin: 0 0 8px;"><strong>Pickup Time:</strong> ${booking.pickupTime || 'TBD'}</p>
+          <p style="margin: 0 0 8px;"><strong>Pickup Location:</strong> ${booking.pickupLocation || 'TBD'}</p>
+          <p style="margin: 0;"><strong>Total Paid:</strong> £${booking.totalPrice || amountPaid}</p>
+        </div>
+
+        <p>If you have any questions, contact us:</p>
+        <p>
+          <a href="mailto:info@tobyshighlandtours.com" style="color: #071a34; font-weight: 600;">info@tobyshighlandtours.com</a><br/>
+          <a href="https://wa.me/447383488007" style="color: #071a34; font-weight: 600;">WhatsApp: +44 7383 488007</a>
+        </p>
+
+        <p style="margin-top: 32px;">See you soon!</p>
+        <p>Cheers,<br/><strong>Toby's Highland Tours</strong></p>
+      </div>
+
+      <div style="background: #f8f9fa; padding: 16px; text-align: center; font-size: 12px; color: #666;">
+        <p style="margin: 0;">Toby's Highland Tours | Inverness, Scotland</p>
+      </div>
+    </div>
+  `
+
+  try {
+    await payload.sendEmail({
+      to: booking.customerEmail,
+      subject: customerSubject,
+      html: customerHtml,
+    })
+    console.log('[WEBHOOK] Remaining payment confirmation sent to:', booking.customerEmail)
+  } catch (err) {
+    console.error('[WEBHOOK] Failed to send remaining payment email:', err)
+  }
+
+  // Notify Toby
+  const tobySubject = `Remaining Balance Paid - Booking #${booking.id} (£${amountPaid})`
+  const tobyHtml = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <div style="background: #275548; color: #fff; padding: 24px; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">Remaining Balance Paid</h1>
+      </div>
+
+      <div style="padding: 24px;">
+        <p><strong>Booking #${booking.id}</strong> is now fully paid.</p>
+        <table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Customer</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${booking.customerName}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${typeLabel}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${itemTitle}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Date</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${booking.date}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Amount Paid</strong></td><td style="padding: 8px; border: 1px solid #ddd;">£${amountPaid}</td></tr>
+          <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Total</strong></td><td style="padding: 8px; border: 1px solid #ddd;">£${booking.totalPrice || 0}</td></tr>
+        </table>
+        <p style="text-align: center;">
+          <a href="https://tobyshighlandtours.com/admin/collections/bookings/${booking.id}"
+             style="display: inline-block; background: #071a34; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            View Booking
+          </a>
+        </p>
+      </div>
+    </div>
+  `
+
+  try {
+    await payload.sendEmail({
+      to: BOOKING_EMAIL,
+      subject: tobySubject,
+      html: tobyHtml,
+    })
+    console.log('[WEBHOOK] Toby notified of remaining payment for booking:', booking.id)
+  } catch (err) {
+    console.error('[WEBHOOK] Failed to notify Toby of remaining payment:', err)
   }
 }
 

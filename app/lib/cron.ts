@@ -1,8 +1,10 @@
 import cron from 'node-cron'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { makePaymentToken } from './paymentToken'
 
 const TOBY_EMAIL = process.env.TOBY_EMAIL || 'info@tobyshighlandtours.com'
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://tobyshighlandtours.com'
 
 // Track if cron has been initialized (prevent double-init in dev)
 let initialized = false
@@ -22,13 +24,14 @@ export async function customerReminderJob(): Promise<void> {
     tomorrow.setDate(tomorrow.getDate() + 1)
     const tomorrowStr = tomorrow.toISOString().split('T')[0] // YYYY-MM-DD
 
-    // Find all bookings for tomorrow with deposit paid
+    // Find all bookings for tomorrow with deposit paid (exclude already-sent reminders)
     const bookings = await payload.find({
       collection: 'bookings',
       where: {
         date: { equals: tomorrowStr },
         paymentStatus: { in: ['deposit', 'paid'] },
         status: { not_equals: 'cancelled' },
+        reminderSentAt: { exists: false },
       },
       depth: 1,
       limit: 100,
@@ -49,6 +52,15 @@ export async function customerReminderJob(): Promise<void> {
           itemTitle = typeof booking.transfer === 'object' ? booking.transfer.title || 'Transfer' : 'Transfer'
         }
 
+        // Generate payment link for transfers that still need to pay remaining balance
+        let paymentLink: string | undefined
+        let remainingBalance: number | undefined
+        if (bookingType === 'transfer' && booking.paymentStatus === 'deposit') {
+          const token = makePaymentToken(booking.id)
+          paymentLink = `${SITE_URL}/api/public/bookings/pay-remaining?bookingId=${booking.id}&token=${token}`
+          remainingBalance = Math.round((booking.totalPrice as number || 0) * 0.80)
+        }
+
         const subject = `Reminder: Your ${typeLabel} is tomorrow`
         const html = generateCustomerReminderEmail({
           customerName: booking.customerName as string,
@@ -57,12 +69,23 @@ export async function customerReminderJob(): Promise<void> {
           date: booking.date as string,
           pickupTime: booking.pickupTime as string,
           pickupLocation: booking.pickupLocation as string,
+          paymentLink,
+          remainingBalance,
         })
 
         await payload.sendEmail({
           to: booking.customerEmail as string,
           subject,
           html,
+        })
+
+        // Update reminderSentAt
+        await payload.update({
+          collection: 'bookings',
+          id: booking.id,
+          data: {
+            reminderSentAt: new Date().toISOString(),
+          },
         })
 
         console.log(`[CRON] Reminder sent to ${booking.customerEmail} for booking #${booking.id}`)
@@ -172,8 +195,22 @@ function generateCustomerReminderEmail(data: {
   date: string
   pickupTime: string
   pickupLocation: string
+  paymentLink?: string
+  remainingBalance?: number
 }): string {
-  const { customerName, typeLabel, itemTitle, date, pickupTime, pickupLocation } = data
+  const { customerName, typeLabel, itemTitle, date, pickupTime, pickupLocation, paymentLink, remainingBalance } = data
+
+  // Payment button for transfers with remaining balance
+  const paymentSection = paymentLink && remainingBalance ? `
+        <div style="background: #fff3cd; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
+          <p style="margin: 0 0 12px; color: #856404;"><strong>Remaining Balance: £${remainingBalance}</strong></p>
+          <p style="margin: 0 0 16px; color: #856404; font-size: 14px;">Please pay your remaining balance before your transfer.</p>
+          <a href="${paymentLink}"
+             style="display: inline-block; background: #275548; color: #fff; padding: 14px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px;">
+            Pay £${remainingBalance} Now
+          </a>
+        </div>
+  ` : ''
 
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -193,6 +230,8 @@ function generateCustomerReminderEmail(data: {
           <p style="margin: 0 0 8px;"><strong>Pickup Time:</strong> ${pickupTime}</p>
           <p style="margin: 0;"><strong>Pickup Location:</strong> ${pickupLocation}</p>
         </div>
+
+        ${paymentSection}
 
         <p>Please be ready at your pickup location a few minutes before the scheduled time.</p>
 
