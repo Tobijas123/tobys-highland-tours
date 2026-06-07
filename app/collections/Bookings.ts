@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { sendDriverAssignmentEmail } from '@/lib/driverNotification'
 
 const Bookings: CollectionConfig = {
   slug: 'bookings',
@@ -369,109 +370,8 @@ const Bookings: CollectionConfig = {
         // Only send if: newly confirmed OR driver changed while confirmed
         if (wasConfirmed && !driverChanged) return doc
 
-        try {
-          // Fetch driver details
-          const driver = await req.payload.findByID({
-            collection: 'drivers',
-            id: docDriverId,
-          })
-
-          if (!driver?.email) {
-            console.error('[DRIVER] No email found for driver:', docDriverId)
-            return doc
-          }
-
-          // Get item title
-          const bookingType = doc.type || 'tour'
-          const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
-          let itemTitle = typeLabel
-
-          if (bookingType === 'tour' && doc.tour) {
-            const tourDoc = typeof doc.tour === 'object' ? doc.tour : null
-            if (tourDoc?.title) {
-              itemTitle = tourDoc.title
-            } else if (typeof doc.tour === 'number') {
-              try {
-                const fetched = await req.payload.findByID({ collection: 'tours', id: doc.tour })
-                itemTitle = fetched?.title || 'Tour'
-              } catch {
-                // ignore
-              }
-            }
-          } else if (bookingType === 'transfer' && doc.transfer) {
-            const transferDoc = typeof doc.transfer === 'object' ? doc.transfer : null
-            if (transferDoc?.title) {
-              itemTitle = transferDoc.title
-            } else if (typeof doc.transfer === 'number') {
-              try {
-                const fetched = await req.payload.findByID({ collection: 'transfers', id: doc.transfer })
-                itemTitle = fetched?.title || 'Transfer'
-              } catch {
-                // ignore
-              }
-            }
-          }
-
-          // Get vehicle info
-          let vehicleInfo = '—'
-          if (doc.vehicle) {
-            const vehicleDoc = typeof doc.vehicle === 'object' ? doc.vehicle : null
-            if (vehicleDoc?.title) {
-              vehicleInfo = vehicleDoc.title
-            } else if (typeof doc.vehicle === 'number') {
-              try {
-                const fetched = await req.payload.findByID({ collection: 'vehicles', id: doc.vehicle })
-                vehicleInfo = fetched?.title || '—'
-              } catch {
-                // ignore
-              }
-            }
-          }
-
-          const driverName = driver.firstName || 'Driver'
-          const subject = `New tour assigned — ${doc.date} — ${itemTitle}`
-
-          const html = `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-              <div style="background: #071a34; color: #fff; padding: 24px; text-align: center;">
-                <h1 style="margin: 0; font-size: 24px;">Toby's Highland Tours</h1>
-              </div>
-
-              <div style="padding: 24px;">
-                <h2 style="color: #071a34; margin-top: 0;">New ${typeLabel} Assigned</h2>
-
-                <p>Hi ${driverName},</p>
-                <p>You have been assigned to a new ${typeLabel.toLowerCase()}:</p>
-
-                <table style="border-collapse: collapse; width: 100%; margin: 16px 0;">
-                  <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>${typeLabel}</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${itemTitle}</td></tr>
-                  <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Date</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.date}</td></tr>
-                  ${doc.pickupTime ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Pickup Time</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.pickupTime}</td></tr>` : ''}
-                  <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Vehicle</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${vehicleInfo}</td></tr>
-                  <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Customer</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.customerName}${doc.customerPhone ? ` — ${doc.customerPhone}` : ''}</td></tr>
-                  ${doc.pickupLocation ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Pickup</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.pickupLocation}</td></tr>` : ''}
-                  ${doc.dropoffLocation ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Drop-off</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.dropoffLocation}</td></tr>` : ''}
-                  ${doc.paxCount ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Passengers</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.paxCount}</td></tr>` : ''}
-                  ${doc.notes ? `<tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Notes</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.notes}</td></tr>` : ''}
-                </table>
-
-                <p>Please check the admin panel for full details or contact us if you have any questions.</p>
-
-                <p style="margin-top: 24px;">Cheers,<br/><strong>Toby's Highland Tours</strong></p>
-              </div>
-            </div>
-          `
-
-          await req.payload.sendEmail({
-            to: driver.email,
-            subject,
-            html,
-          })
-
-          console.log('[DRIVER] notification email sent to:', driver.email)
-        } catch (err) {
-          console.error('[DRIVER] email failed', err)
-        }
+        // Send driver notification email (fire-and-forget, wrapped in try/catch in helper)
+        await sendDriverAssignmentEmail(req.payload, doc)
 
         return doc
       },
