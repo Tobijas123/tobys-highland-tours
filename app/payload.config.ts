@@ -39,6 +39,7 @@ import Drivers from './collections/Drivers'
 import Transfers from './collections/Transfers'
 import Testimonials from './collections/Testimonials'
 import Homepage from './globals/Homepage'
+import ChatbotSettings from './globals/ChatbotSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -152,7 +153,7 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
     Testimonials,
   ],
 
-  globals: [Homepage],
+  globals: [Homepage, ChatbotSettings],
 
   admin: {
     user: 'users',
