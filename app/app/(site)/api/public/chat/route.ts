@@ -5,7 +5,7 @@ import { isRateLimited, getClientIP } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 
-const MODEL = 'claude-haiku-4-5-20250514'
+const MODEL = 'claude-haiku-4-5'
 
 const KNOWN_PLACES: Record<string, [number, number]> = {
   inverness: [-4.2247, 57.4778],
