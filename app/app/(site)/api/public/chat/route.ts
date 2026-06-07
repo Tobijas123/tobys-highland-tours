@@ -35,13 +35,14 @@ type ChatMessage = {
 
 export async function POST(request: Request) {
   // Check env vars
-  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY
-  const ORS_API_KEY = process.env.ORS_API_KEY
-
-  if (!ANTHROPIC_API_KEY || !ORS_API_KEY) {
+  if (!process.env.ANTHROPIC_API_KEY || !process.env.ORS_API_KEY) {
     console.error('[CHAT] missing env: ANTHROPIC_API_KEY or ORS_API_KEY')
     return NextResponse.json({ error: 'Service unavailable' }, { status: 500 })
   }
+
+  // Type-safe keys (guaranteed non-empty after check above)
+  const ANTHROPIC_KEY: string = process.env.ANTHROPIC_API_KEY ?? ''
+  const ORS_KEY: string = process.env.ORS_API_KEY ?? ''
 
   try {
     // Parse body
@@ -155,7 +156,7 @@ COMPANY: Toby's Highland Tours offers private tours & transfers around the Scott
 
       // Geocode via ORS
       try {
-        const url = `https://api.openrouteservice.org/geocode/search?api_key=${ORS_API_KEY}&text=${encodeURIComponent(name)}&boundary.country=GB&size=1`
+        const url = `https://api.openrouteservice.org/geocode/search?api_key=${ORS_KEY}&text=${encodeURIComponent(name)}&boundary.country=GB&size=1`
         const res = await fetch(url, { signal: AbortSignal.timeout(5000) })
         if (!res.ok) return null
         const data = await res.json()
@@ -185,7 +186,7 @@ COMPANY: Toby's Highland Tours offers private tours & transfers around the Scott
         const res = await fetch('https://api.openrouteservice.org/v2/directions/driving-car', {
           method: 'POST',
           headers: {
-            Authorization: ORS_API_KEY,
+            Authorization: ORS_KEY,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ coordinates: [fromCoord, toCoord] }),
@@ -222,7 +223,7 @@ COMPANY: Toby's Highland Tours offers private tours & transfers around the Scott
       const anthropicRes = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'x-api-key': ANTHROPIC_API_KEY,
+          'x-api-key': ANTHROPIC_KEY,
           'anthropic-version': '2023-06-01',
           'content-type': 'application/json',
         },
