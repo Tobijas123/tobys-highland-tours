@@ -11,6 +11,7 @@ const DriverBlocks: CollectionConfig = {
   },
 
   admin: {
+    hidden: true,
     useAsTitle: 'reason',
     defaultColumns: ['driver', 'startDate', 'endDate', 'reason'],
   },
