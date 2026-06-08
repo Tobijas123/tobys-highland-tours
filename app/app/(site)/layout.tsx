@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 import TopBarClient from './components/TopBarClient'
 import NavigationClient from './components/NavigationClient'
+import HamishChat from './components/HamishChat'
 import { LanguageProvider } from './lib/LanguageContext'
 import GoogleAnalytics from './components/GoogleAnalytics'
 
@@ -11,7 +14,20 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
 }
 
-export default function SiteLayout({ children }: { children: ReactNode }) {
+export default async function SiteLayout({ children }: { children: ReactNode }) {
+  // Fetch chatbot settings
+  let chatbotEnabled = false
+  let chatbotGreeting: string | undefined
+
+  try {
+    const payload = await getPayload({ config })
+    const settings = await payload.findGlobal({ slug: 'chatbot-settings' })
+    chatbotEnabled = settings.enabled !== false
+    chatbotGreeting = settings.greeting || undefined
+  } catch {
+    // If fetch fails, don't show chatbot
+  }
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -1013,6 +1029,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <main className="pageShell">
           <div className="pageInner">{children}</div>
         </main>
+
+        {/* Hamish Chat Widget */}
+        {chatbotEnabled && <HamishChat greeting={chatbotGreeting} />}
         </LanguageProvider>
       </body>
     </html>
