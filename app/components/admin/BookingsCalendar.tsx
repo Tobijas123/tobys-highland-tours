@@ -12,6 +12,7 @@ type Booking = {
   name?: string
   email?: string
   totalPrice?: number
+  driver?: number | { id?: number; firstName?: string; lastName?: string }
 }
 
 const STATUS_COLOR: Record<string, string> = {
@@ -64,7 +65,7 @@ export default function BookingsCalendar() {
         const p = new URLSearchParams()
         p.set('where[date][greater_than_equal]', startStr)
         p.set('where[date][less_than_equal]', endStr)
-        p.set('limit', '1000'); p.set('depth', '0'); p.set('sort', 'date')
+        p.set('limit', '1000'); p.set('depth', '1'); p.set('sort', 'date')
         const res = await fetch(`/api/bookings?${p.toString()}`, {
           credentials: 'include',
           headers: { Accept: 'application/json' },
@@ -141,7 +142,11 @@ export default function BookingsCalendar() {
             }}>
               <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{d.getDate()}</div>
               {items.map(b => {
-                const label = b.customerName || b.name || b.email || `#${b.id}`
+                const customerLabel = b.customerName || b.name || b.email || `#${b.id}`
+                const driverName = b.driver && typeof b.driver === 'object' && b.driver.firstName
+                  ? `${b.driver.firstName} ${b.driver.lastName || ''}`.trim()
+                  : ''
+                const label = driverName ? `${customerLabel} · ${driverName}` : customerLabel
                 const sc = STATUS_COLOR[b.status || ''] || '#6b7280'
                 const pd = PAYMENT_DOT[b.paymentStatus || ''] || '#9ca3af'
                 return (
