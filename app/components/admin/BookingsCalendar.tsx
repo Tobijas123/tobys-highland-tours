@@ -125,9 +125,24 @@ export default function BookingsCalendar() {
         {error && <span style={{ alignSelf: 'center', color: '#dc2626' }}>{error}</span>}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 1, background: 'var(--theme-elevation-150, #e5e7eb)', border, borderRadius: 8, overflow: 'hidden' }}>
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(7, 1fr)',
+        borderRight: border,
+        borderBottom: border,
+        borderRadius: 8,
+        overflow: 'hidden',
+      }}>
         {WEEKDAYS.map(d => (
-          <div key={d} style={{ padding: '8px 6px', textAlign: 'center', fontWeight: 600, fontSize: 12, background: 'var(--theme-elevation-100, #f3f4f6)' }}>{d}</div>
+          <div key={d} style={{
+            padding: '8px 6px',
+            textAlign: 'center',
+            fontWeight: 600,
+            fontSize: 12,
+            background: 'var(--theme-elevation-100, #f3f4f6)',
+            borderTop: border,
+            borderLeft: border,
+          }}>{d}</div>
         ))}
         {cells.map((d, i) => {
           const key = ymd(d)
@@ -136,9 +151,14 @@ export default function BookingsCalendar() {
           const items = byDate[key] || []
           return (
             <div key={i} style={{
-              minHeight: 96, padding: 6, background: 'var(--theme-elevation-0, #fff)',
+              minHeight: 96,
+              padding: 6,
+              background: 'var(--theme-elevation-0, #fff)',
               opacity: inMonth ? 1 : 0.4,
-              outline: isToday ? '2px solid #2563eb' : 'none', outlineOffset: -2,
+              borderTop: border,
+              borderLeft: border,
+              outline: isToday ? '2px solid #2563eb' : 'none',
+              outlineOffset: -2,
             }}>
               <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>{d.getDate()}</div>
               {items.map(b => {
