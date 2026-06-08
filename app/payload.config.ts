@@ -38,6 +38,7 @@ import Vehicles from './collections/Vehicles'
 import Drivers from './collections/Drivers'
 import Transfers from './collections/Transfers'
 import Testimonials from './collections/Testimonials'
+import DriverBlocks from './collections/DriverBlocks'
 import Homepage from './globals/Homepage'
 import ChatbotSettings from './globals/ChatbotSettings'
 
@@ -151,6 +152,7 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
     Drivers,
     Transfers,
     Testimonials,
+    DriverBlocks,
   ],
 
   globals: [Homepage, ChatbotSettings],
