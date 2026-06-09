@@ -230,13 +230,28 @@ export default function BookingsCalendar() {
       : `Driver #${block.driver}`
     if (!confirm(`Usunąć blokadę "${driverName}" (${block.startDate} – ${block.endDate})?`)) return
     try {
-      const res = await fetch(`/api/driver-blocks/${block.id}`, {
+      const blockId = block.id
+      if (!blockId) {
+        console.error('[BLOCK-DELETE] Missing block.id', block)
+        alert('Nie udało się usunąć blokady — brak ID')
+        return
+      }
+      const res = await fetch(`/api/driver-blocks/${blockId}`, {
         method: 'DELETE',
         credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
       })
-      if (!res.ok) throw new Error('Failed to delete')
+      if (!res.ok) {
+        const body = await res.text()
+        console.error('[BLOCK-DELETE]', res.status, body)
+        throw new Error(`HTTP ${res.status}`)
+      }
       fetchData()
-    } catch {
+    } catch (err) {
+      console.error('[BLOCK-DELETE] error', err)
       alert('Nie udało się usunąć blokady')
     }
   }
@@ -352,7 +367,6 @@ export default function BookingsCalendar() {
                     key={String(b.id)}
                     data-bar="booking"
                     href={`/admin/collections/bookings/${b.id}`}
-                    onClick={(e) => e.stopPropagation()}
                     title={`${label} · ${b.type || ''} · ${b.status || ''} · ${b.paymentStatus || ''}${b.totalPrice != null ? ` · £${b.totalPrice}` : ''}`}
                     style={{
                       display: 'flex', alignItems: 'center', gap: 4, textDecoration: 'none',
