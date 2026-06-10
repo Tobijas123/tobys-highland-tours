@@ -19,6 +19,13 @@ type Driver = {
   id: number
   firstName: string
   lastName: string
+  assignedVehicles?: number[] | { id: number }[]
+}
+
+type Vehicle = {
+  id: number
+  title: string
+  isActive?: boolean
 }
 
 type DriverBlock = {
@@ -77,6 +84,7 @@ export default function BookingsCalendar() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [blocks, setBlocks] = useState<DriverBlock[]>([])
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -92,17 +100,27 @@ export default function BookingsCalendar() {
   const endStr = ymd(cells[41])
   const todayStr = ymd(now)
 
-  // Fetch drivers once
+  // Fetch drivers (with assignedVehicles) and vehicles once
   useEffect(() => {
     ;(async () => {
       try {
-        const res = await fetch('/api/drivers?limit=200&depth=0', {
-          credentials: 'include',
-          headers: { Accept: 'application/json' },
-        })
-        if (res.ok) {
-          const data = await res.json()
+        const [driversRes, vehiclesRes] = await Promise.all([
+          fetch('/api/drivers?limit=100&depth=1', {
+            credentials: 'include',
+            headers: { Accept: 'application/json' },
+          }),
+          fetch('/api/vehicles?limit=100', {
+            credentials: 'include',
+            headers: { Accept: 'application/json' },
+          }),
+        ])
+        if (driversRes.ok) {
+          const data = await driversRes.json()
           setDrivers(Array.isArray(data?.docs) ? data.docs : [])
+        }
+        if (vehiclesRes.ok) {
+          const data = await vehiclesRes.json()
+          setVehicles(Array.isArray(data?.docs) ? data.docs : [])
         }
       } catch {
         // ignore
@@ -181,6 +199,64 @@ export default function BookingsCalendar() {
     }
     return m
   }, [blocks, startStr, endStr])
+
+  // Compute vehicle availability per day per title
+  const availabilityByDate = useMemo(() => {
+    // Build map: vehicleId -> list of driverIds assigned to it
+    const vehicleDrivers: Record<number, number[]> = {}
+    for (const driver of drivers) {
+      if (!driver.assignedVehicles) continue
+      for (const v of driver.assignedVehicles) {
+        const vid = typeof v === 'object' ? v.id : v
+        ;(vehicleDrivers[vid] ||= []).push(driver.id)
+      }
+    }
+
+    // Active vehicles grouped by title
+    const activeVehicles = vehicles.filter(v => v.isActive !== false)
+    const vehiclesByTitle: Record<string, Vehicle[]> = {}
+    for (const v of activeVehicles) {
+      ;(vehiclesByTitle[v.title] ||= []).push(v)
+    }
+
+    // For each visible day, compute availability
+    const result: Record<string, Record<string, { available: number; total: number }>> = {}
+
+    for (let i = 0; i < 42; i++) {
+      const cell = cells[i]
+      const dateStr = ymd(cell)
+
+      const dayAvail: Record<string, { available: number; total: number }> = {}
+
+      for (const title of Object.keys(vehiclesByTitle)) {
+        const titleVehicles = vehiclesByTitle[title]
+        const total = titleVehicles.length
+        let unavailable = 0
+
+        for (const vehicle of titleVehicles) {
+          const assignedDriverIds = vehicleDrivers[vehicle.id] || []
+          // Vehicle with no drivers => available
+          if (assignedDriverIds.length === 0) continue
+
+          // Check if ALL assigned drivers are blocked on this day
+          const allBlocked = assignedDriverIds.every(driverId => {
+            return blocks.some(block => {
+              const blockDriverId = typeof block.driver === 'object' ? block.driver.id : block.driver
+              return blockDriverId === driverId && isDateInRange(dateStr, block.startDate, block.endDate)
+            })
+          })
+
+          if (allBlocked) unavailable++
+        }
+
+        dayAvail[title] = { available: total - unavailable, total }
+      }
+
+      result[dateStr] = dayAvail
+    }
+
+    return result
+  }, [vehicles, drivers, blocks, cells])
 
   const prev = () => { const m = month - 1; if (m < 0) { setMonth(11); setYear(y => y - 1) } else setMonth(m) }
   const next = () => { const m = month + 1; if (m > 11) { setMonth(0); setYear(y => y + 1) } else setMonth(m) }
@@ -381,6 +457,38 @@ export default function BookingsCalendar() {
                   </a>
                 )
               })}
+
+              {/* Vehicle availability counter */}
+              {(() => {
+                const dayAvail = availabilityByDate[key]
+                if (!dayAvail) return null
+                const entries = Object.entries(dayAvail).filter(([, v]) => v.total > 0).sort((a, b) => a[0].localeCompare(b[0]))
+                if (entries.length === 0) return null
+                return (
+                  <div style={{ marginTop: 4, borderTop: '1px dashed #d1d5db', paddingTop: 3 }}>
+                    {entries.map(([title, { available, total }]) => {
+                      const isLow = available < total
+                      return (
+                        <div
+                          key={title}
+                          style={{
+                            fontSize: 9,
+                            lineHeight: 1.3,
+                            color: isLow ? '#dc2626' : '#6b7280',
+                            fontWeight: isLow ? 600 : 400,
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                          title={`${title}: ${available} z ${total} dostępne`}
+                        >
+                          {title}: {available} z {total}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })()}
             </div>
           )
         })}
