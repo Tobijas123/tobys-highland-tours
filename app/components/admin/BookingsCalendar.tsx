@@ -219,12 +219,25 @@ export default function BookingsCalendar() {
       ;(vehiclesByTitle[v.title] ||= []).push(v)
     }
 
+    // Build map: dateStr -> Set of busy driverIds (from bookings with status != cancelled)
+    const busyDriversByDate: Record<string, Set<number>> = {}
+    for (const booking of bookings) {
+      if (booking.status === 'cancelled') continue
+      if (!booking.driver) continue
+      const driverId = typeof booking.driver === 'object' ? booking.driver.id : booking.driver
+      if (!driverId) continue
+      const dateStr = (booking.date || '').slice(0, 10)
+      if (!dateStr) continue
+      ;(busyDriversByDate[dateStr] ||= new Set()).add(driverId)
+    }
+
     // For each visible day, compute availability
     const result: Record<string, Record<string, { available: number; total: number }>> = {}
 
     for (let i = 0; i < 42; i++) {
       const cell = cells[i]
       const dateStr = ymd(cell)
+      const busyFromBookings = busyDriversByDate[dateStr] || new Set<number>()
 
       const dayAvail: Record<string, { available: number; total: number }> = {}
 
@@ -238,15 +251,19 @@ export default function BookingsCalendar() {
           // Vehicle with no drivers => available
           if (assignedDriverIds.length === 0) continue
 
-          // Check if ALL assigned drivers are blocked on this day
-          const allBlocked = assignedDriverIds.every(driverId => {
+          // Check if ALL assigned drivers are busy on this day
+          // Busy = has DriverBlock covering D OR has booking on D (status != cancelled)
+          const allBusy = assignedDriverIds.every(driverId => {
+            // Check booking first (faster lookup)
+            if (busyFromBookings.has(driverId)) return true
+            // Check blocks
             return blocks.some(block => {
               const blockDriverId = typeof block.driver === 'object' ? block.driver.id : block.driver
               return blockDriverId === driverId && isDateInRange(dateStr, block.startDate, block.endDate)
             })
           })
 
-          if (allBlocked) unavailable++
+          if (allBusy) unavailable++
         }
 
         dayAvail[title] = { available: total - unavailable, total }
@@ -256,7 +273,7 @@ export default function BookingsCalendar() {
     }
 
     return result
-  }, [vehicles, drivers, blocks, cells])
+  }, [vehicles, drivers, blocks, bookings, cells])
 
   const prev = () => { const m = month - 1; if (m < 0) { setMonth(11); setYear(y => y - 1) } else setMonth(m) }
   const next = () => { const m = month + 1; if (m > 11) { setMonth(0); setYear(y => y + 1) } else setMonth(m) }
@@ -458,34 +475,34 @@ export default function BookingsCalendar() {
                 )
               })}
 
-              {/* Vehicle availability counter */}
+              {/* Vehicle availability counter — only when shortage */}
               {(() => {
                 const dayAvail = availabilityByDate[key]
                 if (!dayAvail) return null
-                const entries = Object.entries(dayAvail).filter(([, v]) => v.total > 0).sort((a, b) => a[0].localeCompare(b[0]))
-                if (entries.length === 0) return null
+                // Only show entries where available < total (shortage)
+                const shortageEntries = Object.entries(dayAvail)
+                  .filter(([, v]) => v.total > 0 && v.available < v.total)
+                  .sort((a, b) => a[0].localeCompare(b[0]))
+                if (shortageEntries.length === 0) return null
                 return (
                   <div style={{ marginTop: 4, borderTop: '1px dashed #d1d5db', paddingTop: 3 }}>
-                    {entries.map(([title, { available, total }]) => {
-                      const isLow = available < total
-                      return (
-                        <div
-                          key={title}
-                          style={{
-                            fontSize: 9,
-                            lineHeight: 1.3,
-                            color: isLow ? '#dc2626' : '#6b7280',
-                            fontWeight: isLow ? 600 : 400,
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                          }}
-                          title={`${title}: ${available} z ${total} dostępne`}
-                        >
-                          {title}: {available} z {total}
-                        </div>
-                      )
-                    })}
+                    {shortageEntries.map(([title, { available, total }]) => (
+                      <div
+                        key={title}
+                        style={{
+                          fontSize: 9,
+                          lineHeight: 1.3,
+                          color: '#dc2626',
+                          fontWeight: 600,
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                        title={`${title}: ${available} z ${total} dostępne`}
+                      >
+                        {title}: {available} z {total}
+                      </div>
+                    ))}
                   </div>
                 )
               })()}
