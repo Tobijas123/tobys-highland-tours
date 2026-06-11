@@ -92,6 +92,8 @@ secret: process.env.PAYLOAD_SECRET || 'dev_secret_change_later',
     pool: {
       connectionString: process.env.DATABASE_URI,
     },
+    push: false,
+    migrationDir: './migrations',
   }),
 
   editor: lexicalEditor({
