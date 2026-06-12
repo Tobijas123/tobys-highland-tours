@@ -19,6 +19,9 @@ export default function NavigationClient() {
       <a href="/transfers" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
         {t('nav.transfers')}
       </a>
+      <a href="/gallery" className="btn btnGhost" style={{ width: 'auto', padding: '8px 12px' }}>
+        {t('nav.gallery')}
+      </a>
     </nav>
   )
 }

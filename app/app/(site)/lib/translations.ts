@@ -9,6 +9,7 @@ const translations = {
   'nav.about': { en: 'About', es: 'Nosotros' },
   'nav.tours': { en: 'Tours', es: 'Tours' },
   'nav.transfers': { en: 'Transfers', es: 'Traslados' },
+  'nav.gallery': { en: 'Gallery', es: 'Galería' },
 
   // Hero
   'hero.title': {
