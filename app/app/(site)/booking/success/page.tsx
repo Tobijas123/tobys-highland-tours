@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import Stripe from 'stripe'
 import Link from 'next/link'
+import GoogleAdsConversion from '../../components/GoogleAdsConversion'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,8 +73,16 @@ export default async function BookingSuccessPage({ searchParams }: Props) {
   const totalPrice = booking?.totalPrice ?? 0
   const remainingBalance = totalPrice ? Math.round(totalPrice * 0.80) : 0
 
+  // Conversion value: amount actually paid (in GBP)
+  const conversionValue = session?.amount_total ? session.amount_total / 100 : 0
+
   return (
     <main style={{ maxWidth: 600, margin: '40px auto', padding: '0 20px' }}>
+      {/* Google Ads conversion - fires only when payment confirmed and has value */}
+      {session?.payment_status === 'paid' && conversionValue > 0 && (
+        <GoogleAdsConversion value={conversionValue} transactionId={sessionId} />
+      )}
+
       <div style={{ textAlign: 'center', padding: 40, background: '#fff', borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
         <div style={{ fontSize: 48, marginBottom: 16, color: '#275548' }}>✓</div>
         <h1 style={{ fontSize: 24, marginBottom: 12, color: '#071a34' }}>Booking Confirmed!</h1>

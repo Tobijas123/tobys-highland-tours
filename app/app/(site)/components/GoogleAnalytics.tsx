@@ -13,6 +13,7 @@ export default function GoogleAnalytics() {
           function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', 'G-0W0CX4ZQR7');
+          gtag('config', 'AW-18167302692');
         `}
       </Script>
     </>

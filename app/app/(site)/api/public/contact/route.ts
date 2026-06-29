@@ -44,6 +44,7 @@ export async function POST(request: Request) {
 
     const html = `
       <h2>New Contact Form Message</h2>
+      <p style="margin:8px 0;">Reply directly to this email to respond to <strong>${name.trim()}</strong> (${email.trim()}).</p>
       <table style="border-collapse: collapse; width: 100%; max-width: 500px;">
         <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Name</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${name.trim()}</td></tr>
         <tr><td style="padding: 6px; border: 1px solid #ddd;"><strong>Email</strong></td><td style="padding: 6px; border: 1px solid #ddd;">${email.trim()}</td></tr>
@@ -59,6 +60,7 @@ export async function POST(request: Request) {
     // Fire-and-forget email
     void payload.sendEmail({
       to: ADMIN_EMAIL,
+      replyTo: email.trim(),
       subject: `New contact form message from ${name.trim()}`,
       html,
     }).then(() => {
