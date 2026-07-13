@@ -5,6 +5,8 @@ import Stripe from 'stripe'
 import { isRateLimited, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
 import { allocateVehicleForDate } from '../../../../lib/vehicleAllocation'
 
+const ADMIN_EMAIL = 'info@tobyshighlandtours.com'
+
 export async function POST(request: Request) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: '2025-02-24.acacia',
@@ -187,9 +189,108 @@ export async function POST(request: Request) {
     })
     console.log('[CHECKOUT API] Booking created:', booking.id, Date.now() - startTime, 'ms')
 
+    // Send PENDING booking notification to admin (non-blocking)
+    const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
+    const createdAt = new Date().toISOString()
+    const pendingEmailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #d97706; color: #fff; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px;">PENDING Booking</h1>
+          <p style="margin: 8px 0 0; opacity: 0.9;">Deposit not yet paid</p>
+        </div>
+
+        <div style="padding: 24px;">
+          <p style="background: #fef3c7; border-left: 4px solid #d97706; padding: 12px; margin: 0 0 24px;">
+            <strong>Booking #${booking.id}</strong> — Customer has started checkout but has not yet paid the deposit.
+          </p>
+
+          <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+            <h3 style="color: #071a34; margin: 0 0 16px; font-size: 16px;">Customer Details</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Name</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${customerName.trim()}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Email</td>
+                <td style="padding: 8px 0; text-align: right;"><a href="mailto:${customerEmail.trim()}" style="color: #071a34; font-weight: 600;">${customerEmail.trim()}</a></td>
+              </tr>
+              ${customerPhone?.trim() ? `
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Phone / WhatsApp</td>
+                <td style="padding: 8px 0; text-align: right;"><a href="tel:${customerPhone.trim()}" style="color: #071a34; font-weight: 600;">${customerPhone.trim()}</a></td>
+              </tr>` : ''}
+            </table>
+          </div>
+
+          <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
+            <h3 style="color: #071a34; margin: 0 0 16px; font-size: 16px;">Booking Details</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #666;">${typeLabel}</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${itemTitle}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Date</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${date}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Pickup Time</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${pickupTime}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Pickup Location</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${pickupLocation.trim()}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Drop-off Location</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${dropoffLocation.trim()}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Passengers</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${paxNum}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Booking ID</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">#${booking.id}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Created</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${createdAt}</td>
+              </tr>
+            </table>
+          </div>
+
+          <p style="text-align: center;">
+            <a href="${process.env.PAYLOAD_PUBLIC_SERVER_URL || 'https://tobyshighlandtours.com'}/admin/collections/bookings/${booking.id}"
+               style="display: inline-block; background: #071a34; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+              View in Admin
+            </a>
+          </p>
+
+          <p style="color: #666; font-size: 14px; margin-top: 24px;">
+            You will receive another email if the customer completes payment.
+          </p>
+        </div>
+      </div>
+    `
+
+    // Fire-and-forget with proper error handling (non-blocking)
+    void (async () => {
+      try {
+        await payload.sendEmail({
+          to: ADMIN_EMAIL,
+          subject: `New PENDING booking #${booking.id} — deposit not yet paid`,
+          html: pendingEmailHtml,
+        })
+        console.log('[CHECKOUT API] Admin PENDING email sent successfully for booking:', booking.id)
+      } catch (err) {
+        console.error('[CHECKOUT API] Admin PENDING email failed:', err)
+      }
+    })()
+
     // Calculate deposit (20% of total price)
     const depositAmount = Math.round(totalPrice * 0.20 * 100) // in pence
-    const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
 
     // Create Stripe Checkout Session
     console.log('[CHECKOUT API] Creating Stripe session...', Date.now() - startTime, 'ms')
