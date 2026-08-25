@@ -283,10 +283,10 @@ const Bookings: CollectionConfig = {
         if (newStatus === 'confirmed') {
           // Payment info text based on status
           const paymentInfo = paymentLabel === 'Paid'
-            ? 'Fully paid — thank you!'
+            ? `Fully paid — thank you!`
             : paymentLabel === 'Deposit paid'
-              ? 'Deposit received. Remaining balance due on the day (cash or card).'
-              : 'Pay your driver directly on the day (cash or card). Prefer to pay by card in advance? Reply to this email and we'll send a secure payment link.'
+              ? `Deposit received. Remaining balance due on the day (cash or card).`
+              : `Pay your driver directly on the day (cash or card). Prefer to pay by card in advance? Reply to this email and we'll send a secure payment link.`
 
           const subject = `Booking Confirmed – ${itemTitle} on ${doc.date}`
           const html = `
