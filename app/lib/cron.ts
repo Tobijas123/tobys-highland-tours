@@ -24,13 +24,12 @@ export async function customerReminderJob(): Promise<void> {
     tomorrow.setDate(tomorrow.getDate() + 1)
     const tomorrowStr = tomorrow.toISOString().split('T')[0] // YYYY-MM-DD
 
-    // Find all bookings for tomorrow with deposit paid (exclude already-sent reminders)
+    // Find all confirmed bookings for tomorrow (exclude already-sent reminders)
     const bookings = await payload.find({
       collection: 'bookings',
       where: {
         date: { equals: tomorrowStr },
-        paymentStatus: { in: ['deposit', 'paid'] },
-        status: { not_equals: 'cancelled' },
+        status: { equals: 'confirmed' },
         reminderSentAt: { exists: false },
       },
       depth: 1,
@@ -114,13 +113,12 @@ export async function driverSummaryJob(): Promise<void> {
     const today = new Date()
     const todayStr = today.toISOString().split('T')[0] // YYYY-MM-DD
 
-    // Find all bookings for today
+    // Find all confirmed bookings for today
     const bookings = await payload.find({
       collection: 'bookings',
       where: {
         date: { equals: todayStr },
-        paymentStatus: { in: ['deposit', 'paid'] },
-        status: { not_equals: 'cancelled' },
+        status: { equals: 'confirmed' },
       },
       depth: 1,
       limit: 100,
@@ -154,6 +152,89 @@ export async function driverSummaryJob(): Promise<void> {
 }
 
 /**
+ * Job 3: Admin Payment Reminder (7 AM daily)
+ * Sends Toby a list of tomorrow's bookings that have deposit paid but need remaining balance
+ * Includes pay-remaining links for easy forwarding to customers
+ */
+export async function adminPaymentReminderJob(): Promise<void> {
+  console.log('[CRON] Running adminPaymentReminderJob...')
+
+  try {
+    const payload = await getPayload({ config })
+
+    // Calculate tomorrow's date
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const tomorrowStr = tomorrow.toISOString().split('T')[0] // YYYY-MM-DD
+
+    // Find confirmed bookings for tomorrow with deposit paid (need remaining balance)
+    const bookings = await payload.find({
+      collection: 'bookings',
+      where: {
+        date: { equals: tomorrowStr },
+        status: { equals: 'confirmed' },
+        paymentStatus: { equals: 'deposit' },
+      },
+      depth: 1,
+      limit: 100,
+      sort: 'pickupTime',
+    })
+
+    console.log(`[CRON] Found ${bookings.docs.length} deposit bookings for tomorrow (${tomorrowStr})`)
+
+    if (bookings.docs.length === 0) {
+      console.log('[CRON] No deposit bookings needing payment links, skipping admin payment reminder')
+      return
+    }
+
+    // Build list of bookings with payment links
+    const bookingsList = bookings.docs.map((booking) => {
+      const bookingType = booking.type || 'tour'
+      let itemTitle = bookingType === 'tour' ? 'Tour' : 'Transfer'
+
+      if (bookingType === 'tour' && booking.tour) {
+        itemTitle = typeof booking.tour === 'object' ? booking.tour.title || 'Tour' : 'Tour'
+      } else if (bookingType === 'transfer' && booking.transfer) {
+        itemTitle = typeof booking.transfer === 'object' ? booking.transfer.title || 'Transfer' : 'Transfer'
+      }
+
+      const totalPrice = booking.totalPrice as number || 0
+      const remainingBalance = Math.round(totalPrice * 0.80)
+      const token = makePaymentToken(booking.id)
+      const paymentLink = `${SITE_URL}/api/public/bookings/pay-remaining?bookingId=${booking.id}&token=${token}`
+
+      return {
+        id: booking.id,
+        customerName: booking.customerName as string,
+        customerEmail: booking.customerEmail as string,
+        itemTitle,
+        pickupTime: booking.pickupTime as string,
+        totalPrice,
+        remainingBalance,
+        paymentLink,
+      }
+    })
+
+    const subject = `Payment links to send — tomorrow's tours (${tomorrowStr})`
+    const html = generateAdminPaymentReminderEmail({
+      date: tomorrowStr,
+      bookings: bookingsList,
+    })
+
+    await payload.sendEmail({
+      to: TOBY_EMAIL,
+      subject,
+      html,
+    })
+
+    console.log(`[CRON] Admin payment reminder sent to ${TOBY_EMAIL} with ${bookingsList.length} links`)
+    console.log('[CRON] adminPaymentReminderJob completed')
+  } catch (err) {
+    console.error('[CRON] adminPaymentReminderJob failed:', err)
+  }
+}
+
+/**
  * Initialize the cron scheduler
  * Call this once on app startup
  */
@@ -180,10 +261,18 @@ export function initCron(): void {
     timezone: 'Europe/London',
   })
 
+  // Job 3: Admin payment reminder at 7 AM daily (UK time)
+  cron.schedule('0 7 * * *', () => {
+    adminPaymentReminderJob()
+  }, {
+    timezone: 'Europe/London',
+  })
+
   initialized = true
   console.log('[CRON] Cron scheduler initialized - jobs scheduled:')
-  console.log('[CRON]   - Customer reminder: 9 AM daily (Europe/London)')
+  console.log('[CRON]   - Admin payment reminder: 7 AM daily (Europe/London)')
   console.log('[CRON]   - Driver summary: 8 AM daily (Europe/London)')
+  console.log('[CRON]   - Customer reminder: 9 AM daily (Europe/London)')
 }
 
 // Email templates
@@ -335,6 +424,91 @@ function generateDriverSummaryEmail(data: {
 
       <div style="background: #f8f9fa; padding: 16px; text-align: center; font-size: 12px; color: #666;">
         <p style="margin: 0;">Have a great day!</p>
+      </div>
+    </div>
+  `
+}
+
+function generateAdminPaymentReminderEmail(data: {
+  date: string
+  bookings: Array<{
+    id: string | number
+    customerName: string
+    customerEmail: string
+    itemTitle: string
+    pickupTime: string
+    totalPrice: number
+    remainingBalance: number
+    paymentLink: string
+  }>
+}): string {
+  const { date, bookings } = data
+
+  const bookingRows = bookings.map((booking) => `
+    <tr>
+      <td style="padding: 12px; border-bottom: 1px solid #ddd;">
+        <strong>${booking.customerName}</strong><br/>
+        <span style="font-size: 13px; color: #666;">${booking.customerEmail}</span>
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #ddd;">
+        ${booking.itemTitle}<br/>
+        <span style="font-size: 13px; color: #666;">${booking.pickupTime}</span>
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #ddd; text-align: right;">
+        £${booking.totalPrice}<br/>
+        <span style="font-size: 13px; color: #275548; font-weight: 600;">Remaining: £${booking.remainingBalance}</span>
+      </td>
+      <td style="padding: 12px; border-bottom: 1px solid #ddd;">
+        <a href="${booking.paymentLink}"
+           style="display: inline-block; background: #275548; color: #fff; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 13px; font-weight: 600;">
+          Pay £${booking.remainingBalance}
+        </a>
+        <div style="margin-top: 8px;">
+          <input type="text" value="${booking.paymentLink}" readonly
+                 style="width: 100%; font-size: 11px; padding: 6px; border: 1px solid #ddd; border-radius: 4px; background: #f8f9fa; color: #666;"
+                 onclick="this.select();" />
+        </div>
+      </td>
+    </tr>
+  `).join('')
+
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 900px; margin: 0 auto;">
+      <div style="background: #d97706; color: #fff; padding: 24px; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">Payment Links to Send</h1>
+        <p style="margin: 8px 0 0; opacity: 0.9;">Tomorrow's bookings needing remaining balance (${date})</p>
+      </div>
+
+      <div style="padding: 24px;">
+        <p style="font-size: 16px; margin-top: 0; background: #fef3c7; padding: 12px; border-radius: 8px; border-left: 4px solid #d97706;">
+          <strong>${bookings.length}</strong> ${bookings.length === 1 ? 'booking needs' : 'bookings need'}
+          remaining payment. Forward these links to customers or copy/paste into WhatsApp.
+        </p>
+
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <thead>
+            <tr style="background: #f8f9fa;">
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Customer</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Tour/Transfer</th>
+              <th style="padding: 12px; text-align: right; border-bottom: 2px solid #ddd;">Price</th>
+              <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Payment Link</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${bookingRows}
+          </tbody>
+        </table>
+
+        <p style="margin-top: 32px; text-align: center;">
+          <a href="https://tobyshighlandtours.com/admin/collections/bookings"
+             style="display: inline-block; background: #071a34; color: #fff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+            View All Bookings in Admin
+          </a>
+        </p>
+      </div>
+
+      <div style="background: #f8f9fa; padding: 16px; text-align: center; font-size: 12px; color: #666;">
+        <p style="margin: 0;">Toby's Highland Tours | Payment Reminder System</p>
       </div>
     </div>
   `
