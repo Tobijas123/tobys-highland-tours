@@ -1,24 +1,19 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import Stripe from 'stripe'
 import { isRateLimited, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
 import { allocateVehicleForDate } from '../../../../lib/vehicleAllocation'
 
 const ADMIN_EMAIL = 'info@tobyshighlandtours.com'
 
 export async function POST(request: Request) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: '2025-02-24.acacia',
-  })
-  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://tobyshighlandtours.com'
   const startTime = Date.now()
-  console.log('[CHECKOUT API] Request started')
+  console.log('[BOOKING API] Request started')
 
   try {
     // Rate limiting by IP (10 per minute)
     const ip = getClientIP(request)
-    console.log('[CHECKOUT API] IP:', ip)
+    console.log('[BOOKING API] IP:', ip)
 
     if (isRateLimited('bookings', ip, RATE_LIMITS.bookings)) {
       return NextResponse.json(
@@ -182,26 +177,121 @@ export async function POST(request: Request) {
       bookingData.transfer = item.id
     }
 
-    console.log('[CHECKOUT API] Creating booking...', Date.now() - startTime, 'ms')
+    console.log('[BOOKING API] Creating booking...', Date.now() - startTime, 'ms')
     const booking = await payload.create({
       collection: 'bookings',
       data: bookingData,
     })
-    console.log('[CHECKOUT API] Booking created:', booking.id, Date.now() - startTime, 'ms')
+    console.log('[BOOKING API] Booking created:', booking.id, Date.now() - startTime, 'ms')
 
-    // Send PENDING booking notification to admin (non-blocking)
     const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
     const createdAt = new Date().toISOString()
-    const pendingEmailHtml = `
+
+    // Send confirmation email to customer (non-blocking)
+    const customerEmailHtml = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #d97706; color: #fff; padding: 24px; text-align: center;">
-          <h1 style="margin: 0; font-size: 24px;">PENDING Booking</h1>
-          <p style="margin: 8px 0 0; opacity: 0.9;">Deposit not yet paid</p>
+        <div style="background: #071a34; color: #fff; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px;">Toby's Highland Tours</h1>
         </div>
 
         <div style="padding: 24px;">
-          <p style="background: #fef3c7; border-left: 4px solid #d97706; padding: 12px; margin: 0 0 24px;">
-            <strong>Booking #${booking.id}</strong> — Customer has started checkout but has not yet paid the deposit.
+          <div style="text-align: center; margin-bottom: 24px;">
+            <div style="font-size: 48px; color: #275548;">✓</div>
+            <h2 style="color: #071a34; margin: 8px 0;">Booking Received!</h2>
+            <p style="color: #666; margin: 0;">Booking #${booking.id}</p>
+          </div>
+
+          <p>Hi ${customerName.trim()},</p>
+          <p>Thank you for your booking request! We've received your details and will confirm your booking shortly.</p>
+
+          <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 24px 0;">
+            <h3 style="color: #071a34; margin: 0 0 16px; font-size: 16px;">Booking Details</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+              <tr>
+                <td style="padding: 8px 0; color: #666;">${typeLabel}</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${itemTitle}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Date</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${date}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Pickup Time</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${pickupTime}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Pickup Location</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${pickupLocation.trim()}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Drop-off Location</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${dropoffLocation.trim()}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Passengers</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">${paxNum}</td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 0; color: #666;">Total Price</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">£${totalPrice}</td>
+              </tr>
+            </table>
+          </div>
+
+          <div style="background: #f0fdf4; border-radius: 8px; padding: 20px; margin: 24px 0; border-left: 4px solid #275548;">
+            <h3 style="color: #275548; margin: 0 0 12px; font-size: 16px;">Payment Information</h3>
+            <p style="margin: 0 0 8px; color: #166534;">
+              <strong>Pay directly to your driver on the day</strong> — cash or card accepted.
+            </p>
+            <p style="margin: 0; color: #166534; font-size: 14px;">
+              Prefer to pay by card in advance? Simply reply to this email and we'll send you a secure payment link.
+            </p>
+          </div>
+
+          <p>If you have any questions, reply to this email or contact us:</p>
+          <p>
+            <a href="mailto:info@tobyshighlandtours.com" style="color: #071a34; font-weight: 600;">info@tobyshighlandtours.com</a><br/>
+            <a href="https://wa.me/447383488007" style="color: #071a34; font-weight: 600;">WhatsApp: +44 7383 488007</a>
+          </p>
+
+          <p style="margin-top: 32px;">We look forward to showing you the Highlands!</p>
+          <p>Cheers,<br/><strong>Toby's Highland Tours</strong></p>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 16px; text-align: center; font-size: 12px; color: #666;">
+          <p style="margin: 0;">Toby's Highland Tours | Inverness, Scotland</p>
+          <p style="margin: 8px 0 0;">
+            <a href="https://tobyshighlandtours.com" style="color: #666;">tobyshighlandtours.com</a>
+          </p>
+        </div>
+      </div>
+    `
+
+    void (async () => {
+      try {
+        await payload.sendEmail({
+          to: customerEmail.trim().toLowerCase(),
+          replyTo: ADMIN_EMAIL,
+          subject: `Booking received — Toby's Highland Tours`,
+          html: customerEmailHtml,
+        })
+        console.log('[BOOKING API] Customer confirmation email sent to:', customerEmail.trim())
+      } catch (err) {
+        console.error('[BOOKING API] Customer email failed:', err)
+      }
+    })()
+
+    // Send notification to admin (non-blocking)
+    const adminEmailHtml = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #275548; color: #fff; padding: 24px; text-align: center;">
+          <h1 style="margin: 0; font-size: 24px;">New Booking</h1>
+          <p style="margin: 8px 0 0; opacity: 0.9;">Awaiting confirmation</p>
+        </div>
+
+        <div style="padding: 24px;">
+          <p style="background: #f0fdf4; border-left: 4px solid #275548; padding: 12px; margin: 0 0 24px;">
+            <strong>Booking #${booking.id}</strong> — Customer will pay driver directly (cash/card on day).
           </p>
 
           <div style="background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 24px;">
@@ -251,6 +341,10 @@ export async function POST(request: Request) {
                 <td style="padding: 8px 0; text-align: right; font-weight: 600;">${paxNum}</td>
               </tr>
               <tr>
+                <td style="padding: 8px 0; color: #666;">Total Price</td>
+                <td style="padding: 8px 0; text-align: right; font-weight: 600;">£${totalPrice}</td>
+              </tr>
+              <tr>
                 <td style="padding: 8px 0; color: #666;">Booking ID</td>
                 <td style="padding: 8px 0; text-align: right; font-weight: 600;">#${booking.id}</td>
               </tr>
@@ -267,70 +361,31 @@ export async function POST(request: Request) {
               View in Admin
             </a>
           </p>
-
-          <p style="color: #666; font-size: 14px; margin-top: 24px;">
-            You will receive another email if the customer completes payment.
-          </p>
         </div>
       </div>
     `
 
-    // Fire-and-forget with proper error handling (non-blocking)
     void (async () => {
       try {
         await payload.sendEmail({
           to: ADMIN_EMAIL,
-          subject: `New PENDING booking #${booking.id} — deposit not yet paid`,
-          html: pendingEmailHtml,
+          subject: `New booking #${booking.id} — ${itemTitle} on ${date}`,
+          html: adminEmailHtml,
         })
-        console.log('[CHECKOUT API] Admin PENDING email sent successfully for booking:', booking.id)
+        console.log('[BOOKING API] Admin notification sent for booking:', booking.id)
       } catch (err) {
-        console.error('[CHECKOUT API] Admin PENDING email failed:', err)
+        console.error('[BOOKING API] Admin email failed:', err)
       }
     })()
 
-    // Calculate deposit (20% of total price)
-    const depositAmount = Math.round(totalPrice * 0.20 * 100) // in pence
-
-    // Create Stripe Checkout Session
-    console.log('[CHECKOUT API] Creating Stripe session...', Date.now() - startTime, 'ms')
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      customer_email: customerEmail.trim().toLowerCase(),
-      line_items: [
-        {
-          price_data: {
-            currency: 'gbp',
-            unit_amount: depositAmount,
-            product_data: {
-              name: `${typeLabel} Deposit: ${itemTitle}`,
-              description: `20% deposit for ${itemTitle} on ${date} at ${pickupTime}`,
-            },
-          },
-          quantity: 1,
-        },
-      ],
-      metadata: {
-        bookingId: String(booking.id),
-        type: bookingType,
-        customerName: customerName.trim(),
-      },
-      payment_intent_data: {
-        statement_descriptor: 'TOBYSTOURS',
-      },
-      success_url: `${SITE_URL}/booking/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${SITE_URL}/booking/cancel?booking_id=${booking.id}`,
-    })
-
-    console.log('[CHECKOUT API] Stripe session created:', session.id, Date.now() - startTime, 'ms')
+    console.log('[BOOKING API] Completed:', booking.id, Date.now() - startTime, 'ms')
 
     return NextResponse.json({
       success: true,
       bookingId: booking.id,
-      checkoutUrl: session.url,
     })
   } catch (err) {
-    console.error('[CHECKOUT API] Error:', err)
-    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
+    console.error('[BOOKING API] Error:', err)
+    return NextResponse.json({ error: 'Failed to create booking' }, { status: 500 })
   }
 }

@@ -281,6 +281,13 @@ const Bookings: CollectionConfig = {
         const priceInfo = typeof doc.totalPrice === 'number' ? `£${doc.totalPrice}` : '—'
 
         if (newStatus === 'confirmed') {
+          // Payment info text based on status
+          const paymentInfo = paymentLabel === 'Paid'
+            ? 'Fully paid — thank you!'
+            : paymentLabel === 'Deposit paid'
+              ? 'Deposit received. Remaining balance due on the day (cash or card).'
+              : 'Pay your driver directly on the day (cash or card). Prefer to pay by card in advance? Reply to this email and we'll send a secure payment link.'
+
           const subject = `Booking Confirmed – ${itemTitle} on ${doc.date}`
           const html = `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -297,11 +304,13 @@ const Bookings: CollectionConfig = {
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Passengers</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.paxCount || '—'}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Party size</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${partyLabel}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Total price</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${priceInfo}</td></tr>
-                <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Payment</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${paymentLabel}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Vehicle</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${vehicleInfo}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Driver</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${driverInfo}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Status</strong></td><td style="padding: 8px; border: 1px solid #ddd; color: #275548; font-weight: bold;">Confirmed</td></tr>
               </table>
+              <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #275548;">
+                <strong style="color: #275548;">Payment:</strong> <span style="color: #166534;">${paymentInfo}</span>
+              </div>
               <p>If you have any questions, reply to this email or contact us at <a href="mailto:info@tobyshighlandtours.com">info@tobyshighlandtours.com</a>.</p>
               <p style="margin-top: 24px;">Cheers,<br/><strong>Toby's Highland Tours</strong></p>
             </div>

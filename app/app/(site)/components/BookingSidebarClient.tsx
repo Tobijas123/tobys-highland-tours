@@ -192,11 +192,11 @@ Thanks!`
         return
       }
 
-      // Redirect to Stripe Checkout
-      if (data.checkoutUrl) {
-        window.location.href = data.checkoutUrl
+      // Redirect to success page
+      if (data.success && data.bookingId) {
+        window.location.href = `/booking/success?bookingId=${data.bookingId}`
       } else {
-        setError('Failed to create checkout session. Please try again.')
+        setError('Failed to create booking. Please try again.')
       }
     } catch (err: any) {
       clearTimeout(timeoutId)
@@ -391,21 +391,15 @@ Thanks!`
           </div>
         )}
 
-        {/* Deposit info */}
+        {/* Price info */}
         {currentPrice !== null && (
           <div style={{ marginTop: 12, padding: 10, background: 'rgba(0,0,0,0.03)', borderRadius: 8, fontSize: 12 }}>
-            <div style={{ fontWeight: 700, marginBottom: 4 }}>Payment Summary</div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Total price:</span>
-              <span style={{ fontWeight: 700 }}>£{currentPrice}</span>
+              <span style={{ fontWeight: 700 }}>Total price:</span>
+              <span style={{ fontWeight: 700, fontSize: 14 }}>£{currentPrice}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#275548' }}>
-              <span>Deposit (20%):</span>
-              <span style={{ fontWeight: 700 }}>£{Math.round(currentPrice * 0.20)}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', opacity: 0.7 }}>
-              <span>Remaining (80%):</span>
-              <span>£{Math.round(currentPrice * 0.80)}</span>
+            <div style={{ marginTop: 6, fontSize: 11, opacity: 0.7, lineHeight: 1.4 }}>
+              Pay your driver directly (cash or card) on the day.
             </div>
           </div>
         )}
@@ -458,7 +452,7 @@ Thanks!`
           {submitting
             ? 'Processing...'
             : currentPrice !== null
-              ? `Pay £${Math.round(currentPrice * 0.20)} deposit`
+              ? 'Book now'
               : 'Select party size'
           }
         </button>
