@@ -197,11 +197,16 @@ const Bookings: CollectionConfig = {
 
       // Email notifications
       async ({ doc, previousDoc, req, operation }) => {
-        if (operation !== 'update') return doc
-        if (!previousDoc || previousDoc.status === doc.status) return doc
-
+        if (operation !== 'create' && operation !== 'update') return doc
         const newStatus = doc.status
-        if (newStatus !== 'confirmed' && newStatus !== 'cancelled') return doc
+        if (operation === 'create') {
+          // Ręcznie utworzona rezerwacja już jako confirmed -> wyślij potwierdzenie do klienta
+          if (newStatus !== 'confirmed') return doc
+        } else {
+          // Update: tylko gdy status faktycznie się zmienił
+          if (!previousDoc || previousDoc.status === newStatus) return doc
+          if (newStatus !== 'confirmed' && newStatus !== 'cancelled') return doc
+        }
 
         // Skip confirmation email if customer already received it from Stripe webhook on payment
         // (paymentStatus is 'deposit', 'paid', or 'refunded' means they paid via Stripe)
