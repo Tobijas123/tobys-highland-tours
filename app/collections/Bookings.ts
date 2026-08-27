@@ -208,16 +208,6 @@ const Bookings: CollectionConfig = {
           if (newStatus !== 'confirmed' && newStatus !== 'cancelled') return doc
         }
 
-        // Skip confirmation email if customer already received it from Stripe webhook on payment
-        // (paymentStatus is 'deposit', 'paid', or 'refunded' means they paid via Stripe)
-        if (
-          newStatus === 'confirmed' &&
-          ['deposit', 'paid', 'refunded'].includes(doc.paymentStatus)
-        ) {
-          console.log('[EMAIL] Skipping confirmation email - customer already notified via Stripe webhook')
-          return doc
-        }
-
         // Determine type and title
         const bookingType = doc.type || 'tour'
         const typeLabel = bookingType === 'tour' ? 'Tour' : 'Transfer'
