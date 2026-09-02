@@ -135,8 +135,8 @@ TONE: Polite, concrete, helpful — like a consultant at a serious company, not 
 
 CONTACT:
 - Email: info@dingwall-taxis.co.uk
-- Phone: 07383488007
-- WhatsApp: https://wa.me/447383488007
+- Phone: 07539743393
+- WhatsApp: https://wa.me/447539743393
 
 AVAILABLE TOURS:
 ${tourLines || '(none currently listed)'}

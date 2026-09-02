@@ -80,7 +80,7 @@ export default async function BookingCancelPage({ searchParams }: Props) {
           <p style={{ marginTop: 8 }}>
             <a href="mailto:info@dingwall-taxis.co.uk" style={{ color: '#071a34', fontWeight: 700 }}>info@dingwall-taxis.co.uk</a>
             {' · '}
-            <a href="https://wa.me/447383488007" target="_blank" rel="noreferrer" style={{ color: '#071a34', fontWeight: 700 }}>WhatsApp</a>
+            <a href="https://wa.me/447539743393" target="_blank" rel="noreferrer" style={{ color: '#071a34', fontWeight: 700 }}>WhatsApp</a>
           </p>
         </div>
       </div>

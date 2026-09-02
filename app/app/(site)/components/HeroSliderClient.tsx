@@ -97,7 +97,7 @@ export default function HeroSliderClient({ slides, logoUrl }: HeroSliderProps) {
               {t('hero.cta')}
             </a>
             <a
-              href="https://wa.me/447383488007"
+              href="https://wa.me/447539743393"
               target="_blank"
               rel="noreferrer"
               className="btn btnWhatsApp heroBtn heroWhatsApp"

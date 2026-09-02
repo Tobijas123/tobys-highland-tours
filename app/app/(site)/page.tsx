@@ -304,7 +304,7 @@ export default async function HomePage() {
     image: `${siteUrl}/opengraph-image`,
     '@id': siteUrl,
     url: siteUrl,
-    telephone: '+447383488007',
+    telephone: '+447539743393',
     email: 'info@dingwall-taxis.co.uk',
     address: {
       '@type': 'PostalAddress',

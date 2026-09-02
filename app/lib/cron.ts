@@ -327,7 +327,7 @@ function generateCustomerReminderEmail(data: {
         <p>If you have any questions or need to make changes, please contact us as soon as possible:</p>
         <p>
           <a href="mailto:info@dingwall-taxis.co.uk" style="color: #071a34; font-weight: 600;">info@dingwall-taxis.co.uk</a><br/>
-          <a href="https://wa.me/447383488007" style="color: #071a34; font-weight: 600;">WhatsApp: +44 7383 488007</a>
+          <a href="https://wa.me/447539743393" style="color: #071a34; font-weight: 600;">WhatsApp: +44 7539 743393</a>
         </p>
 
         <p style="margin-top: 32px;">See you tomorrow!</p>

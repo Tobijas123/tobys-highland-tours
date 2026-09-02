@@ -75,11 +75,11 @@ export async function SiteFooter() {
             </address>
 
             <div className="thtFooterContacts">
-              <a className="thtFooterContact" href="tel:+447383488007">
+              <a className="thtFooterContact" href="tel:+447539743393">
                 +44 7383 488007 (WhatsApp)
               </a>
-              <a className="thtFooterContact" href="tel:+441463444222">
-                +44 1463 444222
+              <a className="thtFooterContact" href="tel:+441349299299">
+                01349 299299
               </a>
               <a className="thtFooterContact" href="mailto:info@dingwall-taxis.co.uk">
                 info@dingwall-taxis.co.uk
@@ -90,7 +90,7 @@ export async function SiteFooter() {
               <Link className="thtFooterBtn" href="/tours">Book Now</Link>
               <a
                 className="thtFooterBtn thtFooterBtnGhost"
-                href="https://wa.me/447383488007"
+                href="https://wa.me/447539743393"
                 target="_blank"
                 rel="noreferrer"
               >

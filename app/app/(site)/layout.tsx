@@ -947,8 +947,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               <a href="mailto:info@dingwall-taxis.co.uk" className="topLink">
                 info@dingwall-taxis.co.uk
               </a>
-              <a href="tel:+447383488007" className="topLink">+44 738 348 8007</a>
-              <a href="tel:+441463444222" className="topLink">+44 1463 444 222</a>
+              <a href="tel:+447539743393" className="topLink">+44 7539 743393</a>
+              <a href="tel:+441349299299" className="topLink">01349 299299</a>
             </div>
             <div className="topRight">
               <a
@@ -974,7 +974,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                 </svg>
               </a>
               <a
-                href="https://wa.me/447383488007"
+                href="https://wa.me/447539743393"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="iconBtn"

@@ -282,7 +282,7 @@ Thanks!`
         {disabledDates.length > 0 && (
           <div style={{ marginTop: 10, fontSize: 11, opacity: 0.7, lineHeight: 1.5 }}>
             {t('booking.fullyBookedMessage')}{' '}
-            <a href="https://wa.me/447383488007" target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>WhatsApp</a>
+            <a href="https://wa.me/447539743393" target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>WhatsApp</a>
             {' · '}
             <a href="mailto:info@dingwall-taxis.co.uk" style={{ fontWeight: 700 }}>Email</a>
           </div>
@@ -474,7 +474,7 @@ Thanks!`
           </a>
 
           <a
-            href="https://wa.me/447383488007"
+            href="https://wa.me/447539743393"
             target="_blank"
             rel="noreferrer"
             className="btn btnGhost"
