@@ -69,8 +69,8 @@ export async function SiteFooter() {
             <h3 className="thtFooterHeading">Contact</h3>
 
             <address className="thtFooterAddress">
-              <div>184 Murray Terrace</div>
-              <div>Inverness, IV2 7WZ</div>
+              <div>1 Bridgend Avenue</div>
+              <div>Dingwall, IV15 9QB</div>
               <div>Scotland, UK</div>
             </address>
 

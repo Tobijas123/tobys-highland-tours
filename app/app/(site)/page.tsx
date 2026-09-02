@@ -308,9 +308,9 @@ export default async function HomePage() {
     email: 'info@dingwall-taxis.co.uk',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '184 Murray Terrace',
-      addressLocality: 'Inverness',
-      postalCode: 'IV2 7WZ',
+      streetAddress: '1 Bridgend Avenue',
+      addressLocality: 'Dingwall',
+      postalCode: 'IV15 9QB',
       addressCountry: 'GB',
     },
     geo: {
