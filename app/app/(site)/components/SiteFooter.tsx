@@ -76,7 +76,7 @@ export async function SiteFooter() {
 
             <div className="thtFooterContacts">
               <a className="thtFooterContact" href="tel:+447539743393">
-                +44 7383 488007 (WhatsApp)
+                +44 7539 743393 (WhatsApp)
               </a>
               <a className="thtFooterContact" href="tel:+441349299299">
                 01349 299299
