@@ -5,7 +5,7 @@ async function main() {
   await payload.init({ config })
 
   await payload.sendEmail({
-    to: 'info@tobyshighlandtours.com',
+    to: 'info@dingwall-taxis.co.uk',
     subject: 'SMTP test',
     text: 'If you got this, SMTP works ✅',
   })

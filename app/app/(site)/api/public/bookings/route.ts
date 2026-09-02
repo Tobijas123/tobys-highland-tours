@@ -4,7 +4,7 @@ import config from '@payload-config'
 import { isRateLimited, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
 import { allocateVehicleForDate } from '../../../lib/vehicleAllocation'
 
-const ADMIN_EMAIL = 'info@tobyshighlandtours.com'
+const ADMIN_EMAIL = 'info@dingwall-taxis.co.uk'
 
 export async function POST(request: Request) {
   const startTime = Date.now()

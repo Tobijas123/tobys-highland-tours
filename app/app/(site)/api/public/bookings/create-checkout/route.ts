@@ -4,7 +4,7 @@ import config from '@payload-config'
 import { isRateLimited, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
 import { allocateVehicleForDate } from '../../../../lib/vehicleAllocation'
 
-const ADMIN_EMAIL = 'info@tobyshighlandtours.com'
+const ADMIN_EMAIL = 'info@dingwall-taxis.co.uk'
 
 export async function POST(request: Request) {
   const startTime = Date.now()
@@ -250,7 +250,7 @@ export async function POST(request: Request) {
 
           <p>If you have any questions, reply to this email or contact us:</p>
           <p>
-            <a href="mailto:info@tobyshighlandtours.com" style="color: #071a34; font-weight: 600;">info@tobyshighlandtours.com</a><br/>
+            <a href="mailto:info@dingwall-taxis.co.uk" style="color: #071a34; font-weight: 600;">info@dingwall-taxis.co.uk</a><br/>
             <a href="https://wa.me/447383488007" style="color: #071a34; font-weight: 600;">WhatsApp: +44 7383 488007</a>
           </p>
 

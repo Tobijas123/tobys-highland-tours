@@ -5,7 +5,7 @@ import Stripe from 'stripe'
 
 export const dynamic = 'force-dynamic'
 
-const BOOKING_EMAIL = process.env.BOOKING_EMAIL || 'info@tobyshighlandtours.com'
+const BOOKING_EMAIL = process.env.BOOKING_EMAIL || 'info@dingwall-taxis.co.uk'
 
 export async function POST(request: Request) {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -268,7 +268,7 @@ async function handleRemainingPaid(payload: any, session: Stripe.Checkout.Sessio
 
         <p>If you have any questions, contact us:</p>
         <p>
-          <a href="mailto:info@tobyshighlandtours.com" style="color: #071a34; font-weight: 600;">info@tobyshighlandtours.com</a><br/>
+          <a href="mailto:info@dingwall-taxis.co.uk" style="color: #071a34; font-weight: 600;">info@dingwall-taxis.co.uk</a><br/>
           <a href="https://wa.me/447383488007" style="color: #071a34; font-weight: 600;">WhatsApp: +44 7383 488007</a>
         </p>
 
@@ -361,7 +361,7 @@ async function handlePaymentFailed(payload: any, paymentIntent: Stripe.PaymentIn
         <h2 style="color: #a33; margin-top: 0;">Payment Failed</h2>
         <p>Hi ${booking.customerName},</p>
         <p>Unfortunately, your payment could not be processed. Please try again or use a different payment method.</p>
-        <p>If you continue to experience issues, please contact us at <a href="mailto:info@tobyshighlandtours.com">info@tobyshighlandtours.com</a>.</p>
+        <p>If you continue to experience issues, please contact us at <a href="mailto:info@dingwall-taxis.co.uk">info@dingwall-taxis.co.uk</a>.</p>
         <p style="margin-top: 24px;">Cheers,<br/><strong>Toby's Highland Tours</strong></p>
       </div>
     </div>
@@ -547,7 +547,7 @@ function generateCustomerConfirmationEmail(data: {
 
         <p>If you have any questions, reply to this email or contact us:</p>
         <p>
-          <a href="mailto:info@tobyshighlandtours.com" style="color: #071a34; font-weight: 600;">info@tobyshighlandtours.com</a><br/>
+          <a href="mailto:info@dingwall-taxis.co.uk" style="color: #071a34; font-weight: 600;">info@dingwall-taxis.co.uk</a><br/>
           <a href="https://wa.me/447383488007" style="color: #071a34; font-weight: 600;">WhatsApp: +44 7383 488007</a>
         </p>
 

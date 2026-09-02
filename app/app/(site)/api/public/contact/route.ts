@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { isRateLimited, getClientIP, RATE_LIMITS } from '@/lib/rate-limit'
 
-const ADMIN_EMAIL = 'info@tobyshighlandtours.com'
+const ADMIN_EMAIL = 'info@dingwall-taxis.co.uk'
 
 export async function POST(request: Request) {
   try {

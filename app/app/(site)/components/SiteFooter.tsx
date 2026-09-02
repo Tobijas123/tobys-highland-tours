@@ -81,8 +81,8 @@ export async function SiteFooter() {
               <a className="thtFooterContact" href="tel:+441463444222">
                 +44 1463 444222
               </a>
-              <a className="thtFooterContact" href="mailto:info@tobyshighlandtours.com">
-                info@tobyshighlandtours.com
+              <a className="thtFooterContact" href="mailto:info@dingwall-taxis.co.uk">
+                info@dingwall-taxis.co.uk
               </a>
             </div>
 

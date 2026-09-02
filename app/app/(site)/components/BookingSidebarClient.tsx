@@ -20,7 +20,7 @@ type FieldErrors = {
   [key: string]: string | undefined
 }
 
-const BOOKING_EMAIL = 'info@tobyshighlandtours.com'
+const BOOKING_EMAIL = 'info@dingwall-taxis.co.uk'
 
 export default function BookingSidebarClient({ itemType, itemId, itemTitle, price1to4, price5to7, durationText }: Props) {
   const t = useT()
@@ -284,7 +284,7 @@ Thanks!`
             {t('booking.fullyBookedMessage')}{' '}
             <a href="https://wa.me/447383488007" target="_blank" rel="noreferrer" style={{ fontWeight: 700 }}>WhatsApp</a>
             {' · '}
-            <a href="mailto:info@tobyshighlandtours.com" style={{ fontWeight: 700 }}>Email</a>
+            <a href="mailto:info@dingwall-taxis.co.uk" style={{ fontWeight: 700 }}>Email</a>
           </div>
         )}
 

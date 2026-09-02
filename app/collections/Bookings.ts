@@ -306,7 +306,7 @@ const Bookings: CollectionConfig = {
               <div style="background: #f0fdf4; padding: 16px; border-radius: 8px; margin: 16px 0; border-left: 4px solid #275548;">
                 <strong style="color: #275548;">Payment:</strong> <span style="color: #166534;">${paymentInfo}</span>
               </div>
-              <p>If you have any questions, reply to this email or contact us at <a href="mailto:info@tobyshighlandtours.com">info@tobyshighlandtours.com</a>.</p>
+              <p>If you have any questions, reply to this email or contact us at <a href="mailto:info@dingwall-taxis.co.uk">info@dingwall-taxis.co.uk</a>.</p>
               <p style="margin-top: 24px;">Cheers,<br/><strong>Toby's Highland Tours</strong></p>
             </div>
           `
@@ -336,7 +336,7 @@ const Bookings: CollectionConfig = {
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Passengers</strong></td><td style="padding: 8px; border: 1px solid #ddd;">${doc.paxCount || '—'}</td></tr>
                 <tr><td style="padding: 8px; border: 1px solid #ddd;"><strong>Status</strong></td><td style="padding: 8px; border: 1px solid #ddd; color: #a33; font-weight: bold;">Cancelled</td></tr>
               </table>
-              <p>We apologise for any inconvenience. If you'd like to reschedule or have questions, please contact us at <a href="mailto:info@tobyshighlandtours.com">info@tobyshighlandtours.com</a>.</p>
+              <p>We apologise for any inconvenience. If you'd like to reschedule or have questions, please contact us at <a href="mailto:info@dingwall-taxis.co.uk">info@dingwall-taxis.co.uk</a>.</p>
               <p style="margin-top: 24px;">Cheers,<br/><strong>Toby's Highland Tours</strong></p>
             </div>
           `

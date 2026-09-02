@@ -944,8 +944,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         <div className="topBar">
           <div className="topBarInner">
             <div className="topLeft">
-              <a href="mailto:info@tobyshighlandtours.com" className="topLink">
-                info@tobyshighlandtours.com
+              <a href="mailto:info@dingwall-taxis.co.uk" className="topLink">
+                info@dingwall-taxis.co.uk
               </a>
               <a href="tel:+447383488007" className="topLink">+44 738 348 8007</a>
               <a href="tel:+441463444222" className="topLink">+44 1463 444 222</a>

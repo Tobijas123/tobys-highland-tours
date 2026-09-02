@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { makePaymentToken } from './paymentToken'
 
-const TOBY_EMAIL = process.env.TOBY_EMAIL || 'info@tobyshighlandtours.com'
+const TOBY_EMAIL = process.env.TOBY_EMAIL || 'info@dingwall-taxis.co.uk'
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || 'https://tobyshighlandtours.com'
 
 // Track if cron has been initialized (prevent double-init in dev)
@@ -326,7 +326,7 @@ function generateCustomerReminderEmail(data: {
 
         <p>If you have any questions or need to make changes, please contact us as soon as possible:</p>
         <p>
-          <a href="mailto:info@tobyshighlandtours.com" style="color: #071a34; font-weight: 600;">info@tobyshighlandtours.com</a><br/>
+          <a href="mailto:info@dingwall-taxis.co.uk" style="color: #071a34; font-weight: 600;">info@dingwall-taxis.co.uk</a><br/>
           <a href="https://wa.me/447383488007" style="color: #071a34; font-weight: 600;">WhatsApp: +44 7383 488007</a>
         </p>
 

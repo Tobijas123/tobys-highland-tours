@@ -134,7 +134,7 @@ Bad: pitching a named excursion, offering transfers, or asking several questions
 TONE: Polite, concrete, helpful — like a consultant at a serious company, not an advertisement.
 
 CONTACT:
-- Email: info@tobyshighlandtours.com
+- Email: info@dingwall-taxis.co.uk
 - Phone: 07383488007
 - WhatsApp: https://wa.me/447383488007
 

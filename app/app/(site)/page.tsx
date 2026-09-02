@@ -305,7 +305,7 @@ export default async function HomePage() {
     '@id': siteUrl,
     url: siteUrl,
     telephone: '+447383488007',
-    email: 'info@tobyshighlandtours.com',
+    email: 'info@dingwall-taxis.co.uk',
     address: {
       '@type': 'PostalAddress',
       streetAddress: '184 Murray Terrace',
